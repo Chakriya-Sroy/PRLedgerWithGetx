@@ -12,7 +12,7 @@ Future<void> showAlertMessageBox(BuildContext context,
               alignment: Alignment.center,
               child: Text(message.toString()),
             ): SizedBox(
-              height: 100, 
+              height: MediaQuery.of(context).size.height/4, 
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [

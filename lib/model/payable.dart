@@ -49,7 +49,7 @@ class PayablePaymentModel {
   final String id;
   final String payableId;
   final double amount;
-  final DateTime date;
+  final String date;
   String ? remark;
   String  ? attachment;
   PayablePaymentModel({required this.id,required this.payableId,required this.amount,this.attachment,this.remark,required this.date});

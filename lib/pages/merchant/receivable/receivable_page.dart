@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/controller/receivable.dart';
 import 'package:laravelsingup/home.dart';
+import 'package:laravelsingup/pages/merchant/receivable/receivable_detail.dart';
 import 'package:laravelsingup/widgets/empty_state.dart';
 import 'package:laravelsingup/widgets/form/input_button.dart';
 import 'package:laravelsingup/widgets/receivable_payables/pr_tile.dart';
@@ -69,13 +70,19 @@ class _ReceivablePageState extends State<ReceivablePage> {
                                           : receivableController
                                               .receivables[index].title,
                                       amount: receivableController
-                                          .receivables[index].amount
+                                          .receivables[index].remaining
                                           .toString(),
                                       status: receivableController
                                           .receivables[index].status,
                                       date: receivableController.receivables[index].date
                                           .toString(),
-                                      onPressed: () {});
+                                      onPressed: () {
+                                         if(receivableController.receivables[index] !=null && receivableController.receivables[index].id !=null){
+                                             Get.to(const ReceivableDetail(),arguments: receivableController.receivables[index].id );
+                                         }
+                                      }
+                                      
+                                      );
                                 },
                               )),
                     )
@@ -85,7 +92,7 @@ class _ReceivablePageState extends State<ReceivablePage> {
             Obx(() => receivableController.lengthofReceivableList.value > 0
                 ? FloatingActionButton(
                     onPressed: () {
-                      //  Get.to(const ReceivableForm());
+                      Get.to(const ReceivableForm());
                     },
                     backgroundColor: Colors.green,
                     child: const Icon(
@@ -93,7 +100,8 @@ class _ReceivablePageState extends State<ReceivablePage> {
                       color: Colors.white,
                     ),
                   )
-                : const SizedBox()));
+                : const SizedBox())
+      );
   }
 
   

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/model/customer.dart';
+import 'package:laravelsingup/model/receivable.dart';
 import 'package:laravelsingup/pages/merchant/customer/customer.dart';
 import 'package:laravelsingup/utils/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,9 +38,12 @@ class CustomerController extends GetxController {
   // Obseravable Customer instance form customer model
   Rx<CustomerModel?> customer = Rx<CustomerModel?>(null);
 
+  // Observable Customer Receivables
+  RxList<ReceivableModel>customerReceivables=RxList();
+
   // Obseravable Customer transaction from transaction model
   RxList<TransactionModel> transactions = RxList();
-
+  
   // Obsearvabel errormessage
   RxString errorMessage = ''.obs;
 
@@ -92,7 +96,25 @@ class CustomerController extends GetxController {
           Map<String, dynamic> jsonResponse = jsonDecode(response.body);
           Map<String, dynamic> customerAttributes = jsonResponse["data"];
           customer.value = CustomerModel.fromJson(customerAttributes);
+          List receivables=customerAttributes["receivables"];
+          customerReceivables.clear();
+          for(var receivable in receivables){
+             customerReceivables.add(
+              ReceivableModel(
+                id: receivable["id"].toString(), 
+                title: receivable["title"], 
+                customerId: receivable["customer_id"].toString(), 
+                amount: receivable["amount"],
+                remaining: receivable["remaining"], 
+                date: receivable["date"], 
+                dueDate: receivable["dueDate"], 
+                paymentTerm: receivable["payment_term"], 
+                status: receivable["status"]
+                )
+             );
+          }
         }
+
       } catch (e) {
         errorMessage.value = e.toString();
       } finally {
@@ -119,6 +141,7 @@ class CustomerController extends GetxController {
           customers.clear();
           customers.addAll(customersData);
           customerLenght.value = customers.length;
+          
         } else {
           final responseData = jsonDecode(response.body);
           final errorMessage = responseData['message'];

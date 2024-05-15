@@ -55,7 +55,7 @@ class UpcomingReceivable{
   final String upcoming;
   UpcomingReceivable({required this.id,required this.customer,required this.remaining,required this.status,required this.upcoming});
   factory UpcomingReceivable.fromJson(Map<String,dynamic>json){
-    return UpcomingReceivable(id: json['id'], remaining: json['remaining'], customer: json['customer'],status: json["status"],upcoming: json["upcoming"]);
+    return UpcomingReceivable(id: json['id'].toString(),customer: json['customer'],remaining: json['remaining'],status: json["status"],upcoming: json["upcoming"]);
   }
 
 }
@@ -68,4 +68,17 @@ class Payable{
   factory Payable.fromJson(Map<String,dynamic>json){
     return Payable(total: json['total_payables'], outstanding: json['total_outstanding'], remaining: json['total_remaining']);
   }
+}
+
+class UpcomingPayable{
+  final String id;
+  final String supplier;
+  final String status;
+  final double remaining;
+  final String upcoming;
+  UpcomingPayable({required this.id,required this.supplier,required this.remaining,required this.status,required this.upcoming});
+  factory UpcomingPayable.fromJson(Map<String,dynamic>json){
+    return UpcomingPayable(id: json['id'].toString(), remaining: json['remaining'], supplier: json['supplier'],status: json["status"],upcoming: json["upcoming"]);
+  }
+
 }

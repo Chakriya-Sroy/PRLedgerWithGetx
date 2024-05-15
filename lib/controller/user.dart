@@ -8,22 +8,13 @@ import 'package:http/http.dart' as http;
 
 class UserController extends GetxController {
 
-  @override
-  void onInit() {
-    // TODO: implement onInit
-    getUser();
-    fetchUpcomingReceivables();
-    super.onInit();
-  }
-
-
-
   // Observe Variable
   late Rx<UserModel?> user = Rx<UserModel?>(null);
   late Rx<Subscription?> subscription = Rx<Subscription?>(null);
   late Rx<Receivable?> receivables = Rx<Receivable?>(null);
   late Rx<Payable?> payables = Rx<Payable?>(null);
   RxList<UpcomingReceivable> upcomingReceivable = RxList();
+  RxList<UpcomingPayable>upcomingPayable=RxList();
   RxDouble totalSuppliers = RxDouble(0);
   RxDouble totalCustomers = RxDouble(0);
 
@@ -94,27 +85,49 @@ class UserController extends GetxController {
         if (response.statusCode == 200) {
           Map<String, dynamic> data = json.decode(response.body);
           List<dynamic> upcomingReceivablesData = data["upcomingReceivables"];
-
+          upcomingReceivable.clear();
           for (int i = 0; i < upcomingReceivablesData.length; i++) {
-            var receivableData = upcomingReceivablesData[i];
-            String id = receivableData["id"].toString();
-            String customer = receivableData["customer"];
-            double remaining = receivableData["remaining"];
-            String status = receivableData["status"];
-            String upcoming = receivableData["upcoming"];
-
-            // Uncomment the following line if you have a constructor for UpcomingReceivable
-             upcomingReceivable.add(UpcomingReceivable(id: id, customer: customer, remaining: remaining, status: status, upcoming: upcoming));
+            Map<String,dynamic>receivableData = upcomingReceivablesData[i];
+            upcomingReceivable.add(UpcomingReceivable.fromJson(receivableData));
           } 
         }
       } catch (e) {
         errorMessage.value = e.toString();
-        print(errorMessage.value);
       } finally {
         isLoading.value = false;
       }
     }
   }
+   Future<void> fetchUpcomingPayables() async {
+    final prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    if (token != null) {
+      try {
+        var fullUrl = ApiEndPoints.baseUrl +
+            ApiEndPoints.userEndPoints.upcomingPayable;
+        var response = await http.get(
+          Uri.parse(fullUrl),
+          headers: _setHeaderToken(token),
+        );
+        isLoading.value = true;
+        // Check if the request was successful
+        if (response.statusCode == 200) {
+          Map<String, dynamic> data = json.decode(response.body);
+          List<dynamic> upcomingPayablesData = data["upcomingPayables"];
+          upcomingPayable.clear();
+          for (int i = 0; i < upcomingPayablesData.length; i++) {
+            Map<String,dynamic>payableData = upcomingPayablesData[i];
+            upcomingPayable.add(UpcomingPayable.fromJson(payableData));
+          } 
+        }
+      } catch (e) {
+        errorMessage.value = e.toString();
+      } finally {
+        isLoading.value = false;
+      }
+    }
+  }
+
 
   Map<String, String> _setHeaderToken(String token) {
     return {

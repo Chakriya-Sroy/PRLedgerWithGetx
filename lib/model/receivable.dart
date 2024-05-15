@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class ReceivableModel {
   final String id;
   final String customerId;
@@ -50,20 +52,19 @@ class ReceivablePaymentModel {
   final String receivableId;
   final String userId;
   final double amount;
-  final DateTime date;
+  final String date;
   String ? remark;
   String  ? attachment;
   ReceivablePaymentModel({required this.id,required this.receivableId,required this.userId,required this.amount,this.attachment,this.remark,required this.date});
   factory ReceivablePaymentModel.fromJson(Map<String,dynamic>json){
-    final attributes=json["attributes"];
     return ReceivablePaymentModel(
-      id:attributes[ "id"],
-      userId:attributes["user_id"],
-      receivableId:attributes["receivable_id"],
-      amount:attributes["amount"],
-      date:attributes["date"],
-      remark:attributes["remark"],
-      attachment:attributes["attachment"]
+      id:json["id"].toString(),
+      userId:json["user_id"].toString(),
+      receivableId:json["receivable_id"].toString(),
+      amount:double.parse(json["amount"]),
+      date:json["date"],
+      remark:json["remark"],
+      attachment:json["attachment"]
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:laravelsingup/controller/customer.dart';
 import 'package:laravelsingup/pages/merchant/customer/customer.dart';
 import 'package:laravelsingup/pages/merchant/customer/customer_detail.dart';
+import 'package:laravelsingup/pages/merchant/customer/customer_receivable.dart';
 import 'package:laravelsingup/widgets/attribute_row.dart';
 import 'package:laravelsingup/widgets/receivable_payables/visualize.dart';
 
@@ -34,15 +35,16 @@ class _CustomerLogTransactionState extends State<CustomerLogTransaction> {
           )
         : Scaffold(
             appBar: AppBar(
-              title: Text(customerController.customer.value!.name),
+              title: Text(customerController.customer.value!.name,style: TextStyle(color: Colors.white),),
               centerTitle: true,
+              backgroundColor: Colors.green,
               leading: GestureDetector(
                 onTap: () {
                   Get.off(const CustomerPage());
                 },
                 child: const Icon(
                   Icons.arrow_back_ios_new,
-                  color: Colors.green,
+                  color: Colors.white,
                 ),
               ),
               actions: [
@@ -52,7 +54,7 @@ class _CustomerLogTransactionState extends State<CustomerLogTransaction> {
                     },
                     child: const Text(
                       'Detail',
-                      style: TextStyle(color: Colors.green),
+                      style: TextStyle(color: Colors.white),
                     ))
               ],
             ),
@@ -61,12 +63,18 @@ class _CustomerLogTransactionState extends State<CustomerLogTransaction> {
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
-                      PRVisualizeCardProgress(
+                      Obx(() =>   PRVisualizeCardProgress(
                           title: "Receivables",
                           totalOustanding:
                               customerController.customer.value!.totalReceivableAmount,
                           totalRemainingBalance: customerController
-                              .customer.value!.totalRemaining),
+                              .customer.value!.totalRemaining,
+                            onPressed: (){
+                              Get.to(const CustomerReceivableList(),arguments: customerController.customer.value!.id);
+                            },
+                          ),
+                          
+                            ),
                       const Align(
                         alignment: Alignment.centerLeft,
                         child: Text("Transaction's Log"),

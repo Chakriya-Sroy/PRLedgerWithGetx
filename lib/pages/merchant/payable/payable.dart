@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/controller/payable.dart';
+import 'package:laravelsingup/pages/merchant/payable/payable_detail.dart';
 import 'package:laravelsingup/pages/merchant/payable/payable_form.dart';
 import 'package:laravelsingup/widgets/empty_state.dart';
 import 'package:laravelsingup/widgets/receivable_payables/pr_tile.dart';
@@ -41,7 +42,10 @@ class _PayablePageState extends State<PayablePage> {
               () => payableController.lengthofPayableList.value == 0
                   ? WhenListIsEmpty(
                       title: "No Payables Yet, add a Payable ",
-                      onPressed: () {})
+                      onPressed: () {
+                        Get.to(const PayableForm());
+                      }
+                      )
                   : Obx(() => ListView.builder(
                         shrinkWrap: true,
                         itemCount: payableController.payables.length,
@@ -57,12 +61,14 @@ class _PayablePageState extends State<PayablePage> {
                                           .substring(0, 15) +
                                       '...'
                                   : payableController.payables[index].title,
-                              amount: payableController.payables[index].amount
+                              amount: payableController.payables[index].remaining
                                   .toString(),
                               status: payableController.payables[index].status,
                               date: payableController.payables[index].date
                                   .toString(),
-                              onPressed: () {});
+                              onPressed: () {
+                                Get.to(const PayableDetail(),arguments: payableController.payables[index].id);
+                              });
                         },
                       )),
             )),

@@ -14,14 +14,29 @@ import 'package:laravelsingup/widgets/receivable_payables/reminder.dart';
 //import 'package:laravelsingup/widgets/receivable/reminder.dart';
 import 'package:laravelsingup/widgets/receivable_payables/visualize.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final UserController userController = Get.put(UserController());
+  final AuthCheckController authCheckController =
+      Get.put(AuthCheckController());
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    userController.fetchUpcomingReceivables();
+    userController.fetchUpcomingPayables();
+    userController.getUser();
+    super.initState();
+
+  }   
   Widget build(BuildContext context) {
-    final UserController userController = Get.put(UserController());
-    final AuthCheckController authCheckController =
-        Get.put(AuthCheckController());
-    return Obx(() => userController.isLoading.value == true
+    return Obx(() => userController.user.value ==null
         ? const Center(
             child: CircularProgressIndicator(),
           )
@@ -30,7 +45,7 @@ class HomePage extends StatelessWidget {
             appBar: AppBar(
                 title: Obx(
                   () => Text(
-                    userController.user.value!.name,
+                   userController.user.value!.name,
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
@@ -67,7 +82,10 @@ class HomePage extends StatelessWidget {
                           totalOustanding:
                               userController.receivables.value!.outstanding,
                           totalRemainingBalance:
-                              userController.receivables.value!.remaining),
+                              userController.receivables.value!.remaining,
+                          onPressed: (){Get.to(const ReceivablePage());},
+                              
+                        ),
                     ),
                     Obx(
                       () => PRVisualizeCardProgress(
@@ -75,7 +93,12 @@ class HomePage extends StatelessWidget {
                           totalOustanding:
                               userController.payables.value!.outstanding,
                           totalRemainingBalance:
-                              userController.payables.value!.remaining),
+                              userController.payables.value!.remaining,
+                            onPressed: (){
+                              Get.to(const PayablePage());
+                            },
+                              
+                        ),
                     ),
                     //List of Menu
                     const SizedBox(
@@ -94,24 +117,28 @@ class HomePage extends StatelessWidget {
                             title: "Receivable",
                             imageIconPath: "lib/images/receivable.png",
                             onTap: () {
-                              Get.to( const ReceivablePage());
+                              Get.to(const ReceivablePage());
                             },
                           ),
                           MenuItem(
                             title: "Customers",
                             imageIconPath: "lib/images/customer.png",
-                            onTap: () {Get.to(const CustomerPage());},
+                            onTap: () {
+                              Get.to(const CustomerPage());
+                            },
                           ),
                           MenuItem(
                               title: "Payable",
                               imageIconPath: "lib/images/payable.png",
-                             onTap: () {
+                              onTap: () {
                                 Get.to(const PayablePage());
-                             }),
+                              }),
                           MenuItem(
                             title: "Suppliers",
                             imageIconPath: "lib/images/supplier.png",
-                            onTap: () {Get.to(const SupplierPage());},
+                            onTap: () {
+                              Get.to(const SupplierPage());
+                            },
                           ),
                           MenuItem(
                             title: "Collector",
@@ -133,10 +160,10 @@ class HomePage extends StatelessWidget {
                     const SizedBox(
                       height: 20,
                     ),
-                    getUpcomingReceivable(userController)
+                    Obx(() => getUpcomingReceivable(userController)),
+                    Obx(() => getUpcomingPayables(userController))
                     // ReminderReceivableCard(),
                     //upcoming Payable
-                    
                   ],
                 ),
               )),
@@ -204,14 +231,14 @@ class HomePage extends StatelessWidget {
                         const SizedBox(
                           height: 20,
                         ),
-                       DrawerBodyItem(
+                        DrawerBodyItem(
                           title: "Account Payables",
                           onTap: () {},
                         ),
                         const SizedBox(
                           height: 20,
                         ),
-                       DrawerBodyItem(
+                        DrawerBodyItem(
                           title: "Customers",
                           onTap: () {
                             Get.to(const CustomerPage());
@@ -400,3 +427,23 @@ Container getUpcomingReceivable(UserController userController) {
         }),
   );
 }
+Container getUpcomingPayables(UserController userController) {
+  return Container(
+    //width: double.infinity,
+    height: 80,
+    child: ListView.builder(
+        itemCount: userController.upcomingPayable.length,
+        itemExtent: null,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, index) {
+          return PRUpcomingCard(
+              name:
+                  userController.upcomingPayable[index].supplier.toString(),
+              remainingBalance:
+                  userController.upcomingPayable[index].remaining.toString(),
+              status: userController.upcomingPayable[index].status,
+              dueStatus: userController.upcomingPayable[index].upcoming);
+        }),
+  );
+}
+

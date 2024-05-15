@@ -1,473 +1,355 @@
 
-// import 'package:dropdown_search/dropdown_search.dart';
+import 'dart:ffi';
 
-// import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 
-// import 'receivable_page.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:laravelsingup/controller/receivable.dart';
+import 'package:laravelsingup/widgets/form/custom_text_field.dart';
+import 'package:laravelsingup/widgets/form/input_button.dart';
+import 'package:laravelsingup/widgets/form/input_date.dart';
+import 'package:laravelsingup/widgets/form/input_text.dart';
+
+import 'receivable_page.dart';
 
 
-// class ReceivableForm extends StatefulWidget {
-//   const ReceivableForm({Key? key});
+class ReceivableForm extends StatefulWidget {
+  const ReceivableForm({Key? key});
 
-//   @override
-//   State<ReceivableForm> createState() => _ReceivableFormState();
-// }
+  @override
+  State<ReceivableForm> createState() => _ReceivableFormState();
+}
 
-// class _ReceivableFormState extends State<ReceivableForm> {
-//   // Controller For TextField
-//   final _titleController = TextEditingController();
-//   final _amountController = TextEditingController();
-//   final _remarkController = TextEditingController();
+class _ReceivableFormState extends State<ReceivableForm> {
+   final receivableController =Get.put(ReceivableController());
+  @override
+  void initState() {
+    // TODO: implement initState
+    receivableController.fetchCustomer();
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Receivable Record', style: TextStyle(fontSize: 15)),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: ReceivableForm([
+            ReceivableTitleField(),
+            CustomerListSelection(receivableController, onChange: (value) {
+                  receivableController.selectedCustomer.value=value.toString();
+                } ),
+            ReceivableAmountandPaymentTerm(),
+            ReceivableDateandDueDate(),
+            ReceivableRemarkField(),
+            //RecievableAttachment(),
+            ReceivableSubmitButton(),
+          ], 10),
+        ),
+      ),
+    );
+  }
 
-//   DateTime _date = DateTime.now();
-//   DateTime _dueDate = DateTime.now();
+  Column ReceivableSubmitButton() {
+    return Column(
+      children: [
+        const SizedBox(
+          height: 20,
+        ),
+        InputButton(
+            label: "Add",
+            onPress: (){
+              receivableController.createReceivable();
+              receivableController.message.value.isNotEmpty ?
+              ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: Colors.green,
+                      content: Obx(
+                        () => Text(receivableController.message.toString(),
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                  ):const SizedBox();
+                 
+            },
+            backgroundColor: Colors.green,
+            color: Colors.white)
+      ],
+    );
+  }
 
-//   String _selectedCustomer = "";
-//   final List<String> _paymentOptions = ["equal to due date", '7', '15', '30'];
-//   final List<String> _payments = ["0", "7", "15", "30"];
-//   String? _selectedPaymentTerm = "";
-//   String _titleValidation = "";
-//   String _amountValidation = "";
-//   String _dueDateValidation = "";
-//   String _selectedCustomerValidation = "";
-//   String _selectedPaymentTermValidation = "";
-//   String _fileName = "";
-//   bool _isNumber(String amount) {
-//     final phoneRegex = RegExp(r'^[0-9]+$');
-//     return phoneRegex.hasMatch(amount);
-//   }
+  Row ReceivableDateandDueDate() {
+    return buildReceivableFormRowWithSpacing(
+        [ReceivableDateSelection(), ReceivableDueDateSelection()], 20);
+  }
 
-//   bool isValidDecimalNumber(String value) {
-//     RegExp regex = RegExp(r'^\d+(\.\d{1,2})?$');
-//     return regex.hasMatch(value);
-//   }
+  Row ReceivableAmountandPaymentTerm() {
+    return buildReceivableFormRowWithSpacing(
+        [ReceivableAmountField(), ReceivablePaymentTermSelection()], 20);
+  }
 
-//   void onSubmitReceivable() {
-//     if (_titleController.text.isEmpty) {
-//       setState(() {
-//         _titleValidation = "Title field is required";
-//       });
-//     } else if (_titleController.text.length > 50) {
-//       {
-//         setState(() {
-//           _titleValidation = "Title field can't be more than 50 characher";
-//         });
-//       }
-//     } else {
-//       setState(() {
-//         _titleValidation = "";
-//       });
-//     }
-//     if (_amountController.text.isEmpty) {
-//       setState(() {
-//         _amountValidation = "Amount field is required";
-//       });
-//     } else {
-//       setState(() {
-//         _amountValidation = "";
-//       });
-//     }
-//     if (_dueDate.compareTo(_date) < 0) {
-//       setState(() {
-//         _dueDateValidation = "Due Date can't be before Date";
-//       });
-//     } else if (_dueDate.compareTo(_date) == 0) {
-//       setState(() {
-//         _dueDateValidation = "Due Date can't be equal to  Date";
-//       });
-//     } else if (!_dueDate.isAtSameMomentAs(_date
-//             .add(Duration(days: int.parse(_selectedPaymentTerm.toString())))) &&
-//         !_dueDate.isAfter(_date
-//             .add(Duration(days: int.parse(_selectedPaymentTerm.toString()))))) {
-//       setState(() {
-//         _dueDateValidation =
-//             "Due Date must be equal to payment term or after payment term";
-//       });
-//     } else {
-//       setState(() {
-//         _dueDateValidation = "";
-//       });
-//     }
-//     if (_selectedCustomer.toString().isEmpty) {
-//       setState(() {
-//         _selectedCustomerValidation = "Please Select Customer";
-//       });
-//     } else {
-//       setState(() {
-//         _selectedCustomerValidation = "";
-//       });
-//     }
-//     if (_selectedPaymentTerm.toString().isEmpty) {
-//       setState(() {
-//         _selectedPaymentTermValidation = "Please Select Payment Terms";
-//       });
-//     } else {
-//       setState(() {
-//         _selectedPaymentTermValidation = "";
-//       });
-//     }
-//     if (_titleController.text.isNotEmpty &&
-//             _amountController.text.isNotEmpty &&
-//             _dueDate.compareTo(_date) > 0 &&
-//             _dueDate.isAtSameMomentAs(_date.add(
-//                 Duration(days: int.parse(_selectedPaymentTerm.toString())))) ||
-//         _dueDate.isAfter(_date.add(
-//                 Duration(days: int.parse(_selectedPaymentTerm.toString())))) &&
-//             _selectedCustomer.toString().isNotEmpty &&
-//             _selectedPaymentTerm.toString().isNotEmpty) {
-//       firestore.addReceivable(Receivable(
-//           title: _titleController.text,
-//           customerId: _selectedCustomer.toString(),
-//           amount: _amountController.text,
-//           remaining: _amountController.text,
-//           paymentTerm: _selectedPaymentTerm.toString(),
-//           date: DateFormat('yy/MM/dd').format(_date),
-//           dueDate: DateFormat('yy/MM/dd').format(_dueDate),
-//           remark: _remarkController.text,
-//           status: "outstanding",
-//           attachment: _fileName ?? '' // Representing null attachment
-//           ));
-//       showAlertMessageBox(context, message: "Receivable successfully created")
-//           .then((value) =>
-//               Navigator.push(context, MaterialPageRoute(builder: (context) {
-//                 return ReceivablePage();
-//               })));
-//     }
-//   }
+  // AddAttachment RecievableAttachment() {
+  //   return AddAttachment(onFileNameChanged: (fileName) {
+  //     _fileName = fileName;
+  //   });
+  // }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Receivable Record', style: TextStyle(fontSize: 15)),
-//         centerTitle: true,
-//       ),
-//       body: SingleChildScrollView(
-//         child: Padding(
-//           padding: const EdgeInsets.all(20),
-//           child: ReceivableForm([
-//             ReceivableTitleField(),
-//             CustomerListSelection(
-//                 selectedValue: _selectedCustomer,
-//                 onChange: (value) {
-//                   setState(() {
-//                     _selectedCustomer = value;
-//                   });
-//                 }),
-//             ReceivableAmountandPaymentTerm(),
-//             ReceivableDateandDueDate(),
-//             ReceivableRemarkField(),
-//             RecievableAttachment(),
-//             ReceivableSubmitButton(),
-//           ], 10),
-//         ),
-//       ),
-//     );
-//   }
+  InputTextField ReceivableRemarkField() {
+    return InputTextField(
+      label: 'Remark',
+      controller: receivableController.remark,
+    );
+  }
 
-//   Column ReceivableSubmitButton() {
-//     return Column(
-//       children: [
-//         const SizedBox(
-//           height: 20,
-//         ),
-//         InputButton(
-//             label: "Add",
-//             onPress: onSubmitReceivable,
-//             backgroundColor: Colors.green,
-//             color: Colors.white)
-//       ],
-//     );
-//   }
+  ReceivableTitleField() {
+    return Obx(() =>  CustomTextField(
+        label: "Title",
+        controller: receivableController.title,
+        validation: receivableController.titleValidation.value,
+        gapHeight: 5));
+  }
 
-//   Row ReceivableDateandDueDate() {
-//     return buildReceivableFormRowWithSpacing(
-//         [ReceivableDateSelection(), ReceivableDueDateSelection()], 20);
-//   }
+  ReceivableDueDateSelection() {
+    return Expanded(
+        child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InputDate(
+          label: "Due Date",
+          value: receivableController.dueDate,
+          onDateChanged: (selectedDate) {
+           receivableController.selectedDueDate.value=DateFormat('yyyy-MM-dd').format(selectedDate);
+          },
+        ),
+        const SizedBox(
+          height: 5,
+        ),
+        Obx(() => Text(
+          receivableController.dueDateValidation.value,
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: 10,
+          ),
+        )),
+      ],
+    ));
+  }
 
-//   Row ReceivableAmountandPaymentTerm() {
-//     return buildReceivableFormRowWithSpacing(
-//         [ReceivableAmountField(), ReceivablePaymentTermSelection()], 20);
-//   }
+  Expanded ReceivableDateSelection() {
+    return Expanded(
+        child: Column(
+      children: [
+        InputDate(
+          label: "Date",
+          value: receivableController.date,
+          onDateChanged: (selectedDate) {
+             receivableController.selectedDate.value=DateFormat('yyyy-MM-dd').format(selectedDate);
+          },
+        ),
+        const SizedBox(
+          height: 5,
+        ),
+        Text(
+          '',
+          style: TextStyle(
+            fontSize: 10,
+          ),
+        ),
+      ],
+    ));
+  }
 
-//   AddAttachment RecievableAttachment() {
-//     return AddAttachment(onFileNameChanged: (fileName) {
-//       _fileName = fileName;
-//     });
-//   }
+  ReceivablePaymentTermSelection() {
+    return  Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SelectOptionDropDown(
+              height: 150,
+              label: "Payment Term",
+              selectedValue: receivableController.selectedPaymentTerm.value,
+              showOptions: receivableController.paymentOptions,
+              options: receivableController.payments,
+              showTextField: false,
+              onChanged: (value) => {
+                    receivableController.selectedPaymentTerm.value=value.toString()
+                  }),
+          const SizedBox(
+            height: 5,
+          ),
+          Obx(() =>   Text(
+            receivableController.selectedPaymentTermValidation.toString(),
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: 10,
+            ),
+          ))
+        ],
+      ),
+    );
+  }
 
-//   InputTextField ReceivableRemarkField() {
-//     return InputTextField(
-//       label: 'Remark',
-//       controller: _remarkController,
-//     );
-//   }
+  Expanded ReceivableAmountField() {
+    return Expanded(
+        child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InputTextField(
+            label: "Amount",
+            controller: receivableController.amount,
+            textInputFormator: true),
+        const SizedBox(
+          height: 5,
+        ),
+       Obx(() =>  Text(
+          receivableController.amountValidation.toString(),
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: 10,
+          ),
+        ))
+      ],
+    ));
+  }
 
-//   CustomTextField ReceivableTitleField() {
-//     return CustomTextField(
-//         label: "Title",
-//         controller: _titleController,
-//         validation: _titleValidation,
-//         gapHeight: 5);
-//   }
+  Row buildReceivableFormRowWithSpacing(List<Widget> widgets, double spacing) {
+    List<Widget> spacedWidgets = [];
+    for (int i = 0; i < widgets.length; i++) {
+      spacedWidgets.add(widgets[i]);
+      if (i != widgets.length - 1) {
+        spacedWidgets.add(SizedBox(width: spacing));
+      }
+    }
 
-//   Expanded ReceivableDueDateSelection() {
-//     return Expanded(
-//         child: Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         InputDate(
-//           label: "Due Date",
-//           value: _dueDate,
-//           onDateChanged: (selectedDate) {
-//             setState(() {
-//               _dueDate = selectedDate;
-//             });
-//           },
-//         ),
-//         const SizedBox(
-//           height: 5,
-//         ),
-//         Text(
-//           _dueDateValidation,
-//           style: TextStyle(
-//             color: Colors.red,
-//             fontSize: 10,
-//           ),
-//         ),
-//       ],
-//     ));
-//   }
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: spacedWidgets,
+    );
+  }
 
-//   Expanded ReceivableDateSelection() {
-//     return Expanded(
-//         child: Column(
-//       children: [
-//         InputDate(
-//           label: "Date",
-//           value: _date,
-//           onDateChanged: (selectedDate) {
-//             setState(() {
-//               _date = selectedDate;
-//             });
-//           },
-//         ),
-//         const SizedBox(
-//           height: 5,
-//         ),
-//         Text(
-//           "",
-//           style: TextStyle(
-//             fontSize: 10,
-//           ),
-//         ),
-//       ],
-//     ));
-//   }
+  Column ReceivableForm(List<Widget> widgets, double spacing) {
+    List<Widget> spacedWidgets = [];
+    for (int i = 0; i < widgets.length; i++) {
+      spacedWidgets.add(widgets[i]);
+      if (i != widgets.length - 1) {
+        spacedWidgets.add(SizedBox(height: spacing));
+      }
+    }
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: spacedWidgets,
+    );
+  }
 
-//   Expanded ReceivablePaymentTermSelection() {
-//     return Expanded(
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           SelectOptionDropDown(
-//               height: 150,
-//               label: "Payment Term",
-//               selectedValue: _selectedPaymentTerm.toString(),
-//               showOptions: _paymentOptions,
-//               options: _payments,
-//               showTextField: false,
-//               onChanged: (value) => {
-//                     setState(() {
-//                       _selectedPaymentTerm = value;
-//                     })
-//                   }),
-//           const SizedBox(
-//             height: 5,
-//           ),
-//           Text(
-//             _selectedPaymentTermValidation,
-//             style: TextStyle(
-//               color: Colors.red,
-//               fontSize: 10,
-//             ),
-//           )
-//         ],
-//       ),
-//     );
-//   }
+  Widget CustomerListSelection(ReceivableController receivableController,{ required Function(String) onChange}) {
+    return  Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SelectOptionDropDown(
+                  label: "Select Customer",
+                  selectedValue: receivableController.selectedCustomer.value,
+                  options: receivableController.ListCustomerId,
+                  showOptions: receivableController.ListCustomerName,
+                  onChanged: (value){
+                    receivableController.selectedCustomer.value=value.toString();
+                  },
+                  showTextField: true,
+                  height: 250,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+               Obx(() =>   Text(
+                  receivableController.selectedCustomerValidation.value,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 10,
+                  ),
+                ),)
+              ],
+            );
+          } 
+}
 
-//   Expanded ReceivableAmountField() {
-//     return Expanded(
-//         child: Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         InputTextField(
-//             label: "Amount",
-//             controller: _amountController,
-//             textInputFormator: true),
-//         const SizedBox(
-//           height: 5,
-//         ),
-//         Text(
-//           _amountValidation,
-//           style: TextStyle(
-//             color: Colors.red,
-//             fontSize: 10,
-//           ),
-//         )
-//       ],
-//     ));
-//   }
+class SelectOptionDropDown extends StatefulWidget {
+  final String label;
+  final List<String> options;
+  final List<String> showOptions;
+  final bool showTextField;
+  String selectedValue;
+  final double height;
+  final Function(String) onChanged;
+  SelectOptionDropDown({
+    super.key,
+    required this.label,
+    required this.selectedValue,
+    required this.showOptions,
+    required this.options,
+    required this.showTextField,
+    required this.onChanged,
+    required this.height,
+  });
 
-//   Row buildReceivableFormRowWithSpacing(List<Widget> widgets, double spacing) {
-//     List<Widget> spacedWidgets = [];
-//     for (int i = 0; i < widgets.length; i++) {
-//       spacedWidgets.add(widgets[i]);
-//       if (i != widgets.length - 1) {
-//         spacedWidgets.add(SizedBox(width: spacing));
-//       }
-//     }
+  @override
+  State<SelectOptionDropDown> createState() => _SelectOptionDropDownState();
+}
 
-//     return Row(
-//       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//       children: spacedWidgets,
-//     );
-//   }
-
-//   Column ReceivableForm(List<Widget> widgets, double spacing) {
-//     List<Widget> spacedWidgets = [];
-//     for (int i = 0; i < widgets.length; i++) {
-//       spacedWidgets.add(widgets[i]);
-//       if (i != widgets.length - 1) {
-//         spacedWidgets.add(SizedBox(height: spacing));
-//       }
-//     }
-//     return Column(
-//       mainAxisAlignment: MainAxisAlignment.start,
-//       crossAxisAlignment: CrossAxisAlignment.center,
-//       children: spacedWidgets,
-//     );
-//   }
-
-//   StreamBuilder CustomerListSelection(
-//       {required selectedValue, required Function(String) onChange}) {
-//     FireStoreServices firebase = FireStoreServices();
-//     return StreamBuilder<QuerySnapshot>(
-//         stream: firebase.getCustomersList(),
-//         builder: (context, snapshot) {
-//           if (snapshot.hasData) {
-//             List customerList = snapshot.data!.docs;
-//             List<String> customers = [];
-//             List<String> customerId = [];
-//             for (var document in customerList) {
-//               customers.add(document["fullname"]);
-//               customerId.add(document.id);
-//             }
-//              return Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 SelectOptionDropDown(
-//                   label: "Select Customer",
-//                   selectedValue: selectedValue,
-//                   options: customerId,
-//                   showOptions: customers,
-//                   onChanged: onChange,
-//                   showTextField: true,
-//                   height: 250,
-//                 ),
-//                 const SizedBox(
-//                   height: 5,
-//                 ),
-//                 Text(
-//                   _selectedCustomerValidation,
-//                   style: TextStyle(
-//                     color: Colors.red,
-//                     fontSize: 10,
-//                   ),
-//                 ),
-//               ],
-//             );
-//           } else {
-//             return SizedBox();
-//           }
-//         });
-//   }
-// }
-
-// class SelectOptionDropDown extends StatefulWidget {
-//   final String label;
-//   final List<String> options;
-//   final List<String> showOptions;
-//   final bool showTextField;
-//   String selectedValue;
-//   final double height;
-//   final Function(String) onChanged;
-//   SelectOptionDropDown({
-//     super.key,
-//     required this.label,
-//     required this.selectedValue,
-//     required this.showOptions,
-//     required this.options,
-//     required this.showTextField,
-//     required this.onChanged,
-//     required this.height,
-//   });
-
-//   @override
-//   State<SelectOptionDropDown> createState() => _SelectOptionDropDownState();
-// }
-
-// class _SelectOptionDropDownState extends State<SelectOptionDropDown> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(widget.label),
-//         Container(
-//           padding: const EdgeInsets.only(left: 20, right: 20),
-//           margin: const EdgeInsets.only(top: 10),
-//           decoration: BoxDecoration(
-//             color: Colors.white,
-//             borderRadius: BorderRadius.circular(5),
-//             boxShadow: [
-//               BoxShadow(
-//                 color: Colors.grey.shade300,
-//                 offset: Offset(4.0, 4.0),
-//                 blurRadius: 10.0,
-//                 spreadRadius: 1.0,
-//               )
-//             ],
-//           ),
-//           child: DropdownSearch<String>(
-//             dropdownDecoratorProps: const DropDownDecoratorProps(
-//                 dropdownSearchDecoration:
-//                     InputDecoration(border: InputBorder.none)),
-//             items: widget.options,
-//             itemAsString: (String? selectedOption) {
-//               // Display the corresponding show option for the selected option
-//               if (selectedOption != null) {
-//                 int index = widget.options.indexOf(selectedOption);
-//                 if (index >= 0 && index < widget.showOptions.length) {
-//                   return widget.showOptions[index];
-//                 }
-//               }
-//               return '';
-//             },
-//             popupProps: PopupProps.menu(
-//                 showSearchBox: widget.showTextField,
-//                 constraints: BoxConstraints(maxHeight: widget.height)),
-//             onChanged: (value) {
-//               setState(() {
-//                 widget.selectedValue = value!;
-//               });
-//               widget.onChanged(value!);
-//             },
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
+class _SelectOptionDropDownState extends State<SelectOptionDropDown> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(widget.label),
+        Container(
+          padding: const EdgeInsets.only(left: 20, right: 20),
+          margin: const EdgeInsets.only(top: 10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade300,
+                offset: Offset(4.0, 4.0),
+                blurRadius: 10.0,
+                spreadRadius: 1.0,
+              )
+            ],
+          ),
+          child: DropdownSearch<String>(
+            dropdownDecoratorProps: const DropDownDecoratorProps(
+                dropdownSearchDecoration:
+                    InputDecoration(border: InputBorder.none)),
+            items: widget.options,
+            itemAsString: (String? selectedOption) {
+              // Display the corresponding show option for the selected option
+              if (selectedOption != null) {
+                int index = widget.options.indexOf(selectedOption);
+                if (index >= 0 && index < widget.showOptions.length) {
+                  return widget.showOptions[index];
+                }
+              }
+              return '';
+            },
+            popupProps: PopupProps.menu(
+                showSearchBox: widget.showTextField,
+                constraints: BoxConstraints(maxHeight: widget.height)),
+            onChanged: (value) {
+              setState(() {
+                widget.selectedValue = value.toString();
+              });
+              widget.onChanged(value!);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}

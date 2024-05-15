@@ -34,15 +34,16 @@ class _SupplierLogTransactionState extends State<SupplierLogTransaction> {
           )
         : Scaffold(
             appBar: AppBar(
-              title: Text(supplierController.supplier.value!.name),
+              title: Text(supplierController.supplier.value!.name,style: TextStyle(color: Colors.white),),
               centerTitle: true,
+              backgroundColor: Colors.green,
               leading: GestureDetector(
                 onTap: () {
                   Get.off(const SupplierPage());
                 },
                 child: const Icon(
                   Icons.arrow_back_ios_new,
-                  color: Colors.green,
+                  color: Colors.white,
                 ),
               ),
               actions: [
@@ -52,7 +53,7 @@ class _SupplierLogTransactionState extends State<SupplierLogTransaction> {
                     },
                     child: const Text(
                       'Detail',
-                      style: TextStyle(color: Colors.green),
+                      style: TextStyle(color: Colors.white),
                     ))
               ],
             ),

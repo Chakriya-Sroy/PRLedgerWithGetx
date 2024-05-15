@@ -39,13 +39,13 @@ class PRVisualizeCardProgress extends StatelessWidget {
           AttributeRow(
               attribute: title,
               value: "\$" +
-                  "${totalOustanding - totalRemainingBalance}/${totalOustanding}"),
+                  "${(totalOustanding - totalRemainingBalance).toStringAsFixed(2)}/${totalOustanding}"),
           const SizedBox(
             height: 5,
           ),
           Text(
             "Total Paid \$" +
-                (totalOustanding - totalRemainingBalance).toString(),
+                (totalOustanding - totalRemainingBalance).toStringAsFixed(2),
             style: TextStyle(
               fontSize: 12,
             ),

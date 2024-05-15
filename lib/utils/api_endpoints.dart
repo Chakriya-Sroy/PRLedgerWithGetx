@@ -90,7 +90,9 @@ class _SubscriptionEndPoints{
 class _ReceivableEndPoints{
   final String receivableList='customer/receivable/list';
   final String receivableCreate='customer/receivable/create';
-  final String receivableView='customer/receivable/view';
+  final String receivableView='customer/receivable/view/';
+  final String receivablePayment='customer/receivable/payment/create';
+
   String getReceivableViewEndPoint(String id){
     return '$receivableView$id';
   }
@@ -98,7 +100,8 @@ class _ReceivableEndPoints{
 class _PayableEndPoints{
   final String payableList='supplier/payable/list';
   final String paybleCreate='supplier/payable/create';
-  final String payableView='supplier/payable/view';
+  final String payableView='supplier/payable/view/';
+  final String payablePayments='supplier/payable/payment/create';
   String getPayableViewEndPoint(String id){
     return '$payableView$id';
   }

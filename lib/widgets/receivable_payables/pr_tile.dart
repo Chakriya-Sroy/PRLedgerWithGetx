@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class PRListTile extends StatelessWidget {
   final String name;
@@ -53,7 +54,7 @@ class PRListTile extends StatelessWidget {
             subtitle: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(date,style:TextStyle(fontSize: 10),),
+                Text( DateFormat('yyyy-MM-dd').format(DateTime.parse(date)),style:TextStyle(fontSize: 10),),
                 Text(status,style:TextStyle(fontSize: 10),)
               ],
             ),

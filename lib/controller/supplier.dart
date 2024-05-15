@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:laravelsingup/model/payable.dart';
 import 'package:laravelsingup/model/supplier.dart';
 import 'package:laravelsingup/utils/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,6 +35,10 @@ class SupplierController extends GetxController {
 
   // Obseravable Supplier instance formSupplier model
   Rx<SupplierModel?>supplier = Rx<SupplierModel?>(null);
+
+  // Observerable Supplier Payables
+  // Payable
+  RxList<PayableModel>supplierPayables=RxList();
 
   // Obseravable Supplier transaction from transaction model
   RxList<TransactionModel> transactions = RxList();
