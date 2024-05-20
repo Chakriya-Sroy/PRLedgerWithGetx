@@ -6,9 +6,9 @@ import 'package:laravelsingup/controller/payable.dart';
 import 'package:laravelsingup/pages/merchant/payable/payable.dart';
 import 'package:laravelsingup/widgets/form/custom_text_field.dart';
 import 'package:laravelsingup/widgets/form/input_button.dart';
-import 'package:laravelsingup/widgets/form/input_date.dart';
+import 'package:laravelsingup/widgets/form/payable_due_date.dart';
+import 'package:laravelsingup/widgets/form/receivable_due_date.dart';
 import 'package:laravelsingup/widgets/form/input_text.dart';
-
 
 class PayableForm extends StatefulWidget {
   const PayableForm({super.key});
@@ -18,37 +18,59 @@ class PayableForm extends StatefulWidget {
 }
 
 class _PayableFormState extends State<PayableForm> {
-  final payableController =Get.put(PayableController());
- @override
+  final payableController = Get.put(PayableController());
+  @override
   void initState() {
     // TODO: implement initState
-    payableController.fetchSupplier();
+
     super.initState();
+     WidgetsBinding.instance.addPostFrameCallback((_) {
+    payableController.fetchSupplier();
+    payableController.isSuccess.value = false;
+    payableController.clearTextEditor();
+    });
+  
   }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Payable Record', style: TextStyle(fontSize: 15)),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: ReceivableForm([
-            PayableTitleField(),
-            SupplierListSelection(payableController, onChange: (value) {
-                  payableController.selectedSupplier.value=value.toString();
-                } ),
-            PayableAmountandPaymentTerm(),
-            PayableDateandDueDate(),
-            PayableRemarkField(),
-            //RecievableAttachment(),
-            PayableSubmitButton(),
-          ], 10),
-        ),
-      ),
-    );
+    return Obx(() => Stack(
+          children: [
+            Scaffold(
+              appBar: AppBar(
+                title: const Text('Payable Record',
+                    style: TextStyle(fontSize: 15)),
+                centerTitle: true,
+              ),
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: ReceivableForm([
+                    // PayableTitleField(),
+                    SupplierListSelection(payableController, onChange: (value) {
+                      payableController.selectedSupplier.value =
+                          value.toString();
+                    }),
+                    PayableAmountandPaymentTerm(),
+                    PayableDueDateSelection(),
+                    //PayableDateandDueDate(),
+                    PayableRemarkField(),
+                    //RecievableAttachment(),
+                    PayableSubmitButton(),
+                  ], 10),
+                ),
+              ),
+            ),
+            if (payableController.isLoading.value)
+              Container(
+                color: Colors.black.withOpacity(
+                    0.2), // Semi-transparent black color for the backdrop
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              )
+          ],
+        ));
   }
 
   Column PayableSubmitButton() {
@@ -59,28 +81,33 @@ class _PayableFormState extends State<PayableForm> {
         ),
         InputButton(
             label: "Add",
-            onPress: (){
-              payableController.createPayable();
-             
-              payableController.message.value.isNotEmpty ? ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      backgroundColor: Colors.green,
-                      content: Obx(
-                        () => Text(payableController.message.toString(),
-                            style: TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                  ) : const SizedBox();
-              payableController.errorMessage.isNotEmpty ? ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      backgroundColor: Colors.red,
-                      content: Obx(
-                        () => Text(payableController.errorMessage.toString(),
-                            style: TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                  ):const SizedBox();
+            onPress: () async {
+              await payableController.createPayable();
 
+              if (payableController.isSuccess.value) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: Colors.green,
+                    content: Obx(
+                      () => Text(payableController.message.toString(),
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+                );
+                Get.off(const PayablePage());
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: Colors.red,
+                    content: Obx(
+                      () => Text(payableController.errorMessage.toString(),
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+                );
+                Get.off(const PayablePage());
+                ;
+              }
             },
             backgroundColor: Colors.green,
             color: Colors.white)
@@ -88,10 +115,10 @@ class _PayableFormState extends State<PayableForm> {
     );
   }
 
-  Row PayableDateandDueDate() {
-    return buildReceivableFormRowWithSpacing(
-        [PayableDateSelectio(), PayableDueDateSelection()], 20);
-  }
+  // Row PayableDateandDueDate() {
+  //   return buildReceivableFormRowWithSpacing(
+  //       [PayableDateSelectio(), PayableDueDateSelection()], 20);
+  // }
 
   Row PayableAmountandPaymentTerm() {
     return buildReceivableFormRowWithSpacing(
@@ -111,66 +138,59 @@ class _PayableFormState extends State<PayableForm> {
     );
   }
 
-  PayableTitleField() {
-    return Obx(() =>  CustomTextField(
-        label: "Title",
-        controller: payableController.title,
-        validation: payableController.titleValidation.value,
-        gapHeight: 5));
-  }
+  // PayableTitleField() {
+  //   return Obx(() =>  CustomTextField(
+  //       label: "Title",
+  //       controller: payableController.title,
+  //       validation: payableController.titleValidation.value,
+  //       gapHeight: 5));
+  // }
 
   PayableDueDateSelection() {
-    return Expanded(
-        child: Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        InputDate(
-          label: "Due Date",
-          value: payableController.dueDate,
-          onDateChanged: (selectedDate) {
-           payableController.selectedDueDate.value=DateFormat('yyyy-MM-dd').format(selectedDate);
-          },
-        ),
+        PayableDueDate(),
         const SizedBox(
           height: 5,
         ),
         Obx(() => Text(
-          payableController.dueDateValidation.value,
-          style: TextStyle(
-            color: Colors.red,
-            fontSize: 10,
-          ),
-        )),
+              payableController.dueDateValidation.value,
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 10,
+              ),
+            )),
       ],
-    ));
+    );
   }
 
-  Expanded PayableDateSelectio() {
-    return Expanded(
-        child: Column(
-      children: [
-        InputDate(
-          label: "Date",
-          value: payableController.date,
-          onDateChanged: (selectedDate) {
-             payableController.selectedDate.value=DateFormat('yyyy-MM-dd').format(selectedDate);
-          },
-        ),
-        const SizedBox(
-          height: 5,
-        ),
-        Text(
-          '',
-          style: TextStyle(
-            fontSize: 10,
-          ),
-        ),
-      ],
-    ));
-  }
+  // Expanded PayableDateSelectio() {
+  //   return Expanded(
+  //       child: Column(
+  //     children: [
+  //       InputDate(
+  //         label: "Date",
+  //         value: payableController.date,
+  //         onDateChanged: (selectedDate) {
+  //            payableController.selectedDate.value=DateFormat('yyyy-MM-dd').format(selectedDate);
+  //         },
+  //       ),
+  //       const SizedBox(
+  //         height: 5,
+  //       ),
+  //       Text(
+  //         '',
+  //         style: TextStyle(
+  //           fontSize: 10,
+  //         ),
+  //       ),
+  //     ],
+  //   ));
+  // }
 
   ReceivablePaymentTermSelection() {
-    return  Expanded(
+    return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -182,18 +202,19 @@ class _PayableFormState extends State<PayableForm> {
               options: payableController.payments,
               showTextField: false,
               onChanged: (value) => {
-                    payableController.selectedPaymentTerm.value=value.toString()
+                    payableController.selectedPaymentTerm.value =
+                        value.toString()
                   }),
           const SizedBox(
             height: 5,
           ),
-          Obx(() =>   Text(
-            payableController.selectedPaymentTermValidation.toString(),
-            style: TextStyle(
-              color: Colors.red,
-              fontSize: 10,
-            ),
-          ))
+          Obx(() => Text(
+                payableController.selectedPaymentTermValidation.toString(),
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 10,
+                ),
+              ))
         ],
       ),
     );
@@ -211,13 +232,13 @@ class _PayableFormState extends State<PayableForm> {
         const SizedBox(
           height: 5,
         ),
-       Obx(() =>  Text(
-          payableController.amountValidation.toString(),
-          style: TextStyle(
-            color: Colors.red,
-            fontSize: 10,
-          ),
-        ))
+        Obx(() => Text(
+              payableController.amountValidation.toString(),
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 10,
+              ),
+            ))
       ],
     ));
   }
@@ -252,32 +273,35 @@ class _PayableFormState extends State<PayableForm> {
     );
   }
 
-  Widget SupplierListSelection(PayableController payableController,{ required Function(String) onChange}) {
-    return  Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SelectOptionDropDown(
-                  label: "Select Supplier",
-                  selectedValue: payableController.selectedSupplier.toString(),
-                  options: payableController.ListofSupplierId,
-                  showOptions: payableController.ListofSupplierName,
-                  onChanged: onChange,
-                  showTextField: true,
-                  height: 250,
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-               Obx(() =>   Text(
-                  payableController.selectedSupplierValidation.value,
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 10,
-                  ),
-                ),)
-              ],
-            );
-          } 
+  Widget SupplierListSelection(PayableController payableController,
+      {required Function(String) onChange}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SelectOptionDropDown(
+          label: "Select Supplier",
+          selectedValue: payableController.selectedSupplier.toString(),
+          options: payableController.ListofSupplierId,
+          showOptions: payableController.ListofSupplierName,
+          onChanged: onChange,
+          showTextField: true,
+          height: 250,
+        ),
+        const SizedBox(
+          height: 5,
+        ),
+        Obx(
+          () => Text(
+            payableController.selectedSupplierValidation.value,
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: 10,
+            ),
+          ),
+        )
+      ],
+    );
+  }
 }
 
 class SelectOptionDropDown extends StatefulWidget {

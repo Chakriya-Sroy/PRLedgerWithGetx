@@ -13,11 +13,13 @@ class LoginController extends GetxController {
   RxString errorMessage = RxString("");
   RxString emailValidation = RxString("");
   RxString passwordValidation = RxString("");
-  RxBool isLoading =true.obs;
-
+  RxBool isLoading =false.obs;
+  RxBool isSuccess=false.obs;
+  RxString message=RxString('');
   Future<void> loginWithEmailandPassword() async {
     if (validation()) {
       try {
+        isLoading.value=true;
         var headers = {
           'Content-type': 'application/json',
           'Accept': 'application/json'
@@ -40,15 +42,16 @@ class LoginController extends GetxController {
           // final SharedPreferences pref= await _prefs;
           final pref = await SharedPreferences.getInstance();
           await pref.setString("token", token);
-          Get.offAll(HomePage());
+          message.value=json["message"];
           emailController.clear();
           passwordController.clear();
+          isSuccess.value=true;
         } else {
           final responseData = jsonDecode(response.body);
           errorMessage.value = responseData['message'];
         }
       } catch (e) {
-        errorMessage.value = e.toString();
+         print(e.toString());
       }finally{
         isLoading.value=false;
       }

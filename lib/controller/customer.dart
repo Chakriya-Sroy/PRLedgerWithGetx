@@ -26,9 +26,13 @@ class CustomerController extends GetxController {
   var phoneValidation = RxString("");
   var gender = RxString("Male");
   var message = RxString("");
-  
+
+  // is Success
+  RxBool isSuccess = false.obs;
   // Is Loading to listent to progress of fetching data from API
   RxBool isLoading = false.obs;
+  // is Failed
+  RxBool isFailed =false.obs;
   // Obsearvable String to listent to Search Editing Controller For fitlter Customer List
   RxString searchTerm = ''.obs;
 
@@ -39,11 +43,11 @@ class CustomerController extends GetxController {
   Rx<CustomerModel?> customer = Rx<CustomerModel?>(null);
 
   // Observable Customer Receivables
-  RxList<ReceivableModel>customerReceivables=RxList();
+  RxList<ReceivableModel> customerReceivables = RxList();
 
   // Obseravable Customer transaction from transaction model
   RxList<TransactionModel> transactions = RxList();
-  
+
   // Obsearvabel errormessage
   RxString errorMessage = ''.obs;
 
@@ -51,14 +55,15 @@ class CustomerController extends GetxController {
   RxInt customerLenght = 0.obs;
 
   // Obseravable Length of Transaction's List
-  RxInt transactionLength=0.obs;
+  RxInt transactionLength = 0.obs;
 
-  // Future function to fetch transaction 
+  // Future function to fetch transaction
   Future<void> fetchTransactionLog(String id) async {
     final pref = await SharedPreferences.getInstance();
     String? token = pref.getString("token");
     if (token != null) {
       try {
+        isLoading.value = true;
         var headers = ApiEndPoints().setHeaderToken(token);
         var url = ApiEndPoints.baseUrl +
             ApiEndPoints.customerEndPoints.getCustomerTransacctionEndPoint(id);
@@ -71,12 +76,12 @@ class CustomerController extends GetxController {
           for (var item in data) {
             transactions.add(TransactionModel.fromJson(item));
           }
-          transactionLength.value=transactions.length;
+          transactionLength.value = transactions.length;
         }
       } catch (e) {
         errorMessage.value = e.toString();
       } finally {
-        setIsLoadingTofalse();
+        isLoading.value = false;
       }
     }
   }
@@ -87,6 +92,7 @@ class CustomerController extends GetxController {
     String? token = pref.getString("token");
     if (token != null) {
       try {
+        isLoading.value = true;
         var headers = ApiEndPoints().setHeaderToken(token);
         var url = ApiEndPoints.baseUrl +
             ApiEndPoints.customerEndPoints.getCustomerViewEndpoint(id);
@@ -96,38 +102,35 @@ class CustomerController extends GetxController {
           Map<String, dynamic> jsonResponse = jsonDecode(response.body);
           Map<String, dynamic> customerAttributes = jsonResponse["data"];
           customer.value = CustomerModel.fromJson(customerAttributes);
-          List receivables=customerAttributes["receivables"];
+          List receivables = customerAttributes["receivables"];
           customerReceivables.clear();
-          for(var receivable in receivables){
-             customerReceivables.add(
-              ReceivableModel(
-                id: receivable["id"].toString(), 
-                title: receivable["title"], 
-                customerId: receivable["customer_id"].toString(), 
+          for (var receivable in receivables) {
+            customerReceivables.add(ReceivableModel(
+                id: receivable["id"].toString(),
+                customerId: receivable["customer_id"].toString(),
                 amount: receivable["amount"],
-                remaining: receivable["remaining"], 
-                date: receivable["date"], 
-                dueDate: receivable["dueDate"], 
-                paymentTerm: receivable["payment_term"], 
-                status: receivable["status"]
-                )
-             );
+                remaining: receivable["remaining"],
+                date: receivable["date"],
+                dueDate: receivable["dueDate"],
+                paymentTerm: receivable["payment_term"],
+                status: receivable["status"]));
           }
         }
-
       } catch (e) {
         errorMessage.value = e.toString();
       } finally {
-        setIsLoadingTofalse();
+        isLoading.value = false;
       }
     }
   }
+
   // future function to fetch all customer belong to authentication user
   Future<void> fetchCustomer() async {
     final pref = await SharedPreferences.getInstance();
     String? token = pref.getString("token");
     if (token != null) {
       try {
+        isLoading.value=true;
         var headers = ApiEndPoints().setHeaderToken(token);
         var url =
             ApiEndPoints.baseUrl + ApiEndPoints.customerEndPoints.customerList;
@@ -141,7 +144,6 @@ class CustomerController extends GetxController {
           customers.clear();
           customers.addAll(customersData);
           customerLenght.value = customers.length;
-          
         } else {
           final responseData = jsonDecode(response.body);
           final errorMessage = responseData['message'];
@@ -150,16 +152,19 @@ class CustomerController extends GetxController {
       } catch (e) {
         errorMessage.value = e.toString();
       } finally {
-        setIsLoadingTofalse();
+        isLoading.value = false;
       }
     }
   }
+
   // future function to add new customer
   Future<void> addCustomer() async {
     final pref = await SharedPreferences.getInstance();
     String? token = pref.getString("token");
     if (token != null) {
       if (validation()) {
+        clearInitialMessage();
+        isLoading.value=true;
         try {
           var headers = ApiEndPoints().setHeaderToken(token);
           var url = ApiEndPoints.baseUrl +
@@ -170,34 +175,37 @@ class CustomerController extends GetxController {
             body: jsonEncode(body),
             headers: headers,
           );
-
           if (response.statusCode == 200) {
-            clearTextEditor();
             Map<String, dynamic> json = jsonDecode(response.body);
-            message.value = "";
             message.value = json["message"];
-            customers.add(CustomerModel.fromJson(json));
-
-            Get.off(const CustomerPage());
+            //customers.add(CustomerModel.fromJson(json));
+            isSuccess.value = true;
+            clearTextEditor();
           } else {
             final responseData = jsonDecode(response.body);
-            final errorMessage = responseData['message'];
-            errorMessage.value = errorMessage;
+            errorMessage.value =responseData['message'];
+            isFailed.value=true;
           }
         } catch (e) {
           errorMessage.value = e.toString();
-        }finally{
-          setIsLoadingTofalse();
+          print(errorMessage);
+        } finally {
+          isLoading.value = false;
         }
       }
     }
   }
+
   // future function to delete customer
   Future<void> deleteCustomer(String id) async {
     final pref = await SharedPreferences.getInstance();
     String? token = pref.getString("token");
+
     if (token != null) {
+      isSuccess.value = false;
+      clearInitialMessage();
       try {
+        isLoading.value = true;
         var headers = ApiEndPoints().setHeaderToken(token);
         var url = ApiEndPoints.baseUrl +
             ApiEndPoints.customerEndPoints.deleteCustomerEndPoint(id);
@@ -206,27 +214,34 @@ class CustomerController extends GetxController {
           Uri.parse(url),
           headers: headers,
         );
-
         if (response.statusCode == 200) {
-          message.value = "";
           message.value = jsonDecode(response.body)["message"];
+          isSuccess.value = true;
+        }else{
+          errorMessage.value=jsonDecode(response.body)["message"];
+          isFailed.value=true;
         }
       } catch (e) {
         errorMessage.value = e.toString();
-      }finally{
-        setIsLoadingTofalse();
+      } finally {
+        isLoading.value = false;
       }
     }
   }
+
   // future function to update customer base on Id
   Future<void> updateCustomer(String id) async {
     final pref = await SharedPreferences.getInstance();
     String? token = pref.getString("token");
+    isSuccess.value = false;
+    isLoading.value = true;
     if (token != null) {
       if (validation()) {
         try {
+          clearInitialMessage();
           var headers = ApiEndPoints().setHeaderToken(token);
-          var url = ApiEndPoints.baseUrl + ApiEndPoints.customerEndPoints.updateCustomerViewEndPoint(id);
+          var url = ApiEndPoints.baseUrl +
+              ApiEndPoints.customerEndPoints.updateCustomerViewEndPoint(id);
           Map body = createCustomerBody();
           final response = await http.patch(
             Uri.parse(url),
@@ -235,8 +250,8 @@ class CustomerController extends GetxController {
           );
           if (response.statusCode == 200) {
             Map<String, dynamic> json = jsonDecode(response.body);
-            clearTextEditor();
             message.value = json["message"];
+            isSuccess.value = true;
           } else {
             final responseData = jsonDecode(response.body);
             errorMessage.value = responseData['message'];
@@ -244,13 +259,13 @@ class CustomerController extends GetxController {
         } catch (e) {
           errorMessage.value = e.toString();
         } finally {
-          setIsLoadingTofalse();
+          isLoading.value = false;
         }
       }
     }
   }
- 
- // Method To Clear Text from TextEditingController After Form is submit
+
+  // Method To Clear Text from TextEditingController After Form is submit
   void clearTextEditor() {
     name.clear();
     email.clear();
@@ -258,24 +273,13 @@ class CustomerController extends GetxController {
     phone.clear();
     remark.clear();
   }
- // Method to validate the input form TextEditingController
+
+  // Method to validate the input form TextEditingController
   bool validation() {
     if (name.text.isEmpty) {
       nameValidation.value = "The fullname field is required";
     } else {
       nameValidation.value = "";
-    }
-    if (email.text.isEmpty) {
-      emailValidation.value = "The email filed is required";
-    } else if (!email.text.isEmail) {
-      emailValidation.value = "The email format is incorrect";
-    } else {
-      emailValidation.value = "";
-    }
-    if (address.text.isEmpty) {
-      addressValidation.value = "The address filed is required";
-    } else {
-      addressValidation.value = "";
     }
     if (phone.text.isEmpty) {
       phoneValidation.value = "The phone field is required";
@@ -284,13 +288,10 @@ class CustomerController extends GetxController {
     } else {
       phoneValidation.value = "";
     }
-    return phoneValidation.isEmpty &&
-        addressValidation.isEmpty &&
-        emailValidation.isEmpty &&
-        nameValidation.isEmpty;
+    return phoneValidation.isEmpty && nameValidation.isEmpty;
   }
 
- // Method to create body form to send to API
+  // Method to create body form to send to API
   Map<String, String> createCustomerBody() {
     return {
       'fullname': name.text,
@@ -301,7 +302,8 @@ class CustomerController extends GetxController {
       'remark': remark.text,
     };
   }
- // Method to filter Customer base  on Obsearvable search term
+
+  // Method to filter Customer base  on Obsearvable search term
   List<CustomerModel> filterCustomers() {
     searchTerm.value = search.text;
     if (searchTerm.isEmpty) {
@@ -312,21 +314,42 @@ class CustomerController extends GetxController {
           .toList();
     }
   }
- // Method to assigng initial text value to TextEditingController
+
+  // Method to assigng initial text value to TextEditingController
   void AssignCustomerValueToTextEditor() {
-    email.text = customer.value!.email;
+    email.text = customer.value!.email ?? '';
     name.text = customer.value!.name;
     phone.text = customer.value!.phone;
-    address.text = customer.value!.address;
+    address.text = customer.value!.address ?? '';
     remark.text = customer.value!.remark ?? '';
   }
 
   // Method to set the state of Obsearvable isLoading to true
-  bool setIsloadingToTrue(){
+  bool setIsloadingToTrue() {
     return isLoading.value;
   }
+
   // Method to set the state of Obsearvable isLoading to false
-  bool setIsLoadingTofalse(){
+  bool setIsLoadingTofalse() {
     return !isLoading.value;
   }
+
+  bool setIsSuccessToTrue() {
+    return isSuccess.value;
+  }
+
+  bool setIsSuccessToFalse() {
+    return !isSuccess.value;
+  }
+
+  String clearInitialMessage() {
+    return message.value = '';
+  }
+
+ void initializeStatusFlags() {
+  isSuccess.value = false;
+  isFailed.value = false;
+  errorMessage.value = '';
+  message.value = '';
+}
 }

@@ -2,8 +2,8 @@ class CustomerModel{
   final String id;
   final String name;
   final String phone;
-  final String email;
-  final String address;
+  final String ? email;
+  final String ? address;
   final String ? remark;
   final double totalRemaining;
   final double totalReceivable;
@@ -12,9 +12,9 @@ class CustomerModel{
   CustomerModel({
     required this.id,
     required this.name,
-    required this.email,
+    this.email,
     required this.phone,
-    required this.address,
+    this.address,
     required this.totalRemaining,
     required this.totalReceivable,
     required this.totalReceivableAmount,

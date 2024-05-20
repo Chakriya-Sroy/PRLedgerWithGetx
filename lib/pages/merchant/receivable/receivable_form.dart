@@ -1,6 +1,3 @@
-
-import 'dart:ffi';
-
 import 'package:dropdown_search/dropdown_search.dart';
 
 import 'package:flutter/material.dart';
@@ -9,11 +6,10 @@ import 'package:intl/intl.dart';
 import 'package:laravelsingup/controller/receivable.dart';
 import 'package:laravelsingup/widgets/form/custom_text_field.dart';
 import 'package:laravelsingup/widgets/form/input_button.dart';
-import 'package:laravelsingup/widgets/form/input_date.dart';
+import 'package:laravelsingup/widgets/form/receivable_due_date.dart';
 import 'package:laravelsingup/widgets/form/input_text.dart';
 
 import 'receivable_page.dart';
-
 
 class ReceivableForm extends StatefulWidget {
   const ReceivableForm({Key? key});
@@ -23,37 +19,56 @@ class ReceivableForm extends StatefulWidget {
 }
 
 class _ReceivableFormState extends State<ReceivableForm> {
-   final receivableController =Get.put(ReceivableController());
+  final receivableController = Get.put(ReceivableController());
   @override
   void initState() {
     // TODO: implement initState
-    receivableController.fetchCustomer();
+   
     super.initState();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+       receivableController.initializeStatusFlags();
+    receivableController.fetchCustomer();
+    });
+   
   }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Receivable Record', style: TextStyle(fontSize: 15)),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: ReceivableForm([
-            ReceivableTitleField(),
-            CustomerListSelection(receivableController, onChange: (value) {
-                  receivableController.selectedCustomer.value=value.toString();
-                } ),
-            ReceivableAmountandPaymentTerm(),
-            ReceivableDateandDueDate(),
-            ReceivableRemarkField(),
-            //RecievableAttachment(),
-            ReceivableSubmitButton(),
-          ], 10),
-        ),
-      ),
-    );
+    return Obx(() => Stack(
+          children: [
+            Scaffold(
+              appBar: AppBar(
+                title:
+                    Text('Receivable Record', style: TextStyle(fontSize: 15)),
+                centerTitle: true,
+              ),
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: ReceivableForm([
+                    CustomerListSelection(receivableController,
+                        onChange: (value) {
+                      receivableController.selectedCustomer.value =
+                          value.toString();
+                    }),
+                    ReceivableAmountandPaymentTerm(),
+                    ReceivableDueDateSelection(),
+                    ReceivableRemarkField(),
+                    //RecievableAttachment(),
+                    ReceivableSubmitButton(),
+                  ], 10),
+                ),
+              ),
+            ),
+            if (receivableController.isLoading.value)
+              Container(
+                color: Colors.black.withOpacity(
+                    0.2), // Semi-transparent black color for the backdrop
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),)
+          ],
+        ));
   }
 
   Column ReceivableSubmitButton() {
@@ -64,19 +79,34 @@ class _ReceivableFormState extends State<ReceivableForm> {
         ),
         InputButton(
             label: "Add",
-            onPress: (){
-              receivableController.createReceivable();
-              receivableController.message.value.isNotEmpty ?
-              ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+            onPress: () async {
+              await receivableController.createReceivable();
+              if (receivableController.isSuccess.value) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
                       backgroundColor: Colors.green,
                       content: Obx(
-                        () => Text(receivableController.message.toString(),
-                            style: TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                  ):const SizedBox();
-                 
+                        () => Text(
+                          receivableController.message.value,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      )),
+                );
+                Get.off(const ReceivablePage());
+              }
+              if (receivableController.isFailed.value) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      backgroundColor: Colors.red,
+                      content: Obx(
+                        () => Text(
+                          receivableController.errorMessage.value,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      )),
+                );
+                Get.off(const ReceivablePage());
+              }
             },
             backgroundColor: Colors.green,
             color: Colors.white)
@@ -84,10 +114,10 @@ class _ReceivableFormState extends State<ReceivableForm> {
     );
   }
 
-  Row ReceivableDateandDueDate() {
-    return buildReceivableFormRowWithSpacing(
-        [ReceivableDateSelection(), ReceivableDueDateSelection()], 20);
-  }
+  // Row ReceivableDateandDueDate() {
+  //   return buildReceivableFormRowWithSpacing(
+  //       [ReceivableDateSelection(), ReceivableDueDateSelection()], 20);
+  // }
 
   Row ReceivableAmountandPaymentTerm() {
     return buildReceivableFormRowWithSpacing(
@@ -107,70 +137,61 @@ class _ReceivableFormState extends State<ReceivableForm> {
     );
   }
 
-  ReceivableTitleField() {
-    return Obx(() =>  CustomTextField(
-        label: "Title",
-        controller: receivableController.title,
-        validation: receivableController.titleValidation.value,
-        gapHeight: 5));
-  }
+  // ReceivableTitleField() {
+  //   return Obx(() =>  CustomTextField(
+  //       label: "Title",
+  //       controller: receivableController.title,
+  //       validation: receivableController.titleValidation.value,
+  //       gapHeight: 5));
+  // }
 
   ReceivableDueDateSelection() {
-    return Expanded(
-        child: Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        InputDate(
-          label: "Due Date",
-          value: receivableController.dueDate,
-          onDateChanged: (selectedDate) {
-           receivableController.selectedDueDate.value=DateFormat('yyyy-MM-dd').format(selectedDate);
-          },
-        ),
-        const SizedBox(
-          height: 5,
-        ),
+        ReceivableDueDate(),
         Obx(() => Text(
-          receivableController.dueDateValidation.value,
-          style: TextStyle(
-            color: Colors.red,
-            fontSize: 10,
-          ),
-        )),
+              receivableController.dueDateValidation.value,
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 10,
+              ),
+            )),
       ],
-    ));
+    );
   }
 
-  Expanded ReceivableDateSelection() {
-    return Expanded(
-        child: Column(
-      children: [
-        InputDate(
-          label: "Date",
-          value: receivableController.date,
-          onDateChanged: (selectedDate) {
-             receivableController.selectedDate.value=DateFormat('yyyy-MM-dd').format(selectedDate);
-          },
-        ),
-        const SizedBox(
-          height: 5,
-        ),
-        Text(
-          '',
-          style: TextStyle(
-            fontSize: 10,
-          ),
-        ),
-      ],
-    ));
-  }
+  // Expanded ReceivableDateSelection() {
+  //   return Expanded(
+  //       child: Column(
+  //     children: [
+  //       InputDate(
+  //         label: "Date",
+  //         value: receivableController.date,
+  //         onDateChanged: (selectedDate) {
+  //           receivableController.selectedDate.value =
+  //               DateFormat('yyyy-MM-dd').format(selectedDate);
+  //         },
+  //       ),
+  //       const SizedBox(
+  //         height: 5,
+  //       ),
+  //       Text(
+  //         '',
+  //         style: TextStyle(
+  //           fontSize: 10,
+  //         ),
+  //       ),
+  //     ],
+  //   ));
+  // }
 
   ReceivablePaymentTermSelection() {
-    return  Expanded(
+    return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SelectOptionDropDown(
+          Obx(() => SelectOptionDropDown(
               height: 150,
               label: "Payment Term",
               selectedValue: receivableController.selectedPaymentTerm.value,
@@ -178,18 +199,19 @@ class _ReceivableFormState extends State<ReceivableForm> {
               options: receivableController.payments,
               showTextField: false,
               onChanged: (value) => {
-                    receivableController.selectedPaymentTerm.value=value.toString()
-                  }),
+                    receivableController.selectedPaymentTerm.value =
+                        value.toString()
+                  })),
           const SizedBox(
             height: 5,
           ),
-          Obx(() =>   Text(
-            receivableController.selectedPaymentTermValidation.toString(),
-            style: TextStyle(
-              color: Colors.red,
-              fontSize: 10,
-            ),
-          ))
+          Obx(() => Text(
+                receivableController.selectedPaymentTermValidation.toString(),
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 10,
+                ),
+              ))
         ],
       ),
     );
@@ -207,13 +229,13 @@ class _ReceivableFormState extends State<ReceivableForm> {
         const SizedBox(
           height: 5,
         ),
-       Obx(() =>  Text(
-          receivableController.amountValidation.toString(),
-          style: TextStyle(
-            color: Colors.red,
-            fontSize: 10,
-          ),
-        ))
+        Obx(() => Text(
+              receivableController.amountValidation.toString(),
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 10,
+              ),
+            ))
       ],
     ));
   }
@@ -248,34 +270,37 @@ class _ReceivableFormState extends State<ReceivableForm> {
     );
   }
 
-  Widget CustomerListSelection(ReceivableController receivableController,{ required Function(String) onChange}) {
-    return  Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SelectOptionDropDown(
-                  label: "Select Customer",
-                  selectedValue: receivableController.selectedCustomer.value,
-                  options: receivableController.ListCustomerId,
-                  showOptions: receivableController.ListCustomerName,
-                  onChanged: (value){
-                    receivableController.selectedCustomer.value=value.toString();
-                  },
-                  showTextField: true,
-                  height: 250,
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-               Obx(() =>   Text(
-                  receivableController.selectedCustomerValidation.value,
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 10,
-                  ),
-                ),)
-              ],
-            );
-          } 
+  Widget CustomerListSelection(ReceivableController receivableController,
+      {required Function(String) onChange}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SelectOptionDropDown(
+          label: "Select Customer",
+          selectedValue: receivableController.selectedCustomer.value,
+          options: receivableController.ListCustomerId,
+          showOptions: receivableController.ListCustomerName,
+          onChanged: (value) {
+            receivableController.selectedCustomer.value = value.toString();
+          },
+          showTextField: true,
+          height: 250,
+        ),
+        const SizedBox(
+          height: 5,
+        ),
+        Obx(
+          () => Text(
+            receivableController.selectedCustomerValidation.value,
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: 10,
+            ),
+          ),
+        )
+      ],
+    );
+  }
 }
 
 class SelectOptionDropDown extends StatefulWidget {

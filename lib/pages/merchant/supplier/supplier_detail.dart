@@ -21,9 +21,11 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   @override
   void initState() {
+    
+    super.initState();
     supplierController.setIsloadingToTrue();
     supplierController.fetchIndividualSupplier(id);
-    super.initState();
+    supplierController.initializeStatusFlags();
   }
 
   List<String> amount = [];
@@ -44,7 +46,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
             ),
           ),
         ),
-        body: Obx(() => supplierController.isLoading.value
+        body: Obx(() => supplierController.supplier.value==null
             ? Center(
                 child: CircularProgressIndicator(),
               )
@@ -57,10 +59,13 @@ class _SupplierDetailState extends State<SupplierDetail> {
                     children: [
                       ProfileCard(
                           supplier: true,
-                          address: supplierController.supplier.value!.address,
+                          address:
+                              supplierController.supplier.value!.address ?? '',
                           fullname: supplierController.supplier.value!.name,
-                          email: supplierController.supplier.value!.email,
-                          phone: supplierController.supplier.value!.phone),
+                          email: supplierController.supplier.value!.email ?? '',
+                          phone: supplierController.supplier.value!.phone,
+                          remark: supplierController.supplier.value!.remark ??'',
+                          ),
                       ProfileActionButton(
                         onEdit: () {
                           Get.to(const SupplierEdit(), arguments: id);
@@ -69,19 +74,34 @@ class _SupplierDetailState extends State<SupplierDetail> {
                           ConfirmMessageBox(context,
                               message:
                                   "All the payables that record under this supplier will be deleted are you sure ?",
-                              onPressed: () {
-                            supplierController.deleteSupplier(id);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: Colors.green,
-                                content: Obx(
-                                  () => Text(
-                                      supplierController.message.toString(),
-                                      style: TextStyle(color: Colors.white)),
+                              onPressed: () async {
+                            await supplierController.deleteSupplier(id);
+                            if (supplierController.isSuccess.value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.green,
+                                  content: Obx(
+                                    () => Text(
+                                        supplierController.message.toString(),
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
                                 ),
-                              ),
-                            );
-                            Get.off(const SupplierPage());
+                              );
+                              Get.off(const SupplierPage());
+                            }
+                            if (supplierController.isFailed.value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.red,
+                                  content: Obx(
+                                    () => Text(
+                                        supplierController.errorMessage.toString(),
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
+                                ),
+                              );
+                              Get.off(const SupplierPage());
+                            }
                           });
                         },
                       ),

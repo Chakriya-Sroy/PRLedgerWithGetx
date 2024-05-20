@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/controller/payable.dart';
+import 'package:laravelsingup/home.dart';
 import 'package:laravelsingup/pages/merchant/payable/payable_detail.dart';
 import 'package:laravelsingup/pages/merchant/payable/payable_form.dart';
 import 'package:laravelsingup/widgets/empty_state.dart';
@@ -18,9 +19,12 @@ class _PayablePageState extends State<PayablePage> {
   @override
   void initState() {
     // TODO: implement initState
-    payableController.setIsloadingToTrue();
-    payableController.fetchPayables();
     super.initState();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+     payableController.setIsloadingToTrue();
+    payableController.fetchPayables();
+    });
+   
   }
 
   @override
@@ -31,6 +35,15 @@ class _PayablePageState extends State<PayablePage> {
           "Payable",
           style: TextStyle(color: Colors.white),
         ),
+        leading: GestureDetector(
+                onTap: () {
+                  Get.to(const HomePage());
+                },
+                child: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.white,
+                ),
+              ),
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: Colors.green,
@@ -54,13 +67,6 @@ class _PayablePageState extends State<PayablePage> {
                               name: payableController
                                   .payables[index].supplierrName
                                   .toString(),
-                              title: payableController
-                                          .payables[index].title.length >
-                                      20
-                                  ? payableController.payables[index].title
-                                          .substring(0, 15) +
-                                      '...'
-                                  : payableController.payables[index].title,
                               amount: payableController.payables[index].remaining
                                   .toString(),
                               status: payableController.payables[index].status,

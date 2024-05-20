@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/controller/receivable.dart';
+import 'package:laravelsingup/pages/merchant/receivable/receivable_page.dart';
 import 'package:laravelsingup/widgets/receivable_payables/display_payment_sheet.dart';
 import 'package:laravelsingup/widgets/receivable_payables/pr_overview.dart';
 import 'package:laravelsingup/widgets/receivable_payables/pr_payment.dart';
@@ -18,23 +19,37 @@ class _ReceivableDetailState extends State<ReceivableDetail> {
   @override
   void initState() {
     // TODO: implement initState
-    receivableController.setIsloadingToTrue();
-    receivableController.fetchIndividualReceivable(id);
-    receivableController.receivableID.value = id;
+
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      receivableController.setIsloadingToTrue();
+      receivableController.fetchIndividualReceivable(id);
+      receivableController.receivableID.value = id;
+      receivableController.amount.clear();
+      receivableController.remark.clear();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => receivableController.receivable.value ==null
+    return Obx(() => receivableController.receivable.value == null
         ? Center(
             child: CircularProgressIndicator(),
           )
         : Scaffold(
             appBar: AppBar(
-              title: Text(
-                receivableController.receivable.value!.title,
-                style: TextStyle(fontSize: 15),
+              // title: Text(
+              //   receivableController.receivable.value!.title,
+              //   style: TextStyle(fontSize: 15),
+              // ),
+              leading: GestureDetector(
+                onTap: () {
+                  Get.to(const ReceivablePage());
+                },
+                child: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.black,
+                ),
               ),
               centerTitle: true,
             ),
@@ -65,9 +80,11 @@ class _ReceivableDetailState extends State<ReceivableDetail> {
                                 .toString()),
                       ),
                       Obx(
-                        () => receivableController.receivable.value!.remaining > 0
+                        () => receivableController.receivable.value!.remaining >
+                                0
                             ? Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text('Add Payment'),
                                   IconButton(
@@ -81,29 +98,34 @@ class _ReceivableDetailState extends State<ReceivableDetail> {
                                           paymentController:
                                               receivableController.amount,
                                           remarkController: receivableController
-                                              .remark, onSubmit: () {
-                                                receivableController.setIsloadingToTrue();
-                                                receivableController
+                                              .remark, onSubmit: () async {
+                                        receivableController
+                                            .setIsloadingToTrue();
+                                        await receivableController
                                             .createReceivablePayment();
-                                            Navigator.pop(context);
-                                            receivableController.fetchIndividualReceivable(id);
-                                          
+                                        Navigator.pop(context);
+                                        receivableController
+                                            .fetchIndividualReceivable(id);
+                                        if (receivableController
+                                            .isSuccess.value) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              backgroundColor: Colors.green,
+                                              content: Obx(
+                                                () => Text(
+                                                    receivableController.message
+                                                        .toString(),
+                                                    style: TextStyle(
+                                                        color: Colors.white)),
+                                              ),
+                                            ),
+                                          );
+                                        }
                                       });
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          backgroundColor: Colors.green,
-                                          content: Obx(
-                                            () => Text(
-                                                receivableController.message
-                                                    .toString(),
-                                                style: TextStyle(
-                                                    color: Colors.white)),
-                                          ),
-                                        ),
-                                      );
                                     },
-                                    icon:
-                                        Icon(Icons.add_box, color: Colors.green),
+                                    icon: Icon(Icons.add_box,
+                                        color: Colors.green),
                                   ),
                                 ],
                               )
@@ -118,8 +140,8 @@ class _ReceivableDetailState extends State<ReceivableDetail> {
                             child: ListView.builder(
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
-                              itemCount:
-                                  receivableController.receivablePayments.length,
+                              itemCount: receivableController
+                                  .receivablePayments.length,
                               itemBuilder: (context, index) {
                                 return PaymentDetailExpansionTile(
                                   paymentAmount: receivableController

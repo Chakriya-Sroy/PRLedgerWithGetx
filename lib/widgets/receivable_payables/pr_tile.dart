@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 
 class PRListTile extends StatelessWidget {
   final String name;
-  final String title;
   final String amount;
   final String status;
   final String date;
@@ -11,7 +10,6 @@ class PRListTile extends StatelessWidget {
   const PRListTile(
       {super.key,
       required this.name,
-      required this.title,
       required this.amount,
       required this.status,
       required this.date,
@@ -33,37 +31,52 @@ class PRListTile extends StatelessWidget {
           ]),
       child: Column(
         children: [
-          ReceivableTileHeader(name: name ),
-          ReceivableTileBody(title:title,amount:amount,date:date,status:status),
+          ReceivableTileHeader(name: name),
+          ReceivableTileBody(amount: amount, date: date, status: status),
         ],
       ),
     );
   }
 
-  SizedBox ReceivableTileBody({required String title,required String amount, required String date,required String status}) {
+  SizedBox ReceivableTileBody(
+      {String? title,
+      required String amount,
+      required String date,
+      required String status}) {
     return SizedBox(
-          height: 80,
-          child: ListTile(
-            leading: Text('1001',style: TextStyle(fontSize: 15),),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-              Text(title,style: TextStyle(fontSize: 12)),
-              Text('\$'+amount,style: TextStyle(fontSize: 12),)
-            ],),
-            subtitle: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text( DateFormat('yyyy-MM-dd').format(DateTime.parse(date)),style:TextStyle(fontSize: 10),),
-                Text(status,style:TextStyle(fontSize: 10),)
-              ],
-            ),
-            trailing:  IconButton(
-                icon: Icon(Icons.arrow_forward_ios_outlined),
-                onPressed: onPressed,
+      height: 80,
+      child: ListTile(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '1001',
+                style: TextStyle(fontSize: 15),
+              ),
+              Text(
+                '\$' + amount,
+                style: TextStyle(fontSize: 12),
               )
+            ],
           ),
-        );
+          subtitle: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                DateFormat('yyyy-MM-dd').format(DateTime.parse(date)),
+                style: TextStyle(fontSize: 10),
+              ),
+              Text(
+                status,
+                style: TextStyle(fontSize: 10),
+              )
+            ],
+          ),
+          trailing: IconButton(
+            icon: Icon(Icons.arrow_forward_ios_outlined),
+            onPressed: onPressed,
+          )),
+    );
   }
 
   Container ReceivableTileHeader({required String name}) {
@@ -76,7 +89,10 @@ class PRListTile extends StatelessWidget {
                 topLeft: Radius.circular(5), topRight: Radius.circular(5))),
         child: Padding(
           padding: const EdgeInsets.only(left: 20, top: 10),
-          child: Text(name,style: TextStyle(color: Colors.white),),
+          child: Text(
+            name,
+            style: TextStyle(color: Colors.white),
+          ),
         ));
   }
 }

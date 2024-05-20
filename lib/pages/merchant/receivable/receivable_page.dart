@@ -20,9 +20,13 @@ class _ReceivablePageState extends State<ReceivablePage> {
   @override
   void initState() {
     // TODO: implement initState
-    receivableController.setIsloadingToTrue();
-    receivableController.fetchReceivable();
+    
     super.initState();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+      receivableController.setIsloadingToTrue();
+      receivableController.fetchReceivable();
+    });
+  
   }
 
   @override
@@ -34,7 +38,7 @@ class _ReceivablePageState extends State<ReceivablePage> {
             style: TextStyle(color: Colors.white),
           ),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
             onPressed: () {
               Get.to(const HomePage());
             },
@@ -48,7 +52,9 @@ class _ReceivablePageState extends State<ReceivablePage> {
             padding: const EdgeInsets.all(20),
             child:
                 Obx(() => receivableController.lengthofReceivableList.value == 0
-                    ? WhenListIsEmpty(title: 'No Receivable yet, add Receivable ?', onPressed: (){})
+                    ? WhenListIsEmpty(title: 'No Receivable yet, add Receivable ?', onPressed: (){
+                      Get.to(const ReceivableForm());
+                    })
                     : Obx(() => ListView.builder(
                                 shrinkWrap: true,
                                 itemCount:
@@ -58,17 +64,17 @@ class _ReceivablePageState extends State<ReceivablePage> {
                                       name: receivableController
                                           .receivables[index].customerName
                                           .toString(),
-                                      title: receivableController
-                                                  .receivables[index]
-                                                  .title
-                                                  .length >
-                                              20
-                                          ? receivableController
-                                                  .receivables[index].title
-                                                  .substring(0, 15) +
-                                              '...'
-                                          : receivableController
-                                              .receivables[index].title,
+                                      // title: receivableController
+                                      //             .receivables[index]
+                                      //             .title
+                                      //             .length >
+                                      //         20
+                                      //     ? receivableController
+                                      //             .receivables[index].title
+                                      //             .substring(0, 15) +
+                                      //         '...'
+                                      //     : receivableController
+                                      //         .receivables[index].title,
                                       amount: receivableController
                                           .receivables[index].remaining
                                           .toString(),

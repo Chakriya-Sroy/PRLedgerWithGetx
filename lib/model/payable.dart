@@ -2,7 +2,6 @@ class PayableModel {
   final String id;
   final String supplierId;
   String ? supplierrName;
-  final String title;
   final double amount;
   final double remaining;
   final String date;
@@ -13,7 +12,6 @@ class PayableModel {
   String? attachment;
   PayableModel(
       {required this.id,
-      required this.title,
       required this.supplierId,
       required this.amount,
       required this.remaining,
@@ -30,7 +28,6 @@ class PayableModel {
     final attributes = json['attributes'];
     return PayableModel(
       id: attributes['id'].toString(),
-      title: attributes['title'],
       supplierId: attributes['supplierId'].toString(),
       amount: attributes['amount'],
       remaining: attributes['remaining'],

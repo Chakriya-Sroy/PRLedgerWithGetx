@@ -2,18 +2,18 @@ class SupplierModel{
   final String id;
   final String name;
   final String phone;
-  final String email;
-  final String address;
-  final String ? remark;
+  String ?email;
+  String ?address;
+  String ? remark;
   final double totalRemaining;
   final double totalPayable;
   final double totalPayableAmount;
   SupplierModel({
     required this.id,
     required this.name,
-    required this.email,
+    this.email,
     required this.phone,
-    required this.address,
+    this.address,
     required this.totalPayable,
     required this.totalRemaining,
     required this.totalPayableAmount,

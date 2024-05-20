@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:laravelsingup/controller/supplier.dart';
 import 'package:laravelsingup/pages/merchant/supplier/supplier.dart';
 import 'package:laravelsingup/pages/merchant/supplier/supplier_detail.dart';
+import 'package:laravelsingup/pages/merchant/supplier/supplier_payable.dart';
 import 'package:laravelsingup/widgets/attribute_row.dart';
 import 'package:laravelsingup/widgets/receivable_payables/visualize.dart';
 
@@ -19,10 +20,11 @@ class _SupplierLogTransactionState extends State<SupplierLogTransaction> {
   @override
   void initState() {
     // TODO: implement initState
+   
+    super.initState();
     supplierController.setIsloadingToTrue();
     supplierController.fetchIndividualSupplier(id);
     supplierController.fetchTransactionLog(id);
-    super.initState();
   }
 
   @override
@@ -66,7 +68,11 @@ class _SupplierLogTransactionState extends State<SupplierLogTransaction> {
                           title: "Payables",
                           totalOustanding:supplierController.supplier.value!.totalPayableAmount,
                           totalRemainingBalance: supplierController
-                              .supplier.value!.totalRemaining),
+                              .supplier.value!.totalRemaining,
+                          onPressed: (){
+                            Get.to(const SupplierPayableList(),arguments: supplierController.supplier.value!.id);
+                          },    
+                        ),
                       const Align(
                         alignment: Alignment.centerLeft,
                         child: Text("Transaction's Log"),

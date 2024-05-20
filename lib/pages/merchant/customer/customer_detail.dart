@@ -21,9 +21,13 @@ class _CustomerDetailState extends State<CustomerDetail> {
 
   @override
   void initState() {
-    customerController.setIsloadingToTrue();
-    customerController.fetchIndividualCustomer(id);
+    // Make sure that is Failed , isSuccess, erorrMessage and message haven't initalize
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      customerController.initializeStatusFlags();
+      customerController.fetchIndividualCustomer(id);
+    });
+    
   }
 
   List<String> amount = [];
@@ -44,7 +48,7 @@ class _CustomerDetailState extends State<CustomerDetail> {
             ),
           ),
         ),
-        body: Obx(() => customerController.isLoading.value
+        body: Obx(() => customerController.customer.value ==null
             ? Center(
                 child: CircularProgressIndicator(),
               )
@@ -57,9 +61,10 @@ class _CustomerDetailState extends State<CustomerDetail> {
                     children: [
                       ProfileCard(
                           supplier: false,
-                          address: customerController.customer.value!.address,
+                          address:
+                              customerController.customer.value!.address ?? '',
                           fullname: customerController.customer.value!.name,
-                          email: customerController.customer.value!.email,
+                          email: customerController.customer.value!.email ?? '',
                           phone: customerController.customer.value!.phone),
                       ProfileActionButton(
                         onEdit: () {
@@ -69,18 +74,33 @@ class _CustomerDetailState extends State<CustomerDetail> {
                           ConfirmMessageBox(context,
                               message:
                                   "All the receivable that record under this customer will be deleted are you sure ?",
-                              onPressed: () {
-                            customerController.deleteCustomer(id);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: Colors.green,
-                                content: Obx(
-                                  () => Text(
-                                      customerController.message.toString(),
-                                      style: TextStyle(color: Colors.white)),
+                              onPressed: () async {
+                            await customerController.deleteCustomer(id);
+                            if (customerController.isSuccess.value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.green,
+                                  content: Obx(
+                                    () => Text(
+                                        customerController.message.toString(),
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            }
+                            if (customerController.isFailed.value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.red,
+                                  content: Obx(
+                                    () => Text(
+                                        customerController.errorMessage
+                                            .toString(),
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
+                                ),
+                              );
+                            }
                             Get.off(const CustomerPage());
                           });
                         },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/controller/payable.dart';
+import 'package:laravelsingup/pages/merchant/payable/payable.dart';
 import 'package:laravelsingup/widgets/receivable_payables/display_payment_sheet.dart';
 import 'package:laravelsingup/widgets/receivable_payables/pr_overview.dart';
 import 'package:laravelsingup/widgets/receivable_payables/pr_payment.dart';
@@ -18,23 +19,35 @@ class _PayableDetailState extends State<PayableDetail> {
   @override
   void initState() {
     // TODO: implement initState
-    payableController.setIsloadingToTrue();
-    payableController.fetchIndividualPayable(id);
-    payableController.payableId.value = id;
     super.initState();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+      payableController.setIsloadingToTrue();
+      payableController.fetchIndividualPayable(id);
+      payableController.payableId.value = id;
+    });
+   
   }
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => payableController.payable.value ==null
+    return Obx(() => payableController.payable.value == null
         ? Center(
             child: CircularProgressIndicator(),
           )
         : Scaffold(
             appBar: AppBar(
-              title: Text(
-                payableController.payable.value!.title,
-                style: TextStyle(fontSize: 15),
+              // title: Text(
+              //   payableController.payable.value!.title,
+              //   style: TextStyle(fontSize: 15),
+              // ),
+              leading: GestureDetector(
+                onTap: () {
+                  Get.to(const PayablePage());
+                },
+                child: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.black,
+                ),
               ),
               centerTitle: true,
             ),
@@ -55,8 +68,8 @@ class _PayableDetailState extends State<PayableDetail> {
                                 .toString(),
                             receivableDueDate:
                                 payableController.payable.value!.dueDate,
-                            receivablePaymentTerms: payableController
-                                .payable.value!.paymentTerm,
+                            receivablePaymentTerms:
+                                payableController.payable.value!.paymentTerm,
                             receivableRemark: payableController
                                 .payable.value!.remark
                                 .toString(),
@@ -67,7 +80,8 @@ class _PayableDetailState extends State<PayableDetail> {
                       Obx(
                         () => payableController.payable.value!.remaining > 0
                             ? Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text('Add Payment'),
                                   IconButton(
@@ -81,15 +95,15 @@ class _PayableDetailState extends State<PayableDetail> {
                                           paymentController:
                                               payableController.amount,
                                           remarkController: payableController
-                                              .remark, onSubmit: () {
-                                                payableController.setIsloadingToTrue();
-                                                payableController
+                                              .remark, onSubmit: () async {
+                                        payableController.setIsloadingToTrue();
+                                        await payableController
                                             .createPayablePayment();
-                                            Navigator.pop(context);
-                                            payableController.fetchIndividualPayable(id);
-                                          
-                                      });
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        Navigator.pop(context);
+                                        payableController
+                                            .fetchIndividualPayable(id);
+                                        if(payableController.isSuccess.value){
+                                        ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
                                           backgroundColor: Colors.green,
                                           content: Obx(
@@ -101,9 +115,12 @@ class _PayableDetailState extends State<PayableDetail> {
                                           ),
                                         ),
                                       );
+                                      }
+                                       }
+                                      );
                                     },
-                                    icon:
-                                        Icon(Icons.add_box, color: Colors.green),
+                                    icon: Icon(Icons.add_box,
+                                        color: Colors.green),
                                   ),
                                 ],
                               )
@@ -142,8 +159,6 @@ class _PayableDetailState extends State<PayableDetail> {
           ));
   }
 }
-
-
 
 /*
  * Future Task, where we allow user to archieve any receivable that receive fully paid

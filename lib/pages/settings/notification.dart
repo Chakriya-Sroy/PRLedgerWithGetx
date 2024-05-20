@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:laravelsingup/settings.dart';
 
 class NotificationSetting extends StatefulWidget {
   const NotificationSetting({super.key});
@@ -84,6 +86,10 @@ class _NotificationSettingState extends State<NotificationSetting> {
           "Notification Settings",
           style: TextStyle(color: Colors.white),
         ),
+        leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios),
+              onPressed: (){Get.to(const SettingPage());},
+        ), 
         centerTitle: true,
       ),
       body: Padding(

@@ -16,11 +16,15 @@ class RegisterationController extends GetxController {
   RxString emailValidation = RxString('');
   RxString passwordValidation = RxString('');
   RxString confirmPasswordValidation = RxString('');
+  RxString message =RxString('');
   RxString errorMessage = RxString('');
+  RxBool isSuccess =false.obs;
+  RxBool isLoading=false.obs;
 
   Future<void> registerWithEmailandPassword() async {
     if(validation()){
         try {
+        isLoading.value=true;
         var headers = {
           'Content-type': 'application/json',
           'Accept': 'application/json'
@@ -35,17 +39,22 @@ class RegisterationController extends GetxController {
         http.Response response =
             await http.post(url, body: jsonEncode(body), headers: headers);
         if (response.statusCode == 200) {
-          Get.off(Login);
+           Map<String, dynamic> data=jsonDecode(response.body);
           nameController.clear();
           emailController.clear();
           passwordController.clear();
-          print("success register");
+          confirmPasswordController.clear();
+          message.value=data["message"];
+          isSuccess.value=true;
         } else {
           final responseData = jsonDecode(response.body);
           errorMessage.value = responseData['message'];
         }
       } catch (e) {
-         errorMessage.value=e.toString();
+         print(e.toString());
+
+      }finally{
+        isLoading.value=false;
       }
     }
     }

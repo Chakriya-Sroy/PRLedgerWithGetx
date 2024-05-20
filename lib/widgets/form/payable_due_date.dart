@@ -2,42 +2,32 @@ import 'package:bottom_picker/bottom_picker.dart';
 import 'package:bottom_picker/resources/arrays.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:laravelsingup/controller/payable.dart';
 
-class InputDate extends StatefulWidget {
-  String label;
-  DateTime value;
-  final ValueChanged<DateTime> onDateChanged;
-  InputDate({super.key, required this.label, required this.value,required this.onDateChanged});
+
+
+class PayableDueDate extends StatefulWidget {
+  const PayableDueDate({super.key});
+
   @override
-  State<InputDate> createState() => _InputDatePickerState();
+  State<PayableDueDate> createState() => _PayableDueDateState();
 }
 
-class _InputDatePickerState extends State<InputDate> {
+class _PayableDueDateState extends State<PayableDueDate> {
+  final payableController =Get.put(PayableController());
   void _openDatePicker(BuildContext context) {
     BottomPicker.date(
       pickerTitle: Text('Select Date',),
       pickerTextStyle: TextStyle(color: Colors.green, fontSize: 18),
-      // pickerTextStyle: TextStyle(
-      //   color: Colors.green,
-      // ),
       dateOrder: DatePickerDateOrder.ymd,
       minDateTime: DateTime.now(),
       onSubmit: (index) {
-        setState(() {
-           //For ValueChange call back function
-          widget.onDateChanged(index);
-           //For Update Ui
-          widget.value = index;
-        });
+         payableController.selectedDueDate.value=DateFormat('yyyy-MM-dd').format(index);
       },
       onChange: (index) {
-        setState(() {
-          //For ValueChange call back function
-          widget.onDateChanged(index);
-          //For Update Ui
-          widget.value = index;
-        });
+         payableController.selectedDueDate.value=DateFormat('yyyy-MM-dd').format(index);
       },
       
       buttonStyle: BoxDecoration(
@@ -50,13 +40,14 @@ class _InputDatePickerState extends State<InputDate> {
       bottomPickerTheme: BottomPickerTheme.blue,
     ).show(context);
   }
-   
+
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.label),
+        Text("Select Due Date"),
         const SizedBox(height: 10),
         Container(
           width: double.infinity,
@@ -77,7 +68,7 @@ class _InputDatePickerState extends State<InputDate> {
           child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(DateFormat('yyyy-MM-dd').format(widget.value)),
+                Obx(() =>  Text(payableController.selectedDueDate.value),),
                 IconButton(onPressed:() => _openDatePicker(context), icon: Icon(Icons.date_range,color: Colors.grey,))
               ],
           ),
@@ -86,3 +77,5 @@ class _InputDatePickerState extends State<InputDate> {
     );
   }
 }
+
+   

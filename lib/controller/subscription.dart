@@ -9,9 +9,11 @@ class SubscriptionController extends GetxController {
   RxBool isLoading = false.obs;
   RxString errorMessage = ''.obs;
   RxString successfulMessage = ''.obs;
+  RxBool isSuccess=false.obs;
   Future<void> addSubscription() async {
     final prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
+    isSuccess.value=false;
     if (token != null) {
       try {
         isLoading.value = true;
@@ -28,7 +30,8 @@ class SubscriptionController extends GetxController {
         );
         if (response.statusCode == 200) {
           final json = jsonDecode(response.body);
-          successfulMessage.value = "Subscription Successfully";
+          successfulMessage.value = json["message"];
+          isSuccess.value=true;
           print(json);
         } else {
           final responseData = jsonDecode(response.body);
@@ -46,6 +49,7 @@ class SubscriptionController extends GetxController {
   Future<void> updateSubscription() async {
     final prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
+    isSuccess.value=false;
     if (token != null) {
       try {
         isLoading.value = true;
@@ -58,7 +62,8 @@ class SubscriptionController extends GetxController {
         );
         if (response.statusCode == 200) {
           final json = jsonDecode(response.body);
-          successfulMessage.value = "Subscription Update Successfully";
+          successfulMessage.value = json["message"];
+          isSuccess.value=true;
           print(json);
         } else {
           final responseData = jsonDecode(response.body);

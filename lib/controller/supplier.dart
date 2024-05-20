@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/model/payable.dart';
 import 'package:laravelsingup/model/supplier.dart';
+import 'package:laravelsingup/pages/merchant/supplier/supplier.dart';
 import 'package:laravelsingup/utils/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -24,21 +25,23 @@ class SupplierController extends GetxController {
   var addressValidation = RxString("");
   var phoneValidation = RxString("");
   var message = RxString("");
-  
+
   // Is Loading to listent to progress of fetching data from API
   RxBool isLoading = false.obs;
   // Obsearvable String to listent to Search Editing Controller For fitlterSupplier List
   RxString searchTerm = ''.obs;
 
+  RxBool isSuccess = false.obs;
+  RxBool isFailed = false.obs;
   // Obsearvable Supplier List instance fromSupplier model
   RxList<SupplierModel> suppliers = RxList();
 
   // Obseravable Supplier instance formSupplier model
-  Rx<SupplierModel?>supplier = Rx<SupplierModel?>(null);
+  Rx<SupplierModel?> supplier = Rx<SupplierModel?>(null);
 
   // Observerable Supplier Payables
   // Payable
-  RxList<PayableModel>supplierPayables=RxList();
+  RxList<PayableModel> supplierPayables = RxList();
 
   // Obseravable Supplier transaction from transaction model
   RxList<TransactionModel> transactions = RxList();
@@ -50,9 +53,9 @@ class SupplierController extends GetxController {
   RxInt supplierLength = 0.obs;
 
   // Obseravable Length of Transaction's List
-  RxInt transactionLength=0.obs;
+  RxInt transactionLength = 0.obs;
 
-  // Future function to fetch transaction 
+  // Future function to fetch transaction
   Future<void> fetchTransactionLog(String id) async {
     final pref = await SharedPreferences.getInstance();
     String? token = pref.getString("token");
@@ -70,12 +73,12 @@ class SupplierController extends GetxController {
           for (var item in data) {
             transactions.add(TransactionModel.fromJson(item));
           }
-          transactionLength.value=transactions.length;
+          transactionLength.value = transactions.length;
         }
       } catch (e) {
         errorMessage.value = e.toString();
       } finally {
-        setIsLoadingTofalse();
+       isLoading.value=false;
       }
     }
   }
@@ -93,16 +96,30 @@ class SupplierController extends GetxController {
 
         if (response.statusCode == 200) {
           Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-          Map<String, dynamic>SupplierAttributes = jsonResponse["data"];
-         supplier.value = SupplierModel.fromJson(SupplierAttributes);
+          Map<String, dynamic> SupplierAttributes = jsonResponse["data"];
+          supplier.value = SupplierModel.fromJson(SupplierAttributes);
+          List payables = SupplierAttributes["payables"];
+          supplierPayables.clear();
+          for (var payable in  payables) {
+            supplierPayables.add(PayableModel(
+                id:payable["id"].toString(),
+                supplierId:payable["supplier_id"].toString(),
+                amount: payable["amount"],
+                remaining: payable["remaining"],
+                date: payable["date"],
+                dueDate: payable["dueDate"],
+                paymentTerm: payable["payment_term"],
+                status: payable["status"]));
+          }
         }
       } catch (e) {
         errorMessage.value = e.toString();
       } finally {
-        setIsLoadingTofalse();
+       isLoading.value=false;
       }
     }
   }
+
   // future function to fetch allSupplier belong to authentication user
   Future<void> fetchSupplier() async {
     final pref = await SharedPreferences.getInstance();
@@ -122,21 +139,20 @@ class SupplierController extends GetxController {
           suppliers.clear();
           suppliers.addAll(suppliersData);
           supplierLength.value = suppliers.length;
-        
+          isSuccess.value=true;
         } else {
           final responseData = jsonDecode(response.body);
-          final errorMessage = responseData['message'];
-          message.value = errorMessage;
-          print(message);
+          isFailed.value=true;
+          errorMessage.value=responseData['message'];
         }
       } catch (e) {
         errorMessage.value = e.toString();
-        print(errorMessage);
       } finally {
-        setIsLoadingTofalse();
+       isLoading.value=false;
       }
     }
   }
+
   // future function to add newSupplier
   Future<void> addSupplier() async {
     final pref = await SharedPreferences.getInstance();
@@ -144,6 +160,7 @@ class SupplierController extends GetxController {
     if (token != null) {
       if (validation()) {
         try {
+          isLoading.value=true;
           var headers = ApiEndPoints().setHeaderToken(token);
           var url = ApiEndPoints.baseUrl +
               ApiEndPoints.supplierEndPoints.supplierCreate;
@@ -153,28 +170,27 @@ class SupplierController extends GetxController {
             body: jsonEncode(body),
             headers: headers,
           );
-
           if (response.statusCode == 200) {
-            clearTextEditor();
             Map<String, dynamic> json = jsonDecode(response.body);
-            message.value = "";
             message.value = json["message"];
-            suppliers.add(SupplierModel.fromJson(json));
-
-          //  Get.off(constSupplierPage());
+           // suppliers.add(SupplierModel.fromJson(json["data"]));
+            isSuccess.value = true;
+            clearTextEditor();
           } else {
             final responseData = jsonDecode(response.body);
-            final errorMessage = responseData['message'];
-            errorMessage.value = errorMessage;
+            errorMessage.value = responseData['message'];
+            isFailed.value = true;
+            print(errorMessage);
           }
         } catch (e) {
-          errorMessage.value = e.toString();
-        }finally{
-          setIsLoadingTofalse();
+          print(e.toString());
+        } finally {
+         isLoading.value=false;
         }
       }
     }
   }
+
   // future function to deleteSupplier
   Future<void> deleteSupplier(String id) async {
     final pref = await SharedPreferences.getInstance();
@@ -191,25 +207,30 @@ class SupplierController extends GetxController {
         );
 
         if (response.statusCode == 200) {
-          message.value = "";
           message.value = jsonDecode(response.body)["message"];
+          isSuccess.value=true;
+        }else{
+          errorMessage.value=jsonDecode(response.body)["message"];
+          isFailed.value=true;
         }
       } catch (e) {
         errorMessage.value = e.toString();
-      }finally{
-        setIsLoadingTofalse();
+      } finally {
+       isLoading.value=false;
       }
     }
   }
+
   // future function to updateSupplier base on Id
-  Future<void> updateCustomer(String id) async {
+  Future<void> updateSupplier(String id) async {
     final pref = await SharedPreferences.getInstance();
     String? token = pref.getString("token");
     if (token != null) {
       if (validation()) {
         try {
           var headers = ApiEndPoints().setHeaderToken(token);
-          var url = ApiEndPoints.baseUrl + ApiEndPoints.supplierEndPoints.updateSupplierViewEndPoint(id);
+          var url = ApiEndPoints.baseUrl +
+              ApiEndPoints.supplierEndPoints.updateSupplierViewEndPoint(id);
           Map body = createSupplierBody();
           final response = await http.patch(
             Uri.parse(url),
@@ -218,22 +239,24 @@ class SupplierController extends GetxController {
           );
           if (response.statusCode == 200) {
             Map<String, dynamic> json = jsonDecode(response.body);
-            clearTextEditor();
             message.value = json["message"];
+            clearTextEditor();
+            isSuccess.value=true;
           } else {
             final responseData = jsonDecode(response.body);
             errorMessage.value = responseData['message'];
+            isFailed.value=true;
           }
         } catch (e) {
           errorMessage.value = e.toString();
         } finally {
-          setIsLoadingTofalse();
+         isLoading.value=false;
         }
       }
     }
   }
- 
- // Method To Clear Text from TextEditingController After Form is submit
+
+  // Method To Clear Text from TextEditingController After Form is submit
   void clearTextEditor() {
     name.clear();
     email.clear();
@@ -241,24 +264,13 @@ class SupplierController extends GetxController {
     phone.clear();
     remark.clear();
   }
- // Method to validate the input form TextEditingController
+
+  // Method to validate the input form TextEditingController
   bool validation() {
     if (name.text.isEmpty) {
       nameValidation.value = "The fullname field is required";
     } else {
       nameValidation.value = "";
-    }
-    if (email.text.isEmpty) {
-      emailValidation.value = "The email filed is required";
-    } else if (!email.text.isEmail) {
-      emailValidation.value = "The email format is incorrect";
-    } else {
-      emailValidation.value = "";
-    }
-    if (address.text.isEmpty) {
-      addressValidation.value = "The address filed is required";
-    } else {
-      addressValidation.value = "";
     }
     if (phone.text.isEmpty) {
       phoneValidation.value = "The phone field is required";
@@ -267,13 +279,10 @@ class SupplierController extends GetxController {
     } else {
       phoneValidation.value = "";
     }
-    return phoneValidation.isEmpty &&
-        addressValidation.isEmpty &&
-        emailValidation.isEmpty &&
-        nameValidation.isEmpty;
+    return phoneValidation.isEmpty && nameValidation.isEmpty;
   }
 
- // Method to create body form to send to API
+  // Method to create body form to send to API
   Map<String, String> createSupplierBody() {
     return {
       'fullname': name.text,
@@ -283,7 +292,8 @@ class SupplierController extends GetxController {
       'remark': remark.text,
     };
   }
- // Method to filterSupplier base  on Obsearvable search term
+
+  // Method to filterSupplier base  on Obsearvable search term
   List<SupplierModel> filtersuppliers() {
     searchTerm.value = search.text;
     if (searchTerm.isEmpty) {
@@ -294,21 +304,42 @@ class SupplierController extends GetxController {
           .toList();
     }
   }
- // Method to assigng initial text value to TextEditingController
+
+  // Method to assigng initial text value to TextEditingController
   void AssignSupplierValueToTextEditor() {
-    email.text =supplier.value!.email;
-    name.text =supplier.value!.name;
-    phone.text =supplier.value!.phone;
-    address.text =supplier.value!.address;
-    remark.text =supplier.value!.remark ?? '';
+    email.text = supplier.value!.email ?? '';
+    name.text = supplier.value!.name;
+    phone.text = supplier.value!.phone;
+    address.text = supplier.value!.address ?? '';
+    remark.text = supplier.value!.remark ?? '';
   }
 
   // Method to set the state of Obsearvable isLoading to true
-  bool setIsloadingToTrue(){
+  bool setIsloadingToTrue() {
     return isLoading.value;
   }
+
   // Method to set the state of Obsearvable isLoading to false
-  bool setIsLoadingTofalse(){
+  bool setIsLoadingTofalse() {
     return !isLoading.value;
+  }
+
+  bool setIsSuccessToFalse() {
+    return !isSuccess.value;
+  }
+
+  bool setIsSuccessToTrue() {
+    return isSuccess.value;
+  }
+
+  String clearInitialMessage() {
+    return message.value = '';
+  }
+
+  void initializeStatusFlags() {
+    isSuccess.value = false;
+    isFailed.value = false;
+    errorMessage.value = '';
+    message.value = '';
   }
 }

@@ -21,9 +21,12 @@ class _CustomerPageState extends State<CustomerPage> {
   @override
   void initState() {
     // TODO: implement initState
-    customerController.setIsloadingToTrue();
-    customerController.fetchCustomer();
     super.initState();
+     WidgetsBinding.instance.addPostFrameCallback((_) {
+      customerController.setIsloadingToTrue();
+      customerController.fetchCustomer();
+    });
+    
   }
 
   @override

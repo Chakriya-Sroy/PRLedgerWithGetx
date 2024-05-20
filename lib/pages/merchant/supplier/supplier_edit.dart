@@ -19,72 +19,122 @@ class _SupplierEditState extends State<SupplierEdit> {
   @override
   void initState() {
     // TODO: implement initState
+    
+    super.initState();
     supplierController.setIsloadingToTrue();
     supplierController.fetchIndividualSupplier(id);
     supplierController.AssignSupplierValueToTextEditor();
-    super.initState();
+    supplierController.initializeStatusFlags();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const  Text('Customer Edit', style: TextStyle(fontSize: 15)),
-        centerTitle: true,
-      ),
-      body:  Obx(() =>  supplierController.isLoading.value ? const Center(child: CircularProgressIndicator(),) :SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(children: [
-            Obx(
-              () => CustomTextField(
-                  label: "Fullname",
-                  controller: supplierController.name,
-                  validation: supplierController.nameValidation.toString(),
-                  gapHeight: 5),
-            ),
-            
-            Obx(() => CustomTextField(
-                label: "Phone number",
-                controller: supplierController.phone,
-                validation: supplierController.phoneValidation.toString(),
-                gapHeight: 5)),
-            Obx(() => CustomTextField(
-                label: "Email",
-                controller: supplierController.email,
-                validation: supplierController.emailValidation.toString(),
-                gapHeight: 5)),
-            Obx(() => CustomTextField(
-                label: "Address",
-                controller: supplierController.address,
-                validation: supplierController.addressValidation.toString(),
-                gapHeight: 5)),
-            InputTextField(
-              label: "Remark",
-              controller: supplierController.remark,
-            ),
-            const SizedBox(height: 20),
-            InputButton(
-                label: "Save",
-                onPress: () {
-                  supplierController.updateCustomer(id);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: Colors.green,
-                              content: Obx(
-                                () => Text(
-                                    supplierController.message.toString(),
-                                    style: TextStyle(color: Colors.white)),
+    return Obx(() => Stack(
+          children: [
+            Scaffold(
+                appBar: AppBar(
+                  title: const Text('Supplier Edit',
+                      style: TextStyle(fontSize: 15)),
+                  centerTitle: true,
+                ),
+                body: Obx(
+                  () => supplierController.supplier.value ==null
+                      ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : SingleChildScrollView(
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(children: [
+                              Obx(
+                                () => CustomTextField(
+                                    label: "Fullname",
+                                    controller: supplierController.name,
+                                    validation: supplierController
+                                        .nameValidation
+                                        .toString(),
+                                    gapHeight: 5),
                               ),
-                            ),
-                          );
-                  Get.off(const SupplierDetail(),arguments: id);
-                },
-                backgroundColor: Colors.green,
-                color: Colors.white),
-          ]),
-        ),
-      ),)
-    );
+                              Obx(() => CustomTextField(
+                                  label: "Phone number",
+                                  controller: supplierController.phone,
+                                  validation: supplierController.phoneValidation
+                                      .toString(),
+                                  gapHeight: 5)),
+                              Obx(() => CustomTextField(
+                                  label: "Email",
+                                  controller: supplierController.email,
+                                  validation: supplierController.emailValidation
+                                      .toString(),
+                                  gapHeight: 5)),
+                              Obx(() => CustomTextField(
+                                  label: "Address",
+                                  controller: supplierController.address,
+                                  validation: supplierController
+                                      .addressValidation
+                                      .toString(),
+                                  gapHeight: 5)),
+                              InputTextField(
+                                label: "Remark",
+                                controller: supplierController.remark,
+                              ),
+                              const SizedBox(height: 20),
+                              InputButton(
+                                  label: "Save",
+                                  onPress: () async {
+                                    await supplierController.updateSupplier(id);
+                                    if (supplierController.isSuccess.value) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: Colors.green,
+                                          content: Obx(
+                                            () => Text(
+                                                supplierController.message.value,
+                                                style: TextStyle(
+                                                    color: Colors.white)),
+                                          ),
+                                        ),
+                                      );
+                                         Get.off(const SupplierDetail(),
+                                          arguments: id);
+                                      
+                                    }
+                                    if (supplierController.isFailed.value) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: Colors.red,
+                                          content: Obx(
+                                            () => Text(
+                                                supplierController.errorMessage
+                                                    .toString(),
+                                                style: TextStyle(
+                                                    color: Colors.white)),
+                                          ),
+                                        ),
+                                      );
+                                         Get.off(const SupplierDetail(),
+                                          arguments: id);
+                                    }
+                                 
+                                  },
+                                  backgroundColor: Colors.green,
+                                  color: Colors.white),
+                            ]),
+                          ),
+                        ),
+                )),
+            if (supplierController.isLoading.value)
+              // Show circular progress indicator in the middle of the screen
+              Container(
+                color: Colors.black.withOpacity(
+                    0.2), // Semi-transparent black color for the backdrop
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+          ],
+        ));
   }
 }

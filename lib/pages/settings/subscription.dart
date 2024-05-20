@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/controller/subscription.dart';
 import 'package:laravelsingup/controller/user.dart';
+import 'package:laravelsingup/settings.dart';
 import 'package:laravelsingup/widgets/message/confirm.dart';
 
 class SubscriptionSetting extends StatefulWidget {
@@ -24,6 +25,10 @@ class _SubscriptionSettingState extends State<SubscriptionSetting> {
         appBar: AppBar(
           iconTheme: IconThemeData(color: Colors.green),
           backgroundColor: Colors.grey.shade100,
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios),
+              onPressed: (){Get.to(const SettingPage());},
+        ), 
         ),
         body: SafeArea(
           child: SingleChildScrollView(
@@ -187,9 +192,21 @@ class _SubscriptionSettingState extends State<SubscriptionSetting> {
           context,
           message:
               "Confirm upgrade to ${subscriptionController.type.value} subscription?",
-          onPressed: () {
-            subscriptionController.addSubscription();
+          onPressed: () async{
+            await subscriptionController.addSubscription();
             Navigator.pop(context);
+              if (subscriptionController.isSuccess.value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.green,
+                                  content: Obx(
+                                    () => Text(
+                                        subscriptionController.successfulMessage.toString(),
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
+                                ),
+                              );
+                            }
           },
         );
       },
@@ -218,10 +235,22 @@ class _SubscriptionSettingState extends State<SubscriptionSetting> {
         ConfirmMessageBox(
           context,
           message: "Confirm upgrade to yearly subscription?",
-          onPressed: () {
-            subscriptionController.updateSubscription();
-            userController.getUser();
+          onPressed: () async{
+            await subscriptionController.updateSubscription();
+              if (subscriptionController.isSuccess.value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.green,
+                                  content: Obx(
+                                    () => Text(
+                                        subscriptionController.successfulMessage.toString(),
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
+                                ),
+                              );
+                            }
             Navigator.pop(context);
+            
           },
         );
       },

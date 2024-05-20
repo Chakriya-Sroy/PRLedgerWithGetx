@@ -21,9 +21,10 @@ class _SupplierPageState extends State<SupplierPage> {
   @override
   void initState() {
     // TODO: implement initState
+   
+    super.initState();
     supplierController.setIsloadingToTrue();
     supplierController.fetchSupplier();
-    super.initState();
   }
 
   @override

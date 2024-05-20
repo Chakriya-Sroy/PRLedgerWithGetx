@@ -19,11 +19,14 @@ class _CustomerLogTransactionState extends State<CustomerLogTransaction> {
   final String id = Get.arguments;
   @override
   void initState() {
-    // TODO: implement initState
-    customerController.setIsloadingToTrue();
+    // TODO: implement initState 
+    super.initState();
+     WidgetsBinding.instance.addPostFrameCallback((_) {
+      customerController.setIsloadingToTrue();
     customerController.fetchIndividualCustomer(id);
     customerController.fetchTransactionLog(id);
-    super.initState();
+    });
+   
   }
 
   @override

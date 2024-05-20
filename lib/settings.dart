@@ -13,14 +13,27 @@ import 'package:laravelsingup/widgets/attribute_row.dart';
 import 'home.dart';
 
 
-class SettingPage extends StatelessWidget {
+class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
+
+  @override
+  State<SettingPage> createState() => _SettingPageState();
+}
+
+class _SettingPageState extends State<SettingPage> {
+  final UserController userController=Get.put(UserController());
+  final AuthCheckController authCheckController=Get.put(AuthCheckController());
   // final user = FirebaseAuth.instance.currentUser!;
-  
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    userController.getUser();
+  }
   @override
   Widget build(BuildContext context) {
-    final UserController userController=Get.put(UserController());
-    final AuthCheckController authCheckController=Get.put(AuthCheckController());
+    
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
@@ -30,8 +43,8 @@ class SettingPage extends StatelessWidget {
           IconButton(onPressed:(){Get.to(UserQRCode());}, icon: Icon(Icons.qr_code, size: 30))
         ],
         leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: (){Get.to(HomePage());},
+              icon: Icon(Icons.arrow_back_ios),
+              onPressed: (){Get.to(const HomePage());},
         ), 
       ),
       body: SingleChildScrollView(

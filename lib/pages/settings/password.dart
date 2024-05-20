@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:laravelsingup/settings.dart';
 import 'package:laravelsingup/widgets/form/input_button.dart';
 import 'package:laravelsingup/widgets/form/input_text.dart';
 import 'package:laravelsingup/widgets/message/show_message.dart';
@@ -22,6 +24,10 @@ class _ChangePasswordState extends State<ChangePassword> {
       appBar:AppBar(
         backgroundColor: Colors.grey.shade100,
         iconTheme: IconThemeData(color: Colors.green),
+         leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios),
+              onPressed: (){Get.to(const SettingPage());},
+        ), 
       ) ,
       body: SingleChildScrollView(
         child:Padding(

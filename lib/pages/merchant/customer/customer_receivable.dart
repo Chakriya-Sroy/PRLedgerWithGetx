@@ -16,9 +16,13 @@ class _CustomerReceivableListState extends State<CustomerReceivableList> {
   String id =Get.arguments;
   @override
   void initState() {
-    // TODO: implement initState
-    customerController.fetchIndividualCustomer(id);
-    super.initState();
+    // TODO: implement initState  
+   super.initState();
+   
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+   customerController.fetchIndividualCustomer(id);
+    });
+    
   }
 
   @override
@@ -66,7 +70,7 @@ class _CustomerReceivableListState extends State<CustomerReceivableList> {
               itemCount: customerController.customerReceivables.length,
               itemBuilder: (context, index) {
                 return CustomerReceivableCard(
-                  title: customerController.customerReceivables[index].title,
+                  // title: customerController.customerReceivables[index].title,
                   remaining: customerController.customerReceivables[index].remaining.toString(),
                   date: customerController.customerReceivables[index].date,
                   status: customerController.customerReceivables[index].status,
@@ -79,7 +83,7 @@ class _CustomerReceivableListState extends State<CustomerReceivableList> {
             );
  }
 
- Container CustomerReceivableCard({required String title,required String remaining,required String date,required String status,required Function() onPressed}) {
+ Container CustomerReceivableCard({String ?title,required String remaining,required String date,required String status,required Function() onPressed}) {
    return Container(
                   margin: EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
@@ -103,7 +107,7 @@ class _CustomerReceivableListState extends State<CustomerReceivableList> {
                         title: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(title,
+                            Text(title ?? '',
                                 style: TextStyle(fontSize: 12)),
                             Text(
                               '\$' + remaining,

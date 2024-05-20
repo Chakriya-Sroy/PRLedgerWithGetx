@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:js';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -10,7 +11,6 @@ import 'package:http/http.dart' as http;
 
 class ReceivableController extends GetxController {
   // TextEditingController For create receivable and their validation text
-  TextEditingController title = TextEditingController();
   TextEditingController remark = TextEditingController();
   TextEditingController amount = TextEditingController();
   RxString attachment = ''.obs;
@@ -24,11 +24,11 @@ class ReceivableController extends GetxController {
 
   // For Date and Due Date Selection Option with the their selected value
   DateTime date = DateTime.now();
-  late DateTime dueDate = DateTime.now();
-  RxString selectedDate = ''.obs;
+  DateTime dueDate = DateTime.now();
   RxString selectedDueDate = ''.obs;
   RxBool isLoading = false.obs;
-
+  RxBool isSuccess = false.obs;
+  RxBool isFailed =false.obs;
   // For PaymentTerm Options Selection
   final List<String> paymentOptions = ["equal to due date", '7', '15'];
   final List<String> payments = ["0", "7", "15"];
@@ -54,7 +54,6 @@ class ReceivableController extends GetxController {
   // Map object
   Map<String, dynamic> createReceivableBody() {
     return {
-      'title': title.text,
       'customer_id': selectedCustomer.value,
       'amount': amount.text,
       'payment_term': selectedPaymentTerm.value == "0"
@@ -63,9 +62,7 @@ class ReceivableController extends GetxController {
       'remark': remark.text,
       'status': 'outstanding',
       'attachment': attachment.value,
-      'date': selectedDate.value == ''
-          ? DateFormat('yyyy-MM-dd').format(date)
-          : selectedDate,
+      'date': DateFormat('yyyy-MM-dd').format(date),
       'dueDate': selectedDueDate.value,
     };
   }
@@ -82,6 +79,7 @@ class ReceivableController extends GetxController {
   Future<void> createReceivablePayment() async {
     final pref = await SharedPreferences.getInstance();
     String? token = pref.getString("token");
+    isSuccess.value=false;
     if (token != null) {
       try {
         var headers = ApiEndPoints().setHeaderToken(token);
@@ -95,9 +93,10 @@ class ReceivableController extends GetxController {
         );
         if (response.statusCode == 200) {
           Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-          Map<String, dynamic> data = jsonResponse["data"][0]["attributes"];
-          receivablePayments.add(ReceivablePaymentModel.fromJson(data));
+          //Map<String, dynamic> data = jsonResponse["data"][0]["attributes"];
+          //receivablePayments.add(ReceivablePaymentModel.fromJson(data));
           message.value = jsonResponse["message"];
+          isSuccess.value=true;
         } else {
           print(jsonDecode(response.body)["message"]);
         }
@@ -105,7 +104,7 @@ class ReceivableController extends GetxController {
         errorMessage.value = e.toString();
         print(errorMessage);
       } finally {
-        setIsLoadingTofalse();
+        isLoading.value=false;
       }
     }
   }
@@ -144,7 +143,7 @@ class ReceivableController extends GetxController {
         errorMessage.value = e.toString();
         print(errorMessage);
       } finally {
-        setIsLoadingTofalse();
+        isLoading.value=false;
       }
     }
   }
@@ -175,7 +174,7 @@ class ReceivableController extends GetxController {
         errorMessage.value = e.toString();
         print(errorMessage);
       } finally {
-        setIsLoadingTofalse();
+        isLoading.value=false;
       }
     }
   }
@@ -205,7 +204,7 @@ class ReceivableController extends GetxController {
       } catch (e) {
         errorMessage.value = e.toString();
       } finally {
-        setIsLoadingTofalse();
+        isLoading.value=false;
       }
     }
   }
@@ -216,6 +215,7 @@ class ReceivableController extends GetxController {
     if (token != null) {
       if (validation()) {
         try {
+          isLoading.value=true;
           var headers = ApiEndPoints().setHeaderToken(token);
           var url = ApiEndPoints.baseUrl +
               ApiEndPoints.receivableEndPoints.receivableCreate;
@@ -227,24 +227,19 @@ class ReceivableController extends GetxController {
           );
 
           if (response.statusCode == 200) {
-            clearTextEditor();
+           
             Map<String, dynamic> json = jsonDecode(response.body);
             message.value = json["message"];
-            receivables.add(ReceivableModel.fromJson(json));
-            Get.off(const ReceivablePage());
-
-            //  Get.off(constSupplierPage());
-          } else {
-            final responseData = jsonDecode(response.body);
-            final errorMessage = responseData['message'];
-            errorMessage.value = errorMessage;
-            print(errorMessage);
+            isSuccess.value=true;
+             
+          }else{
+            isFailed.value=true;
+            errorMessage.value=jsonDecode(response.body)["message"];
           }
         } catch (e) {
           errorMessage.value = e.toString();
-          print(errorMessage);
         } finally {
-          setIsLoadingTofalse();
+          isLoading.value=false;
         }
       }
     }
@@ -261,29 +256,14 @@ class ReceivableController extends GetxController {
   }
 
   bool validation() {
-    if (title.text.isEmpty) {
-      titleValidation.value = "Title field is required";
-    } else if (title.text.length > 50) {
-      {
-        titleValidation.value = "Title field can't be more than 50 characher";
-      }
-    } else {
-      titleValidation.value = "";
-    }
     if (amount.text.isEmpty) {
       amountValidation.value = "Amount field is required";
-    } else {
+    } 
+    else if(double.parse(amount.text)<=0 || amount.text.startsWith('00')){
+      amountValidation.value = "The amount must be greather than 0";
+    } 
+    else {
       amountValidation.value = "";
-    }
-    if (dueDate.compareTo(date) < 0) {
-      dueDateValidation.value = "Due Date can't be before Date";
-    } else if (dueDate.compareTo(date) == 0) {
-      dueDateValidation.value = "Due Date can't be equal to Date";
-    } else if (!dueDate.isAfter(
-        date.add(Duration(days: int.parse(selectedPaymentTerm.toString()))))) {
-      dueDateValidation.value = "Due Date must be after payment term";
-    } else {
-      dueDateValidation.value = "";
     }
 
     if (selectedCustomer.value.isEmpty) {
@@ -298,21 +278,35 @@ class ReceivableController extends GetxController {
     }
     if (selectedDueDate.value.isEmpty) {
       dueDateValidation.value = "Please select Due Date";
+    } else if (selectedDueDate.value == DateFormat('yyyy-MM-dd').format(date)) {
+      dueDateValidation.value = "Due Date can't be equal to today";
+    } else if (selectedPaymentTerm.value != "0" &&
+        DateTime.parse(selectedDueDate.value).isBefore(date
+            .add(Duration(days: int.parse(selectedPaymentTerm.toString()))))) {
+      dueDateValidation.value = "Due Date must be after payment term";
     } else {
-      dueDateValidation.value = "";
+      dueDateValidation.value = '';
     }
 
-    return titleValidation.isEmpty &&
-        selectedCustomerValidation.isEmpty &&
+    return selectedCustomerValidation.isEmpty &&
         dueDateValidation.isEmpty &&
         amountValidation.isEmpty &&
         selectedPaymentTermValidation.isEmpty;
   }
 
+
+
   void clearTextEditor() {
     remark.clear();
-    title.clear();
     amount.clear();
+  }
+
+  void clearReceivableForm() {
+    selectedCustomer.value = '';
+    selectedDueDate.value = '';
+    amount.clear();
+    remark.clear();
+    selectedPaymentTerm.value = '';
   }
 
   bool setIsLoadingTofalse() {
@@ -322,4 +316,9 @@ class ReceivableController extends GetxController {
   bool setIsloadingToTrue() {
     return isLoading.value;
   }
+  void initializeStatusFlags() {
+    isSuccess.value = false;
+    isFailed.value = false;
+    errorMessage.value = '';
+    message.value='';}
 }

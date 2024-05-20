@@ -4,7 +4,6 @@ class ReceivableModel {
   final String id;
   final String customerId;
   String ? customerName;
-  final String title;
   final double amount;
   final double remaining;
   final String date;
@@ -15,7 +14,6 @@ class ReceivableModel {
   String? attachment;
   ReceivableModel(
       {required this.id,
-      required this.title,
       required this.customerId,
       required this.amount,
       required this.remaining,
@@ -32,13 +30,12 @@ class ReceivableModel {
     final attributes = json['attributes'];
     return ReceivableModel(
       id: attributes['id'].toString(),
-      title: attributes['title'],
       customerId: attributes['customerId'].toString(),
       amount: attributes['amount'],
       remaining: attributes['remaining'],
       customerName: attributes["customerName"],
-      attachment: attributes['attachment'] ==null ? '' : attributes['attachment'],
-      remark: attributes['remark']==null ?'':attributes['remark'],
+      attachment: attributes['attachment'],
+      remark: attributes['remark'],
       paymentTerm: attributes['payment_term'],
       date: attributes['date'],
       dueDate: attributes['dueDate'],
