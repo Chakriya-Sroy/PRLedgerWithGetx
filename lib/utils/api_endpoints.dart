@@ -7,6 +7,8 @@ class ApiEndPoints{
   static _SupplierEndPoints supplierEndPoints=_SupplierEndPoints();
   static _ReceivableEndPoints receivableEndPoints=_ReceivableEndPoints();
   static _PayableEndPoints payableEndPoints=_PayableEndPoints();
+  static _InvitationEndPoints invitationEndPoints=_InvitationEndPoints();
+
   Map<String, String> setHeader() {
     return {
       'Content-type': 'application/json',
@@ -34,6 +36,7 @@ class _UserEndPoints{
   final String overDueReceivables='user/receivables/overdue';
   final String upcomingPayable='user/payables/upcoming';
   final String overDuePayable='user/payables/overdue';
+  final String userList='user/list';
 }
 
 class _CustomerEndPoints{
@@ -105,4 +108,9 @@ class _PayableEndPoints{
   String getPayableViewEndPoint(String id){
     return '$payableView$id';
   }
+}
+class _InvitationEndPoints{
+  final String sentInvitation='invitations';
+  final String invitationResponse='invitations/respond';
+  final String cancelInvitation='invitations/cancel';
 }

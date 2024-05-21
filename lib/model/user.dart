@@ -80,5 +80,17 @@ class UpcomingPayable{
   factory UpcomingPayable.fromJson(Map<String,dynamic>json){
     return UpcomingPayable(id: json['id'].toString(), remaining: json['remaining'], supplier: json['supplier'],status: json["status"],upcoming: json["upcoming"]);
   }
-
+}
+ class UserCollector{
+  final bool hasCollector;
+  final UserModel ? collectorInfo;
+  UserCollector({required this.hasCollector, this.collectorInfo});
+  factory UserCollector.fromJson(Map<String,dynamic>json){
+    return UserCollector(
+      hasCollector: json['has_collector']=='true',
+      collectorInfo: json['collector_info'] != null 
+          ? UserModel.fromJson(json['collector_info']) 
+          : null, // Handle null collector_info
+    );
+  }
 }

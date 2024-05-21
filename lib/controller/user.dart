@@ -18,7 +18,7 @@ class UserController extends GetxController {
   RxList<UpcomingPayable>upcomingPayable=RxList();
   RxDouble totalSuppliers = RxDouble(0);
   RxDouble totalCustomers = RxDouble(0);
-
+  late Rx<UserCollector?>userCollector=Rx<UserCollector?>(null);
   RxString userRole = 'Merchance'.obs;
   RxBool isLoading = true.obs;
   RxString errorMessage = ''.obs;
@@ -48,6 +48,7 @@ class UserController extends GetxController {
           Map<String, dynamic> firstItem =
               dataList.isNotEmpty ? dataList[0] : {};
           user.value = UserModel.fromJson(firstItem["user_info"]);
+          userCollector.value=UserCollector.fromJson(firstItem["collector"]);
           receivables.value = Receivable.fromJson(firstItem["receivables"]);
           payables.value = Payable.fromJson(firstItem["payables"]);
           subscription.value = Subscription.fromJson(firstItem["subscription"]);

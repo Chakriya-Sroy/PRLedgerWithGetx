@@ -44,73 +44,75 @@ class _SupplierPageState extends State<SupplierPage> {
           ),
           centerTitle: true,
         ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
-            child: Column(
-              children: [
-                CupertinoSearchTextField(
-                  controller: supplierController.search,
-                  backgroundColor: Colors.grey.shade100,
-                  padding:
-                      EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
-                  onChanged: (value) =>
-                      {supplierController.searchTerm.value = value},
-                ),
-                Obx(() => supplierController.supplierLength.value == 0
-                    ? whenSupplierIsEmpthy()
-                    : SizedBox(),),
-                supplierController.isLoading.value
-                    ? Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : Obx(() => ListView.builder(
-                          shrinkWrap: true,
-                          itemCount:supplierController.filtersuppliers().length,
-                          itemBuilder: (context, index) {
-                            SupplierModel filteredSupplier =
-                                supplierController.filtersuppliers()[index];
-                            return Container(
-                              margin: const EdgeInsets.only(top: 20),
-                              padding:
-                                  const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  top: BorderSide.none,
-                                  left:
-                                      BorderSide(width: 5, color: Colors.green),
-                                  bottom: BorderSide.none,
-                                  right: BorderSide.none,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
+              child: Column(
+                children: [
+                  CupertinoSearchTextField(
+                    controller: supplierController.search,
+                    backgroundColor: Colors.grey.shade100,
+                    padding:
+                        EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
+                    onChanged: (value) =>
+                        {supplierController.searchTerm.value = value},
+                  ),
+                  Obx(() => supplierController.supplierLength.value == 0
+                      ? whenSupplierIsEmpthy()
+                      : SizedBox(),),
+                  supplierController.isLoading.value
+                      ? Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : Obx(() => ListView.builder(
+                            shrinkWrap: true,
+                            itemCount:supplierController.filtersuppliers().length,
+                            itemBuilder: (context, index) {
+                              SupplierModel filteredSupplier =
+                                  supplierController.filtersuppliers()[index];
+                              return Container(
+                                margin: const EdgeInsets.only(top: 20),
+                                padding:
+                                    const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    top: BorderSide.none,
+                                    left:
+                                        BorderSide(width: 5, color: Colors.green),
+                                    bottom: BorderSide.none,
+                                    right: BorderSide.none,
+                                  ),
+                                  color: Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(5),
                                 ),
-                                color: Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: ListTile(
-                                title: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(filteredSupplier.name.length > 20
-                                        ? filteredSupplier.name
-                                                .substring(0, 15) +
-                                            '...'
-                                        : filteredSupplier.name),
-                                    Text(
-                                        "\$ ${filteredSupplier.totalRemaining.toString()}")
-                                  ],
+                                child: ListTile(
+                                  title: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(filteredSupplier.name.length > 20
+                                          ? filteredSupplier.name
+                                                  .substring(0, 15) +
+                                              '...'
+                                          : filteredSupplier.name),
+                                      Text(
+                                          "\$ ${filteredSupplier.totalRemaining.toString()}")
+                                    ],
+                                  ),
+                                  trailing: IconButton(
+                                    icon: Icon(Icons.arrow_forward_ios_outlined),
+                                    onPressed: () {
+                                      Get.to(const SupplierLogTransaction(),
+                                          arguments: filteredSupplier.id);
+                                    },
+                                  ),
                                 ),
-                                trailing: IconButton(
-                                  icon: Icon(Icons.arrow_forward_ios_outlined),
-                                  onPressed: () {
-                                    Get.to(const SupplierLogTransaction(),
-                                        arguments: filteredSupplier.id);
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                        )),
-              ],
+                              );
+                            },
+                          )),
+                ],
+              ),
             ),
           ),
         ),

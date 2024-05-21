@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/controller/auth.dart';
 import 'package:laravelsingup/controller/user.dart';
+import 'package:laravelsingup/pages/merchant/collector/collector_page.dart';
 import 'package:laravelsingup/pages/merchant/customer/customer.dart';
 import 'package:laravelsingup/pages/merchant/payable/payable.dart';
 import 'package:laravelsingup/pages/merchant/receivable/receivable_page.dart';
@@ -143,7 +144,9 @@ class _HomePageState extends State<HomePage> {
                           MenuItem(
                             title: "Collector",
                             imageIconPath: "lib/images/collector.png",
-                            onTap: () {},
+                            onTap: () {
+                              Get.to(const MerchanceCollectorPage());
+                            },
                           ),
                         ], 20)
                       ],
@@ -161,6 +164,14 @@ class _HomePageState extends State<HomePage> {
                       height: 20,
                     ),
                     Obx(() => getUpcomingReceivable(userController)),
+                    const Text(
+                      "Upcoming Payables",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     Obx(() => getUpcomingPayables(userController))
                     // ReminderReceivableCard(),
                     //upcoming Payable

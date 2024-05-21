@@ -23,13 +23,12 @@ class _ReceivableFormState extends State<ReceivableForm> {
   @override
   void initState() {
     // TODO: implement initState
-   
+
     super.initState();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-       receivableController.initializeStatusFlags();
-    receivableController.fetchCustomer();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      receivableController.initializeStatusFlags();
+      receivableController.fetchCustomer();
     });
-   
   }
 
   @override
@@ -66,7 +65,8 @@ class _ReceivableFormState extends State<ReceivableForm> {
                     0.2), // Semi-transparent black color for the backdrop
                 child: const Center(
                   child: CircularProgressIndicator(),
-                ),)
+                ),
+              )
           ],
         ));
   }
