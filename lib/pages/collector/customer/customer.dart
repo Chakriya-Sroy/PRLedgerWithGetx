@@ -2,31 +2,28 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/controller/customer.dart';
-import 'package:laravelsingup/home.dart';
 import 'package:laravelsingup/model/customer.dart';
-import 'package:laravelsingup/pages/merchant/customer/customer_form.dart';
-import 'package:laravelsingup/pages/merchant/customer/customer_log.dart';
+import 'package:laravelsingup/pages/collector/customer/customer_log.dart';
 import 'package:laravelsingup/widgets/form/input_button.dart';
 
-class CustomerPage extends StatefulWidget {
-  const CustomerPage({Key? key}) : super(key: key);
+class CollectorCustomerPage extends StatefulWidget {
+  const CollectorCustomerPage({Key? key}) : super(key: key);
 
   @override
-  State<CustomerPage> createState() => _CustomerPageState();
+  State<CollectorCustomerPage> createState() => _CollectorCustomerPageState();
 }
 
-class _CustomerPageState extends State<CustomerPage> {
+class _CollectorCustomerPageState extends State<CollectorCustomerPage> {
   final CustomerController customerController = Get.put(CustomerController());
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-     WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       customerController.setIsloadingToTrue();
-      customerController.fetchCustomer();
+      customerController.fetchAssignCustomer();
     });
-    
   }
 
   @override
@@ -55,25 +52,29 @@ class _CustomerPageState extends State<CustomerPage> {
                   CupertinoSearchTextField(
                     controller: customerController.search,
                     backgroundColor: Colors.grey.shade100,
-                    padding:
-                        EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
+                    padding: EdgeInsets.only(
+                        top: 10, bottom: 10, left: 15, right: 15),
                     onChanged: (value) =>
                         {customerController.searchTerm.value = value},
                   ),
-                  Obx(() => customerController.customerLenght.value == 0
-                      ? whenCustomerisEmpty()
-                      : SizedBox(),),
+                  Obx(
+                    () => customerController.assignCustomerLength.value == 0
+                        ? whenCustomerisEmpty()
+                        : SizedBox(),
+                  ),
                   customerController.isLoading.value
                       ? Center(
                           child: CircularProgressIndicator(),
                         )
                       : Obx(() => ListView.builder(
                             shrinkWrap: true,
-                            itemCount:
-                                customerController.filterCustomers().length,
+                            itemCount: customerController
+                                .filterAssignCustomers()
+                                .length,
                             itemBuilder: (context, index) {
                               CustomerModel filteredCustomer =
-                                  customerController.filterCustomers()[index];
+                                  customerController
+                                      .filterAssignCustomers()[index];
                               return Container(
                                 margin: const EdgeInsets.only(top: 20),
                                 padding:
@@ -81,8 +82,8 @@ class _CustomerPageState extends State<CustomerPage> {
                                 decoration: BoxDecoration(
                                   border: Border(
                                     top: BorderSide.none,
-                                    left:
-                                        BorderSide(width: 5, color: Colors.green),
+                                    left: BorderSide(
+                                        width: 5, color: Colors.green),
                                     bottom: BorderSide.none,
                                     right: BorderSide.none,
                                   ),
@@ -104,7 +105,8 @@ class _CustomerPageState extends State<CustomerPage> {
                                     ],
                                   ),
                                   trailing: IconButton(
-                                    icon: Icon(Icons.arrow_forward_ios_outlined),
+                                    icon:
+                                        Icon(Icons.arrow_forward_ios_outlined),
                                     onPressed: () {
                                       Get.to(const CustomerLogTransaction(),
                                           arguments: filteredCustomer.id);
@@ -118,20 +120,7 @@ class _CustomerPageState extends State<CustomerPage> {
               ),
             ),
           ),
-        ),
-        floatingActionButton:
-            Obx(() => customerController.customerLenght.value > 0
-                ? FloatingActionButton(
-                    onPressed: () {
-                      Get.to(const CustomerForm());
-                    },
-                    backgroundColor: Colors.green,
-                    child: const Icon(
-                      Icons.add,
-                      color: Colors.white,
-                    ),
-                  )
-                : SizedBox()));
+        ));
   }
 }
 
@@ -143,19 +132,10 @@ Container whenCustomerisEmpty() {
     decoration: BoxDecoration(
         color: Colors.grey.shade100, borderRadius: BorderRadius.circular(10)),
     child: Column(children: [
-      Text('No Customer yet, add Customer ?'),
+      Text("Merchance haven't assign any customer yet"),
       const SizedBox(
         height: 20,
       ),
-      SizedBox(
-          width: 150,
-          child: InputButton(
-              label: "Add",
-              onPress: () {
-                Get.to(const CustomerForm());
-              },
-              backgroundColor: Colors.green,
-              color: Colors.white))
     ]),
   );
 }

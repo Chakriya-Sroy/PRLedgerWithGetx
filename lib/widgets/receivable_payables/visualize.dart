@@ -18,7 +18,7 @@ class PRVisualizeCardProgress extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width,
+      width: double.infinity,
       padding: const EdgeInsets.all(20),
       margin:const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(

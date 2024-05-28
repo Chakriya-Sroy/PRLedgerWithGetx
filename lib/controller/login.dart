@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:laravelsingup/home.dart';
+import 'package:laravelsingup/controller/user.dart';
 import 'package:laravelsingup/utils/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -42,10 +42,12 @@ class LoginController extends GetxController {
           // final SharedPreferences pref= await _prefs;
           final pref = await SharedPreferences.getInstance();
           await pref.setString("token", token);
+          await pref.setString("role", "Merchance");
           message.value=json["message"];
           emailController.clear();
           passwordController.clear();
           isSuccess.value=true;
+          
         } else {
           final responseData = jsonDecode(response.body);
           errorMessage.value = responseData['message'];

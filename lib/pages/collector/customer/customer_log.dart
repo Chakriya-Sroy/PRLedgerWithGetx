@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/controller/customer.dart';
-import 'package:laravelsingup/pages/merchant/customer/customer.dart';
-import 'package:laravelsingup/pages/merchant/customer/customer_detail.dart';
+import 'package:laravelsingup/pages/collector/customer/customerDetail.dart';
 import 'package:laravelsingup/pages/merchant/customer/customer_receivable.dart';
 import 'package:laravelsingup/widgets/attribute_row.dart';
 import 'package:laravelsingup/widgets/receivable_payables/visualize.dart';

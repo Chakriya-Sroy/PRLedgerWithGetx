@@ -3,7 +3,8 @@ import 'package:laravelsingup/widgets/form/input_button.dart';
 class WhenListIsEmpty extends StatelessWidget {
   final String title;
   final Function () onPressed;
-  const WhenListIsEmpty({super.key,required this.title,required this.onPressed});
+  final String ? inputButtonTitle ;
+  const WhenListIsEmpty({super.key,required this.title,required this.onPressed,this.inputButtonTitle});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,7 @@ class WhenListIsEmpty extends StatelessWidget {
         SizedBox(
             width: 150,
             child: InputButton(
-                label: "Add",
+                label: inputButtonTitle ?? "Add",
                 onPress: onPressed,
                 backgroundColor: Colors.green,
                 color: Colors.white))

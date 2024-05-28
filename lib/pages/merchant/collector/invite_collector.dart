@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/controller/collector.dart';
 import 'package:laravelsingup/model/collector.dart';
+// import 'package:laravelsingup/pages/merchant/collector/collector_page.dart';
 import 'package:laravelsingup/widgets/form/input_button.dart';
 
 class FindCollectorPage extends StatefulWidget {
@@ -99,22 +100,85 @@ class _FindCollectorPageState extends State<FindCollectorPage> {
                                   ),
                                   Text(filteredUser.email),
                                   const SizedBox(height: 10),
-                                  Obx(() => !filteredUser.hasCollectorRequest.value
+                                  Obx(() => !filteredUser
+                                          .hasCollectorRequest.value
                                       ? InputButton(
                                           label: "Send Collector Request",
-                                          onPress: () async{
-                                           await collectorController.sentInvitation(filteredUser.id);
-                                            filteredUser.hasCollectorRequest.value=true;
+                                          onPress: () async {
+                                            await collectorController
+                                                .sentInvitation(
+                                                    filteredUser.id);
+                                           
+                                            if (collectorController
+                                                .isSuccess.value) {
+                                              filteredUser.hasCollectorRequest.value=true;
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  backgroundColor: Colors.green,
+                                                  content: Obx(
+                                                    () => Text(
+                                                        collectorController
+                                                            .message
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white)),
+                                                  ),
+                                                ),
+                                                
+                                              );
+                                           
+                                            }
+                                            else  {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  backgroundColor: Colors.red,
+                                                  content: Obx(
+                                                    () => Text(
+                                                        collectorController
+                                                            .errorMessage
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white)),
+                                                  ),
+                                                ),
+                                                
+                                              );
                                             
+                                            }
                                           },
                                           backgroundColor: Colors.green,
                                           color: Colors.white,
                                         )
                                       : InputButton(
                                           label: "Cancel Collector Request",
-                                          onPress: () async{
-                                             await collectorController.cancelInvitation(filteredUser.id);
-                                             filteredUser.hasCollectorRequest.value=false;
+                                          onPress: () async {
+                                            await collectorController
+                                                .cancelInvitation(
+                                                    filteredUser.id);
+                                            if(collectorController.isSuccess.value){
+                                              filteredUser.hasCollectorRequest.value=false;
+                                                ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  backgroundColor: Colors.green,
+                                                  content: Obx(
+                                                    () => Text(
+                                                        collectorController
+                                                            .message
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white)),
+                                                  ),
+                                                ),
+                                                
+                                              );
+                                           
+                                            }
                                           },
                                           backgroundColor: Colors.grey,
                                           color: Colors.white,

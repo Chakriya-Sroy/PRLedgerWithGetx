@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 class CustomerModel{
   final String id;
   final String name;
@@ -36,6 +38,14 @@ class CustomerModel{
     );
   }
   
+}
+class AssignCustomerModel{
+  final String id;
+  final String name;
+  AssignCustomerModel({required this.id,required this.name});
+   factory AssignCustomerModel.fromJson(Map<String, dynamic> json) {
+    return AssignCustomerModel(id: json["id"].toString(), name:json["fullname"]);
+   }
 }
 class TransactionModel {
   final int id;

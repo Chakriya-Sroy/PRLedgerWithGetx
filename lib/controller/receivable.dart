@@ -159,7 +159,7 @@ class ReceivableController extends GetxController {
         final response = await http.get(Uri.parse(url), headers: headers);
         if (response.statusCode == 200) {
           Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-          List<dynamic> customerList = jsonResponse["data"]["Customer"];
+          List<dynamic> customerList = jsonResponse["data"];
           ListCustomerId.clear();
           ListCustomerName.clear();
           for (var customer in customerList) {

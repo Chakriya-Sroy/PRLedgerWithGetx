@@ -37,16 +37,24 @@ class _UserEndPoints{
   final String upcomingPayable='user/payables/upcoming';
   final String overDuePayable='user/payables/overdue';
   final String userList='user/list';
+  final String invitationRequestReceived='user/show/invitation';
+  final String invitationRequest='user/show/request';
+  final String assignCustomerReceivableDetail='user/assign/receivables';
+  final String assignUpCustomerReceivable='user/assign/upcoming/receivables';
 }
 
 class _CustomerEndPoints{
   final String customer='customer';
+  final String customerAssignList='user/assign/customers';
   final String customerList='customer/list';
   final String customerCreate='customer/create';
   final String customerDelete='customer/delete/';
   final String customerUpdate='customer/update/';
   final String customerView='customer/view/';
   final String customerTransaction='customer/transaction/';
+  final String customerAssignToCollector='collector/customer/assign';
+  final String customerUnassignToCollector='collector/customer/unassign';
+  final String customerThatAlreadyAssignToCollector='customer/get_assign_customer_to_collector';
 
   String getCustomerViewEndpoint(String id) {
     return '$customerView$id';
@@ -113,4 +121,5 @@ class _InvitationEndPoints{
   final String sentInvitation='invitations';
   final String invitationResponse='invitations/respond';
   final String cancelInvitation='invitations/cancel';
+  final String respondInvitaton='invitations/respond';
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:laravelsingup/controller/receivable.dart';
+import 'package:laravelsingup/pages/merchant/customer/customer_form.dart';
 import 'package:laravelsingup/widgets/form/custom_text_field.dart';
 import 'package:laravelsingup/widgets/form/input_button.dart';
 import 'package:laravelsingup/widgets/form/receivable_due_date.dart';
@@ -66,7 +67,7 @@ class _ReceivableFormState extends State<ReceivableForm> {
                 child: const Center(
                   child: CircularProgressIndicator(),
                 ),
-              )
+              ),
           ],
         ));
   }
@@ -160,6 +161,39 @@ class _ReceivableFormState extends State<ReceivableForm> {
       ],
     );
   }
+
+  // void showAddCustomerDialog(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: true,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text('No Customers Found'),
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(8.0), // Set your desired radius
+  //         ),
+  //         content: const Text(
+  //             'Please add a customer first to create a receivable record.'),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: const Text('Close'),
+  //           ),
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop(); // Close the dialog
+  //               Get.to(
+  //                   const CustomerForm()); // Navigate to the customer creation page
+  //             },
+  //             child: const Text('Add Customer'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   // Expanded ReceivableDateSelection() {
   //   return Expanded(
@@ -272,6 +306,11 @@ class _ReceivableFormState extends State<ReceivableForm> {
 
   Widget CustomerListSelection(ReceivableController receivableController,
       {required Function(String) onChange}) {
+    // if (receivableController.ListCustomerId.isEmpty) {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     showAddCustomerDialog(context);
+    //   });
+    // }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

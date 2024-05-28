@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/controller/auth.dart';
 import 'package:laravelsingup/controller/user.dart';
+import 'package:laravelsingup/pages/collector/home.dart';
 import 'package:laravelsingup/pages/merchant/collector/collector_page.dart';
 import 'package:laravelsingup/pages/merchant/customer/customer.dart';
 import 'package:laravelsingup/pages/merchant/payable/payable.dart';
 import 'package:laravelsingup/pages/merchant/receivable/receivable_page.dart';
 import 'package:laravelsingup/pages/merchant/supplier/supplier.dart';
+import 'package:laravelsingup/pages/notification.dart';
 import 'package:laravelsingup/settings.dart';
 import 'package:laravelsingup/widgets/drawer/drawer_body.dart';
 import 'package:laravelsingup/widgets/menu/menu_item.dart';
 import 'package:laravelsingup/widgets/message/confirm.dart';
 import 'package:laravelsingup/widgets/receivable_payables/reminder.dart';
-//import 'package:laravelsingup/widgets/receivable/reminder.dart';
 import 'package:laravelsingup/widgets/receivable_payables/visualize.dart';
 
 class HomePage extends StatefulWidget {
@@ -30,14 +31,18 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     // TODO: implement initState
-    userController.fetchUpcomingReceivables();
-    userController.fetchUpcomingPayables();
-    userController.getUser();
+
     super.initState();
 
-  }   
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      userController.fetchUpcomingReceivables();
+      userController.fetchUpcomingPayables();
+      userController.getUser();
+    });
+  }
+
   Widget build(BuildContext context) {
-    return Obx(() => userController.user.value ==null
+    return Obx(() => userController.user.value == null
         ? const Center(
             child: CircularProgressIndicator(),
           )
@@ -46,7 +51,7 @@ class _HomePageState extends State<HomePage> {
             appBar: AppBar(
                 title: Obx(
                   () => Text(
-                   userController.user.value!.name,
+                    userController.user.value!.name,
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
@@ -56,8 +61,13 @@ class _HomePageState extends State<HomePage> {
                 // leading: ,
                 actions: [
                   IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.notifications),
+                    onPressed: () {
+                      Get.to(const NotificationPage());
+                    },
+                    icon: Icon(
+                      Icons.notifications,
+                      color: Colors.white,
+                    ),
                   )
                 ]),
             body: SafeArea(
@@ -79,27 +89,27 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Obx(
                       () => PRVisualizeCardProgress(
-                          title: "Receivables",
-                          totalOustanding:
-                              userController.receivables.value!.outstanding,
-                          totalRemainingBalance:
-                              userController.receivables.value!.remaining,
-                          onPressed: (){Get.to(const ReceivablePage());},
-                              
-                        ),
+                        title: "Receivables",
+                        totalOustanding:
+                            userController.receivables.value!.outstanding,
+                        totalRemainingBalance:
+                            userController.receivables.value!.remaining,
+                        onPressed: () {
+                          Get.to(const ReceivablePage());
+                        },
+                      ),
                     ),
                     Obx(
                       () => PRVisualizeCardProgress(
-                          title: "Payables",
-                          totalOustanding:
-                              userController.payables.value!.outstanding,
-                          totalRemainingBalance:
-                              userController.payables.value!.remaining,
-                            onPressed: (){
-                              Get.to(const PayablePage());
-                            },
-                              
-                        ),
+                        title: "Payables",
+                        totalOustanding:
+                            userController.payables.value!.outstanding,
+                        totalRemainingBalance:
+                            userController.payables.value!.remaining,
+                        onPressed: () {
+                          Get.to(const PayablePage());
+                        },
+                      ),
                     ),
                     //List of Menu
                     const SizedBox(
@@ -163,7 +173,7 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(
                       height: 20,
                     ),
-                    Obx(() => getUpcomingReceivable(userController)),
+                    Obx(() => userController.upcomingReceivable.length==0 ? const Text("There no upcoming receivable") :getUpcomingReceivable(userController)),
                     const Text(
                       "Upcoming Payables",
                       style:
@@ -172,7 +182,7 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(
                       height: 20,
                     ),
-                    Obx(() => getUpcomingPayables(userController))
+                    Obx(() => userController.upcomingPayable.length==0 ?const  Text("There no upcoming payable") :getUpcomingPayables(userController))
                     // ReminderReceivableCard(),
                     //upcoming Payable
                   ],
@@ -267,7 +277,12 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(
                           height: 20,
                         ),
-                        Text("Collector"),
+                        DrawerBodyItem(
+                          title: "Collector",
+                          onTap: () {
+                            Get.to(const MerchanceCollectorPage());
+                          },
+                        ),
                         const SizedBox(
                           height: 20,
                         ),
@@ -334,8 +349,9 @@ class _HomePageState extends State<HomePage> {
                             ConfirmMessageBox(context,
                                 message:
                                     "Confirm changing your role to Merchance ?",
-                                onPressed: () {
-                              userController.userRole.value = "Merchance";
+                                onPressed: () async{
+                              await userController.updateUserRole("Merchance");
+                              
                               Navigator.of(context).pop();
                             });
                           }),
@@ -357,11 +373,10 @@ class _HomePageState extends State<HomePage> {
                             ConfirmMessageBox(context,
                                 message:
                                     "Confirm changing your role to Collector ?",
-                                onPressed: () {
-                              userController.userRole.value = "Collector";
+                                onPressed: () async{
+                                await userController.updateUserRole("Collector");
                               Navigator.of(context).pop();
-                              //     Get.to((CollectorHomePage));
-                              print(userController.userRole.toString());
+                              Get.to((const CollectorRoleHomePage()));
                             });
                           }),
                       const SizedBox(
@@ -438,6 +453,7 @@ Container getUpcomingReceivable(UserController userController) {
         }),
   );
 }
+
 Container getUpcomingPayables(UserController userController) {
   return Container(
     //width: double.infinity,
@@ -448,8 +464,7 @@ Container getUpcomingPayables(UserController userController) {
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
           return PRUpcomingCard(
-              name:
-                  userController.upcomingPayable[index].supplier.toString(),
+              name: userController.upcomingPayable[index].supplier.toString(),
               remainingBalance:
                   userController.upcomingPayable[index].remaining.toString(),
               status: userController.upcomingPayable[index].status,
@@ -457,4 +472,3 @@ Container getUpcomingPayables(UserController userController) {
         }),
   );
 }
-

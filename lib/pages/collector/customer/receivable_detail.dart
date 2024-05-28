@@ -38,13 +38,9 @@ class _ReceivableDetailState extends State<ReceivableDetail> {
           )
         : Scaffold(
             appBar: AppBar(
-              // title: Text(
-              //   receivableController.receivable.value!.title,
-              //   style: TextStyle(fontSize: 15),
-              // ),
               leading: GestureDetector(
                 onTap: () {
-                 Get.back();
+                  Get.back();
                 },
                 child: const Icon(
                   Icons.arrow_back_ios_new,
