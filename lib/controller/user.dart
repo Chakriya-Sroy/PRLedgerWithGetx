@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/model/collector.dart';
 import 'package:laravelsingup/model/user.dart';
-import 'package:laravelsingup/pages/merchant/payable/payable.dart';
 import 'package:laravelsingup/utils/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -22,7 +21,8 @@ class UserController extends GetxController {
   RxDouble totalSuppliers = RxDouble(0);
   RxDouble totalCustomers = RxDouble(0);
   Rx<UserCollectorInfo?> userCollector = Rx<UserCollectorInfo?>(null);
-  //
+  
+  RxList<UserNotification>userNotification=RxList();
 
   RxBool hasCollector =false.obs;
   RxString userRole = 'Merchance'.obs;
@@ -265,6 +265,55 @@ class UserController extends GetxController {
     }
   }
 
+  Future<void>fetchNotifications() async{
+    final pref = await SharedPreferences.getInstance();
+    String? token = pref.getString("token");
+    if (token != null) {
+      isLoading.value = true;
+      try {
+        var headers = ApiEndPoints().setHeaderToken(token);
+        var url =ApiEndPoints.baseUrl + ApiEndPoints.userEndPoints.notifications;
+        final response = await http.get(Uri.parse(url), headers: headers);
+        if (response.statusCode == 200) {
+          List<dynamic> jsonResponse = jsonDecode(response.body);
+          userNotification.clear();
+          for (var data in jsonResponse) {
+            userNotification.add(UserNotification.fromJson(data));
+          }
+          
+        } else {
+          errorMessage.value = jsonDecode(response.body)["message"];
+        }
+      } catch (e) {
+        print(e.toString());
+      }
+    }
+  }
+  Map<String, List<UserNotification>> categorizeNotifications(List<UserNotification> notifications) {
+  Map<String, List<UserNotification>> categorizedNotifications = {
+    'Today': [],
+    'Yesterday': [],
+  };
+
+  DateTime now = DateTime.now();
+  DateTime today = DateTime(now.year, now.month, now.day);
+  DateTime yesterday = today.subtract(Duration(days: 1));
+
+  for (var notification in notifications) {
+    if (notification.created_at.isAfter(today)) {
+      categorizedNotifications['Today']!.add(notification);
+    } else if (notification.created_at.isAfter(yesterday) && notification.created_at.isBefore(today)) {
+      categorizedNotifications['Yesterday']!.add(notification);
+    } else {
+      String daysAgoCategory = "${today.difference(notification.created_at).inDays} days ago";
+      if (!categorizedNotifications.containsKey(daysAgoCategory)) {
+        categorizedNotifications[daysAgoCategory] = [];
+      }
+      categorizedNotifications[daysAgoCategory]!.add(notification);
+    }
+  }
+  return categorizedNotifications;
+}
   Map<String, String> _setHeaderToken(String token) {
     return {
       'Content-type': 'application/json',

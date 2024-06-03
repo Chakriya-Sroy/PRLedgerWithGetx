@@ -90,3 +90,16 @@ class UpcomingPayable{
     return UserCollectorInfo(id: json['id'].toString(), name:json["name"],email:json["email"]);
   }
 }
+
+class UserNotification{
+  final String user_id;
+  final String message;
+  final String type;
+  String ? sender_id;
+  final DateTime created_at;
+  UserNotification({required this.user_id,required this.message,required this.type,this.sender_id,required this.created_at});
+
+  factory UserNotification.fromJson(Map<String,dynamic>json){
+    return UserNotification(user_id: json['user_id'].toString(), message:json["message"],type:json["type"],sender_id:json['sender_id'].toString(),created_at: DateTime.parse(json['created_at']),);
+  }
+}

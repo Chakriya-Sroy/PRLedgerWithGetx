@@ -28,6 +28,8 @@ class ApiEndPoints{
 class _AuthEndPoints{
   final String registerEmail='register';
   final String login='login';
+  final String forgotPassword='forgot-password';
+  //final String resetPassword;
 }
 
 class _UserEndPoints{
@@ -41,6 +43,7 @@ class _UserEndPoints{
   final String invitationRequest='user/show/request';
   final String assignCustomerReceivableDetail='user/assign/receivables';
   final String assignUpCustomerReceivable='user/assign/upcoming/receivables';
+  final String notifications='user/notifications';
 }
 
 class _CustomerEndPoints{

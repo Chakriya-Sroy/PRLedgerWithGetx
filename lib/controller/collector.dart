@@ -89,6 +89,8 @@ class CollectorController extends GetxController {
     if (token != null) {
       isLoading.value = true;
       isSuccess.value=false;
+      message.value='';
+      errorMessage.value='';
       try {
         var headers = ApiEndPoints().setHeaderToken(token);
         var url = ApiEndPoints.baseUrl +
@@ -96,12 +98,16 @@ class CollectorController extends GetxController {
         Map body = requestRespondBody(status,senderId);
         final response = await http.post(Uri.parse(url),
             body: jsonEncode(body), headers: headers);
+        print(body);
         if (response.statusCode == 200) {
-           isSuccess.value=false;
+           isSuccess.value=true;
            message.value = jsonDecode(response.body)["message"];
         } else {
+          isSuccess.value=false;
           errorMessage.value = jsonDecode(response.body)["message"];
         }
+        print(message.value);
+        print(errorMessage);
       } catch (e) {
         print(e.toString());
       }

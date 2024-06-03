@@ -39,9 +39,7 @@ class _SettingPageState extends State<SettingPage> {
       appBar: AppBar(
         backgroundColor: Colors.grey.shade100,
         iconTheme: IconThemeData(color: Colors.green),
-        actions: [
-          IconButton(onPressed:(){Get.to(UserQRCode());}, icon: Icon(Icons.qr_code, size: 30))
-        ],
+       
         leading: IconButton(
               icon: Icon(Icons.arrow_back_ios),
               onPressed: (){Get.to(const HomePage());},

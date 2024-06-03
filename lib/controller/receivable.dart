@@ -132,8 +132,13 @@ class ReceivableController extends GetxController {
                 receivableId: payment["receivable_id"].toString(),
                 userId: payment["user_id"].toString(),
                 amount: payment["amount"],
-                date: payment["date"]));
+                date: payment["date"],
+                remark: payment["remark"]
+                
+                ));
+            
           }
+          
         } else {
           final responseData = jsonDecode(response.body);
           errorMessage.value = responseData['message'];
@@ -245,6 +250,17 @@ class ReceivableController extends GetxController {
     }
   }
 
+ List<ReceivableModel> filterFullyPaidReceivables() {
+  return receivables.where((receivable) => receivable.status == 'fullypaid').toList();
+ }
+ 
+ List<ReceivableModel> filterPartailyPaidReceivables() {
+  return receivables.where((receivable) => receivable.status == 'partiallypaid').toList();
+ }
+ 
+ List<ReceivableModel> filterOutstandingReceivables() {
+  return receivables.where((receivable) => receivable.status == 'outstanding').toList();
+ }
   bool isNumber(String amount) {
     final numberRegex = RegExp(r'^[0-9]+$');
     return numberRegex.hasMatch(amount);

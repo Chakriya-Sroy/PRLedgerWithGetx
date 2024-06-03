@@ -4,6 +4,7 @@ import 'package:http/http.dart';
 import 'package:laravelsingup/controller/login.dart';
 import 'package:laravelsingup/controller/register.dart';
 import 'package:laravelsingup/home.dart';
+import 'package:laravelsingup/pages/auth/forgot.dart';
 import 'package:laravelsingup/pages/auth/register.dart';
 import 'package:laravelsingup/widgets/form/custom_text_field.dart';
 import 'package:laravelsingup/widgets/form/input_button.dart';
@@ -82,7 +83,9 @@ class _LoginState extends State<Login> {
                           obscureText: true,
                         )),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        Get.to(const ForgotPassword());
+                      },
                       child: Align(
                         child: Text("Forgot Password ?"),
                         alignment: Alignment.centerLeft,

@@ -13,19 +13,48 @@ class LoginController extends GetxController {
   RxString errorMessage = RxString("");
   RxString emailValidation = RxString("");
   RxString passwordValidation = RxString("");
-  RxBool isLoading =false.obs;
-  RxBool isSuccess=false.obs;
-  RxString message=RxString('');
+  RxBool isLoading = false.obs;
+  RxBool isSuccess = false.obs;
+  RxString message = RxString('');
+
+  Future<void> forgotPasswordResetLink() async {
+    try {
+      isLoading.value = true;
+      var headers = {
+        'Content-type': 'application/json',
+        'Accept': 'application/json'
+      };
+      //var url=Uri.parse(ApiEndPoints.baseUrl+ApiEndPoints.authEndPoints.login);
+      var url = ApiEndPoints.baseUrl + ApiEndPoints.authEndPoints.forgotPassword;
+      Map body = {
+        'email': emailController.text
+      };
+      // http.Response response= await http.post(url,body:jsonEncode(body),headers: headers);
+      final response = await http.post(
+        Uri.parse(url),
+        body: jsonEncode(body),
+        headers: headers,
+      );
+      if(response.statusCode==200){
+        print(jsonDecode(response.body)["message"]);
+      }else{
+        print(jsonDecode(response.body)["message"]);
+      }
+    } catch (e) {
+      print( e.toString());
+    }
+  }
+
   Future<void> loginWithEmailandPassword() async {
     if (validation()) {
       try {
-        isLoading.value=true;
+        isLoading.value = true;
         var headers = {
           'Content-type': 'application/json',
           'Accept': 'application/json'
         };
         //var url=Uri.parse(ApiEndPoints.baseUrl+ApiEndPoints.authEndPoints.login);
-        var url = ApiEndPoints.baseUrl+ApiEndPoints.authEndPoints.login;
+        var url = ApiEndPoints.baseUrl + ApiEndPoints.authEndPoints.login;
         Map body = {
           'email': emailController.text,
           'password': passwordController.text,
@@ -43,19 +72,18 @@ class LoginController extends GetxController {
           final pref = await SharedPreferences.getInstance();
           await pref.setString("token", token);
           await pref.setString("role", "Merchance");
-          message.value=json["message"];
+          message.value = json["message"];
           emailController.clear();
           passwordController.clear();
-          isSuccess.value=true;
-          
+          isSuccess.value = true;
         } else {
           final responseData = jsonDecode(response.body);
           errorMessage.value = responseData['message'];
         }
       } catch (e) {
-         print(e.toString());
-      }finally{
-        isLoading.value=false;
+        print(e.toString());
+      } finally {
+        isLoading.value = false;
       }
     }
   }

@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:laravelsingup/controller/customer.dart';
 import 'package:laravelsingup/controller/user.dart';
 import 'package:laravelsingup/home.dart';
-import 'package:laravelsingup/pages/merchant/collector/assign_customer.dart';
 import 'package:laravelsingup/pages/merchant/collector/invite_collector.dart';
 import 'package:laravelsingup/widgets/empty_state.dart';
 import 'package:laravelsingup/widgets/form/input_button.dart';
