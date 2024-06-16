@@ -39,7 +39,7 @@ class UserController extends GetxController {
   // List of receiver response User
   RxList<ReceiverModel> receivers = RxList();
 
-  Future<void> updateUser() async {}
+ 
 
   Future<void> setUserRole(String role) async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
@@ -81,11 +81,11 @@ class UserController extends GetxController {
           email.text = user.value!.email;
           hasCollector.value=firstItem["collector"]["has_collector"];
           userCollector.value=UserCollectorInfo.fromJson(firstItem["collector"]["collector_info"]);
-          
+          print(dataList);
         } else {
           // If the request was not successful, throw an error
           errorMessage.value = jsonDecode(response.body)["message"];
-         
+          print(errorMessage);
 
         }
       } catch (e) {
