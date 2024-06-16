@@ -1,5 +1,3 @@
-import 'package:intl/intl.dart';
-
 class ReceivableModel {
   final String id;
   final String customerId;
@@ -10,6 +8,7 @@ class ReceivableModel {
   final String dueDate;
   final String status;
   final String paymentTerm;
+  final bool isArchive;
   String? remark;
   String? attachment;
   ReceivableModel(
@@ -21,9 +20,10 @@ class ReceivableModel {
       required this.dueDate,
       required this.paymentTerm,
       required this.status,
+      required this.isArchive,
       this.customerName,
       this.attachment,
-      this.remark
+      this.remark     
       }
     );
    factory ReceivableModel.fromJson(Map<String, dynamic> json) {
@@ -35,6 +35,7 @@ class ReceivableModel {
       remaining: attributes['remaining'],
       customerName: attributes["customerName"],
       attachment: attributes['attachment'],
+      isArchive:attributes['isArchive'],
       remark: attributes['remark'],
       paymentTerm: attributes['payment_term'],
       date: attributes['date'],

@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:laravelsingup/controller/supplier.dart';
 import 'package:laravelsingup/pages/merchant/payable/payable_detail.dart';
-import 'package:laravelsingup/pages/merchant/receivable/receivable_detail.dart';
 class SupplierPayableList extends StatefulWidget {
   
   const SupplierPayableList({super.key});
@@ -17,9 +16,7 @@ class _SupplierPayableListState extends State<SupplierPayableList> {
   String id =Get.arguments;
   @override
   void initState() {
-    // TODO: implement initState  
    super.initState();
-   
     WidgetsBinding.instance.addPostFrameCallback((_) {
    supplierController.fetchIndividualSupplier(id);
     });
@@ -29,7 +26,7 @@ class _SupplierPayableListState extends State<SupplierPayableList> {
   @override
   Widget build(BuildContext context) {
     return Obx(() => supplierController.supplier.value ==null 
-      ? Center(
+      ? const Center(
           child: CircularProgressIndicator(),
       )
       :
@@ -37,9 +34,18 @@ class _SupplierPayableListState extends State<SupplierPayableList> {
       appBar: AppBar(
         title: Text(
           "${supplierController.supplier.value!.name}'s payables",
-          style: TextStyle(color: Colors.white,fontSize: 15),
+          style: const  TextStyle(color: Colors.white,fontSize: 15),
         ),
-        iconTheme: IconThemeData(color: Colors.white),
+        leading: GestureDetector(
+                onTap: () {
+                  Get.back();
+                },
+                child: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.white,
+                ),
+              ),
+        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.green,
         centerTitle: true,
       ),
@@ -58,20 +64,21 @@ class _SupplierPayableListState extends State<SupplierPayableList> {
 
  getSupplierPayable(SupplierController supplierController) {
   
-    return Obx(() => supplierController.supplierPayables.length ==0 ?Container(
+    return Obx(() => supplierController.supplierPayables.isEmpty ?Container(
                 padding: const EdgeInsets.all(20),
                 margin: const EdgeInsets.only(top: 50),
                 alignment: AlignmentDirectional.center,
                 decoration: BoxDecoration(
                     color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(10)),
-                child: Text("There no payable added yet"),
+                child: const Text("There no payable added yet"),
               ):ListView.builder(
               shrinkWrap: true,
               itemCount: supplierController.supplierPayables.length,
               itemBuilder: (context, index) {
-                return SupplierPayableCard(
+                return supplierPayableCard(
                   // title: supplierController.SupplierPayables[index].title,
+                  id:supplierController.supplierPayables[index].id,
                   remaining: supplierController.supplierPayables[index].remaining.toString(),
                   date: supplierController.supplierPayables[index].date,
                   status: supplierController.supplierPayables[index].status,
@@ -84,35 +91,35 @@ class _SupplierPayableListState extends State<SupplierPayableList> {
             );
  }
 
- Container SupplierPayableCard({String ?title,required String remaining,required String date,required String status,required Function() onPressed}) {
+ Container supplierPayableCard({required String id,required String remaining,required String date,required String status,required Function() onPressed}) {
    return Container(
-                  margin: EdgeInsets.only(bottom: 20),
+                  margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
-                      border: Border(left:BorderSide(color: Colors.green,width: 5) ),
+                      border:const Border(left:BorderSide(color: Colors.green,width: 5) ),
                       color: Colors.grey.shade100,
                       boxShadow: [
                         BoxShadow(
                             color: Colors.grey.shade300,
-                            offset: Offset(4.0, 4.0),
+                            offset:const Offset(4.0, 4.0),
                             blurRadius: 10.0,
                             spreadRadius: 1.0)
                       ]),
                   child: SizedBox(
                     height: 80,
                     child: ListTile(
-                        leading: Text(
-                          '1001',
-                          style: TextStyle(fontSize: 15),
-                        ),
+                        // leading: Text(
+                        //   '1001',
+                        //   style: TextStyle(fontSize: 15),
+                        // ),
                         title: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(title ?? '',
-                                style: TextStyle(fontSize: 12)),
+                            Text("Ref${DateFormat('yyyy-MM-dd').format(DateTime.parse(date))}$id",
+                                style: const TextStyle(fontSize: 12)),
                             Text(
-                              '\$' + remaining,
-                              style: TextStyle(fontSize: 12),
+                              "\$ $remaining",
+                              style: const TextStyle(fontSize: 12),
                             )
                           ],
                         ),
@@ -121,16 +128,16 @@ class _SupplierPayableListState extends State<SupplierPayableList> {
                           children: [
                             Text(
                               DateFormat('yyyy-MM-dd').format(DateTime.parse(date)),
-                              style: TextStyle(fontSize: 10),
+                              style: const TextStyle(fontSize: 10),
                             ),
                             Text(
                               status,
-                              style: TextStyle(fontSize: 10),
+                              style:const  TextStyle(fontSize: 10),
                             )
                           ],
                         ),
                         trailing: IconButton(
-                          icon: Icon(Icons.arrow_forward_ios_outlined),
+                          icon: const Icon(Icons.arrow_forward_ios_outlined),
                           onPressed: onPressed,
                         )),
                   ));

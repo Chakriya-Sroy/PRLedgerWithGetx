@@ -20,8 +20,6 @@ class _SupplierPageState extends State<SupplierPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
-   
     super.initState();
     supplierController.setIsloadingToTrue();
     supplierController.fetchSupplier();
@@ -54,15 +52,15 @@ class _SupplierPageState extends State<SupplierPage> {
                     controller: supplierController.search,
                     backgroundColor: Colors.grey.shade100,
                     padding:
-                        EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
+                        const EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
                     onChanged: (value) =>
                         {supplierController.searchTerm.value = value},
                   ),
                   Obx(() => supplierController.supplierLength.value == 0
                       ? whenSupplierIsEmpthy()
-                      : SizedBox(),),
+                      : const SizedBox(),),
                   supplierController.isLoading.value
-                      ? Center(
+                      ? const Center(
                           child: CircularProgressIndicator(),
                         )
                       : Obx(() => ListView.builder(
@@ -76,7 +74,7 @@ class _SupplierPageState extends State<SupplierPage> {
                                 padding:
                                     const EdgeInsets.fromLTRB(20, 10, 20, 10),
                                 decoration: BoxDecoration(
-                                  border: Border(
+                                  border:const  Border(
                                     top: BorderSide.none,
                                     left:
                                         BorderSide(width: 5, color: Colors.green),
@@ -101,7 +99,7 @@ class _SupplierPageState extends State<SupplierPage> {
                                     ],
                                   ),
                                   trailing: IconButton(
-                                    icon: Icon(Icons.arrow_forward_ios_outlined),
+                                    icon: const Icon(Icons.arrow_forward_ios_outlined),
                                     onPressed: () {
                                       Get.to(const SupplierLogTransaction(),
                                           arguments: filteredSupplier.id);
@@ -128,7 +126,7 @@ class _SupplierPageState extends State<SupplierPage> {
                       color: Colors.white,
                     ),
                   )
-                : SizedBox()));
+                : const SizedBox()));
   }
 }
 
@@ -140,7 +138,7 @@ Container whenSupplierIsEmpthy() {
     decoration: BoxDecoration(
         color: Colors.grey.shade100, borderRadius: BorderRadius.circular(10)),
     child: Column(children: [
-      Text('No Supplier yet, add Supplier ?'),
+      const Text('No Supplier yet, add Supplier ?'),
       const SizedBox(
         height: 20,
       ),

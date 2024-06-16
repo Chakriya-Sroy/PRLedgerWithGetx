@@ -1,8 +1,6 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:laravelsingup/pages/auth/login.dart';
 import 'package:laravelsingup/utils/api_endpoints.dart';
 import 'package:http/http.dart' as http;
 

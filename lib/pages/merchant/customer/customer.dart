@@ -20,13 +20,11 @@ class _CustomerPageState extends State<CustomerPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-     WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       customerController.setIsloadingToTrue();
       customerController.fetchCustomer();
     });
-    
   }
 
   @override
@@ -37,7 +35,7 @@ class _CustomerPageState extends State<CustomerPage> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
             onPressed: () {
-              Get.back();
+              Get.to(const HomePage());
             },
           ),
           title: const Text(
@@ -55,16 +53,18 @@ class _CustomerPageState extends State<CustomerPage> {
                   CupertinoSearchTextField(
                     controller: customerController.search,
                     backgroundColor: Colors.grey.shade100,
-                    padding:
-                        EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
+                    padding: const EdgeInsets.only(
+                        top: 10, bottom: 10, left: 15, right: 15),
                     onChanged: (value) =>
                         {customerController.searchTerm.value = value},
                   ),
-                  Obx(() => customerController.customerLenght.value == 0
-                      ? whenCustomerisEmpty()
-                      : SizedBox(),),
+                  Obx(
+                    () => customerController.customerLenght.value == 0
+                        ? whenCustomerisEmpty()
+                        : const SizedBox(),
+                  ),
                   customerController.isLoading.value
-                      ? Center(
+                      ? const Center(
                           child: CircularProgressIndicator(),
                         )
                       : Obx(() => ListView.builder(
@@ -79,10 +79,10 @@ class _CustomerPageState extends State<CustomerPage> {
                                 padding:
                                     const EdgeInsets.fromLTRB(20, 10, 20, 10),
                                 decoration: BoxDecoration(
-                                  border: Border(
+                                  border: const Border(
                                     top: BorderSide.none,
-                                    left:
-                                        BorderSide(width: 5, color: Colors.green),
+                                    left: BorderSide(
+                                        width: 5, color: Colors.green),
                                     bottom: BorderSide.none,
                                     right: BorderSide.none,
                                   ),
@@ -95,16 +95,15 @@ class _CustomerPageState extends State<CustomerPage> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(filteredCustomer.name.length > 20
-                                          ? filteredCustomer.name
-                                                  .substring(0, 15) +
-                                              '...'
+                                          ? '${filteredCustomer.name.substring(0, 15)}...'
                                           : filteredCustomer.name),
                                       Text(
                                           "\$ ${filteredCustomer.totalRemaining.toString()}")
                                     ],
                                   ),
                                   trailing: IconButton(
-                                    icon: Icon(Icons.arrow_forward_ios_outlined),
+                                    icon:
+                                       const  Icon(Icons.arrow_forward_ios_outlined),
                                     onPressed: () {
                                       Get.to(const CustomerLogTransaction(),
                                           arguments: filteredCustomer.id);
@@ -131,7 +130,7 @@ class _CustomerPageState extends State<CustomerPage> {
                       color: Colors.white,
                     ),
                   )
-                : SizedBox()));
+                : const SizedBox()));
   }
 }
 
@@ -143,7 +142,7 @@ Container whenCustomerisEmpty() {
     decoration: BoxDecoration(
         color: Colors.grey.shade100, borderRadius: BorderRadius.circular(10)),
     child: Column(children: [
-      Text('No Customer yet, add Customer ?'),
+      const Text('No Customer yet, add Customer ?'),
       const SizedBox(
         height: 20,
       ),

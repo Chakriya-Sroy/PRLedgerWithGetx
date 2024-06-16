@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:laravelsingup/controller/supplier.dart';
 import 'package:laravelsingup/pages/merchant/supplier/supplier.dart';
 import 'package:laravelsingup/pages/merchant/supplier/supplier_detail.dart';
 import 'package:laravelsingup/pages/merchant/supplier/supplier_payable.dart';
 import 'package:laravelsingup/widgets/attribute_row.dart';
+import 'package:laravelsingup/widgets/receivable_payables/pr_transaction_log.dart';
 import 'package:laravelsingup/widgets/receivable_payables/visualize.dart';
 
 class SupplierLogTransaction extends StatefulWidget {
@@ -19,8 +21,6 @@ class _SupplierLogTransactionState extends State<SupplierLogTransaction> {
   final String id = Get.arguments;
   @override
   void initState() {
-    // TODO: implement initState
-   
     super.initState();
     supplierController.setIsloadingToTrue();
     supplierController.fetchIndividualSupplier(id);
@@ -36,7 +36,7 @@ class _SupplierLogTransactionState extends State<SupplierLogTransaction> {
           )
         : Scaffold(
             appBar: AppBar(
-              title: Text(supplierController.supplier.value!.name,style: TextStyle(color: Colors.white),),
+              title: Text(supplierController.supplier.value!.name,style: const TextStyle(color: Colors.white),),
               centerTitle: true,
               backgroundColor: Colors.green,
               leading: GestureDetector(
@@ -80,69 +80,78 @@ class _SupplierLogTransactionState extends State<SupplierLogTransaction> {
                       const SizedBox(
                         height: 10,
                       ),
-                      Obx(() =>supplierController.transactionLength == 0 ? const SizedBox() : TransactionLog(supplierController) )
+                      Obx(() =>supplierController.transactionLength.value == 0 ? const SizedBox() : const PRTransactionLog(isReceivable: false) )
                     ],
                   )),
             )));
   }
 }
 
-ListView TransactionLog(SupplierController supplierController) {
-  return ListView.builder(
-      scrollDirection: Axis.vertical,
-      shrinkWrap: true,
-      itemCount: supplierController.transactions.length,
-      itemBuilder: (context, index) {
-        return Column(
-          children: [
-            TransactionLogCard(
-              amount: supplierController.transactions[index].amount,
-              transactionType:
-                  supplierController.transactions[index].transactionType,
-              transactionDate: supplierController
-                  .transactions[index].transactionDate
-                  .toString(),
-            )
-          ],
-        );
-      });
-}
+// ListView transactionLog(SupplierController supplierController) {
+//   return ListView.builder(
+//       scrollDirection: Axis.vertical,
+//       shrinkWrap: true,
+//       itemCount: supplierController.transactions.length,
+//       itemBuilder: (context, index) {
+//         return Column(
+//           children: [
+//             transactionLogCard(
+//               payableId: supplierController.transactions[index].payableId.toString(),
+//               payableCreatedDate: supplierController.transactions[index].payableCreated.toString(),
+//               amount: supplierController.transactions[index].amount,
+//               transactionType:
+//                   supplierController.transactions[index].transactionType,
+//               transactionDate: supplierController
+//                   .transactions[index].transactionDate
+//                   .toString(),
+//             )
+//           ],
+//         );
+//       });
+// }
 
-Container TransactionLogCard(
-    {required double amount,
-    required String transactionDate,
-    required String transactionType}) {
-  return Container(
-    width: double.infinity,
-    margin: const EdgeInsets.only(bottom: 20),
-    padding: const EdgeInsets.all(20),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(5),
-      color: Colors.grey.shade100,
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.shade300,
-          offset: Offset(4.0, 4.0),
-          blurRadius: 10.0,
-          spreadRadius: 1.0,
-        )
-      ],
-    ),
-    child: Column(
-      children: [
-        AttributeRow(
-            applyToAttribute: true,
-            AttributeTextStyle: TextStyle(color: Colors.green),
-            attribute: transactionType == 'payable' ? "Ref#" : "Payment",
-            value: "\$ $amount"),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Text(
-            transactionDate,
-            style: TextStyle(fontSize: 10),
-          ),
-        )
-      ],
-    ),
-  );
-}
+// Container transactionLogCard(
+//     {required double amount,
+//     required String payableId,
+//     required String payableCreatedDate,
+//     required String transactionDate,
+//     required String transactionType}) {
+//   return Container(
+//     width: double.infinity,
+//     margin: const EdgeInsets.only(bottom: 20),
+//     padding: const EdgeInsets.all(20),
+//     decoration: BoxDecoration(
+//       borderRadius: BorderRadius.circular(5),
+//       color: Colors.grey.shade100,
+//       boxShadow: [
+//         BoxShadow(
+//           color: Colors.grey.shade300,
+//           offset: const Offset(4.0, 4.0),
+//           blurRadius: 10.0,
+//           spreadRadius: 1.0,
+//         )
+//       ],
+//     ),
+//     child: Column(
+//       children: [
+//         AttributeRow(
+//             applyToAttribute: true,
+//             AttributeTextStyle: const TextStyle(color: Colors.green),
+//             attribute: transactionType == 'payable' ?"Ref#${DateFormat('yyyyMMdd').format(DateTime.parse(payableCreatedDate))}$payableId" :"Payment#${DateFormat('yyyyMMdd').format(DateTime.parse(payableCreatedDate))}$payableId",
+//             value: "\$ $amount",
+//             applyToValue: true,
+//             ValueTextStyle: transactionType == 'payable' ?const  TextStyle(color: Colors.red,fontWeight: FontWeight.bold): const  TextStyle(color: Colors.green,fontWeight: FontWeight.bold),
+//             ),
+//         // const SizedBox(height: 5,),
+//         // AttributeRow(attribute: transactionType == 'payable' ? '' :'Payment' , value: transactionDate)
+//         Align(
+//           alignment: Alignment.centerRight,
+//           child: Text(
+//             transactionDate,
+//             style: TextStyle(fontSize: 10),
+//           ),
+//         )
+//       ],
+//     ),
+//   );
+// }

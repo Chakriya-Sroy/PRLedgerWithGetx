@@ -39,8 +39,8 @@ class TransactionModel {
   final int id;
   final int supplierId;
   final String transactionType;
-  final int? payableId;
-  final int? paymentId;
+  final int payableId;
+  final String  payableCreated;
   final double amount;
   final String transactionDate;
 
@@ -48,8 +48,8 @@ class TransactionModel {
     required this.id,
     required this.supplierId,
     required this.transactionType,
-    this.payableId,
-    this.paymentId,
+    required this.payableId,
+    required this.payableCreated,
     required this.amount,
     required this.transactionDate,
    
@@ -66,7 +66,7 @@ class TransactionModel {
       supplierId: json['supplier_id'],
       transactionType: json['transaction_type'],
       payableId: json['payable_id'],
-      paymentId: json['payment_id'],
+      payableCreated: json['payableCreated'],
       amount: double.parse(json['amount']),
       transactionDate: daysDifference==1 ? "Added yesterday" : daysDifference==0 ? "Added today" : "Added $daysDifference days ago"
     );

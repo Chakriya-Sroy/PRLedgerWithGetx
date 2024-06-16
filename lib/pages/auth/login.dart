@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart';
+import 'package:image_network/image_network.dart';
 import 'package:laravelsingup/controller/login.dart';
-import 'package:laravelsingup/controller/register.dart';
 import 'package:laravelsingup/home.dart';
 import 'package:laravelsingup/pages/auth/forgot.dart';
 import 'package:laravelsingup/pages/auth/register.dart';
@@ -17,7 +16,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  LoginController login = Get.put(LoginController());
+  final  login = Get.put(LoginController());
+  
   @override
   Widget build(BuildContext context) {
     return Obx(() => Stack(
@@ -26,25 +26,26 @@ class _LoginState extends State<Login> {
               child: Scaffold(
                   body: SingleChildScrollView(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
                   child: Column(children: [
                     Align(
                       alignment: Alignment.center,
                       child: SizedBox(
-                        child: Image.network(
-                          "lib/images/logo.png",
-                          fit: BoxFit.contain,
-                        ),
                         width: 200,
                         height: 100,
+                        child: ImageNetwork(
+                          image: "https://testfyp1.sgp1.cdn.digitaloceanspaces.com/menu_icon/logo.png",
+                          width: 200,
+                          height: 200,
+                        ),
                       ),
                     ),
                     const SizedBox(
                       height: 20,
                     ),
-                    Align(
+                    const Align(
                       alignment: Alignment.center,
-                      child: Text(
+                      child:  Text(
                         "Login",
                         style: TextStyle(
                             color: Colors.green,
@@ -56,7 +57,7 @@ class _LoginState extends State<Login> {
                       height: 15,
                     ),
                     Obx(() => login.errorMessage.isEmpty
-                        ? SizedBox()
+                        ? const SizedBox()
                         : Container(
                             width: double.infinity,
                             margin: const EdgeInsets.only(bottom: 20),
@@ -86,21 +87,21 @@ class _LoginState extends State<Login> {
                       onTap: () {
                         Get.to(const ForgotPassword());
                       },
-                      child: Align(
-                        child: Text("Forgot Password ?"),
+                      child: const Align(
                         alignment: Alignment.centerLeft,
+                        child: Text("Forgot Password ?"),
                       ),
                     ),
                     const SizedBox(
                       height: 10,
                     ),
                     Row(children: [
-                      Text("Don't have an account yet ?"),
+                      const Text("Don't have an account yet ?"),
                       GestureDetector(
                           onTap: () {
-                            Get.to(RegisterPage());
+                            Get.to(const RegisterPage());
                           },
-                          child: Text(
+                          child: const Text(
                             "Signup",
                             style: TextStyle(
                                 color: Colors.green,
@@ -119,11 +120,11 @@ class _LoginState extends State<Login> {
                               SnackBar(
                                 backgroundColor: Colors.green,
                                 content: Text(login.message.toString(),
-                                    style: TextStyle(color: Colors.white)),
+                                    style: const TextStyle(color: Colors.white)),
                               ),
                             );
                             // Direct to the login page after successful registration
-                            await Future.delayed(Duration(seconds: 2));
+                            await Future.delayed(const Duration(seconds: 2));
                             Get.off(const HomePage());
                           }
                         },
@@ -132,22 +133,24 @@ class _LoginState extends State<Login> {
                     const SizedBox(
                       height: 25,
                     ),
-                    Align(
-                      child: Text("or Login with google"),
+                    const Align(
                       alignment: Alignment.center,
+                      child: Text("or Login with google"),
                     ),
                     const SizedBox(
                       height: 25,
                     ),
                     MaterialButton(
-                        onPressed: () {},
+                        onPressed: () {
+                           login.googleRedirectURL();   
+                        },
                         child:  SizedBox(
-                          child: Image.network(
+                          width: 200,
+                          height: 40,
+                           child: Image.network(
                             "lib/images/google.png",
                             fit: BoxFit.contain,
                           ),
-                          width: 200,
-                          height: 40,
                         )),
                   ]),
                 ),

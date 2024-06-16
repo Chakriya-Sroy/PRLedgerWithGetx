@@ -6,9 +6,11 @@ class PRListTile extends StatelessWidget {
   final String amount;
   final String status;
   final String date;
+  final String id;
   final void Function()? onPressed;
   const PRListTile(
       {super.key,
+      required this.id,
       required this.name,
       required this.amount,
       required this.status,
@@ -18,28 +20,29 @@ class PRListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
           color: Colors.white,
           boxShadow: [
             BoxShadow(
                 color: Colors.grey.shade300,
-                offset: Offset(4.0, 4.0),
+                offset: const Offset(4.0, 4.0),
                 blurRadius: 10.0,
                 spreadRadius: 1.0)
           ]),
       child: Column(
         children: [
-          ReceivableTileHeader(name: name),
-          ReceivableTileBody(amount: amount, date: date, status: status),
+          receivableTileHeader(name: name),
+          receivableTileBody(id:id,amount: amount, date: date, status: status),
         ],
       ),
     );
   }
 
-  SizedBox ReceivableTileBody(
+  SizedBox receivableTileBody(
       {String? title,
+      required String id,
       required String amount,
       required String date,
       required String status}) {
@@ -50,12 +53,12 @@ class PRListTile extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '1001',
-                style: TextStyle(fontSize: 15),
+                "Ref${DateFormat('yyyyMMdd').format(DateTime.parse(date))}${id}",
+                style: const TextStyle(fontSize: 15),
               ),
               Text(
                 '\$' + amount,
-                style: TextStyle(fontSize: 12),
+                style: const TextStyle(fontSize: 12),
               )
             ],
           ),
@@ -64,26 +67,26 @@ class PRListTile extends StatelessWidget {
             children: [
               Text(
                 DateFormat('yyyy-MM-dd').format(DateTime.parse(date)),
-                style: TextStyle(fontSize: 10),
+                style: const TextStyle(fontSize: 10),
               ),
               Text(
                 status,
-                style: TextStyle(fontSize: 10),
+                style: const  TextStyle(fontSize: 10),
               )
             ],
           ),
           trailing: IconButton(
-            icon: Icon(Icons.arrow_forward_ios_outlined),
+            icon: const Icon(Icons.arrow_forward_ios_outlined),
             onPressed: onPressed,
           )),
     );
   }
 
-  Container ReceivableTileHeader({required String name}) {
+  Container receivableTileHeader({required String name}) {
     return Container(
         width: double.infinity,
         height: 40,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
             color: Colors.green,
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(5), topRight: Radius.circular(5))),
@@ -91,7 +94,7 @@ class PRListTile extends StatelessWidget {
           padding: const EdgeInsets.only(left: 20, top: 10),
           child: Text(
             name,
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
           ),
         ));
   }

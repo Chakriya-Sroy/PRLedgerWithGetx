@@ -18,13 +18,33 @@ class _SupplierEditState extends State<SupplierEdit> {
   final String id = Get.arguments;
   @override
   void initState() {
-    // TODO: implement initState
-    
     super.initState();
     supplierController.setIsloadingToTrue();
     supplierController.fetchIndividualSupplier(id);
     supplierController.AssignSupplierValueToTextEditor();
     supplierController.initializeStatusFlags();
+  }
+
+  void showSnachBar(
+      bool isSuccess, bool isFailed, String message, String errorMessage) {
+    if (isSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.green,
+          content: Text(message, style: const TextStyle(color: Colors.white)),
+        ),
+      );
+      Get.off(const SupplierDetail(), arguments: id);
+    }
+    if (isFailed) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(errorMessage, style: const TextStyle(color: Colors.white)),
+        ),
+      );
+      Get.off(const SupplierDetail(), arguments: id);
+    }
   }
 
   @override
@@ -38,7 +58,7 @@ class _SupplierEditState extends State<SupplierEdit> {
                   centerTitle: true,
                 ),
                 body: Obx(
-                  () => supplierController.supplier.value ==null
+                  () => supplierController.supplier.value == null
                       ? const Center(
                           child: CircularProgressIndicator(),
                         )
@@ -83,41 +103,45 @@ class _SupplierEditState extends State<SupplierEdit> {
                                   label: "Save",
                                   onPress: () async {
                                     await supplierController.updateSupplier(id);
-                                    if (supplierController.isSuccess.value) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          backgroundColor: Colors.green,
-                                          content: Obx(
-                                            () => Text(
-                                                supplierController.message.value,
-                                                style: TextStyle(
-                                                    color: Colors.white)),
-                                          ),
-                                        ),
-                                      );
-                                         Get.off(const SupplierDetail(),
-                                          arguments: id);
-                                      
-                                    }
-                                    if (supplierController.isFailed.value) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          backgroundColor: Colors.red,
-                                          content: Obx(
-                                            () => Text(
-                                                supplierController.errorMessage
-                                                    .toString(),
-                                                style: TextStyle(
-                                                    color: Colors.white)),
-                                          ),
-                                        ),
-                                      );
-                                         Get.off(const SupplierDetail(),
-                                          arguments: id);
-                                    }
-                                 
+                                    showSnachBar(
+                                        supplierController.isSuccess.value,
+                                        supplierController.isFailed.value,
+                                        supplierController.message.value,
+                                        supplierController.errorMessage.value);
+                                    // if (supplierController.isSuccess.value) {
+                                    //   ScaffoldMessenger.of(context)
+                                    //       .showSnackBar(
+                                    //     SnackBar(
+                                    //       backgroundColor: Colors.green,
+                                    //       content: Obx(
+                                    //         () => Text(
+                                    //             supplierController
+                                    //                 .message.value,
+                                    //             style: TextStyle(
+                                    //                 color: Colors.white)),
+                                    //       ),
+                                    //     ),
+                                    //   );
+                                    //   Get.off(const SupplierDetail(),
+                                    //       arguments: id);
+                                    // }
+                                    // if (supplierController.isFailed.value) {
+                                    //   ScaffoldMessenger.of(context)
+                                    //       .showSnackBar(
+                                    //     SnackBar(
+                                    //       backgroundColor: Colors.red,
+                                    //       content: Obx(
+                                    //         () => Text(
+                                    //             supplierController.errorMessage
+                                    //                 .toString(),
+                                    //             style: TextStyle(
+                                    //                 color: Colors.white)),
+                                    //       ),
+                                    //     ),
+                                    //   );
+                                    //   Get.off(const SupplierDetail(),
+                                    //       arguments: id);
+                                    // }
                                   },
                                   backgroundColor: Colors.green,
                                   color: Colors.white),

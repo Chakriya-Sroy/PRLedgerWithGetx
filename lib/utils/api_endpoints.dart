@@ -1,5 +1,5 @@
 class ApiEndPoints{
-  static final String baseUrl="http://127.0.0.1:8000/api/";
+  static final String baseUrl="http://139.59.99.131/api/";
   static  _AuthEndPoints authEndPoints = _AuthEndPoints();
   static _CustomerEndPoints customerEndPoints=_CustomerEndPoints();
   static _UserEndPoints userEndPoints=_UserEndPoints();
@@ -29,7 +29,7 @@ class _AuthEndPoints{
   final String registerEmail='register';
   final String login='login';
   final String forgotPassword='forgot-password';
-  //final String resetPassword;
+  final String redirectURLGoogle='auth/google';
 }
 
 class _UserEndPoints{
@@ -41,7 +41,9 @@ class _UserEndPoints{
   final String userList='user/list';
   final String invitationRequestReceived='user/show/invitation';
   final String invitationRequest='user/show/request';
+
   final String assignCustomerReceivableDetail='user/assign/receivables';
+
   final String assignUpCustomerReceivable='user/assign/upcoming/receivables';
   final String notifications='user/notifications';
 }
@@ -106,9 +108,14 @@ class _ReceivableEndPoints{
   final String receivableCreate='customer/receivable/create';
   final String receivableView='customer/receivable/view/';
   final String receivablePayment='customer/receivable/payment/create';
-
+  final String receivableArchieveList='customer/receivable/archive/list';
+  final String receivableArchieve='customer/receivable/archive/';
+  final String receivableAssign='customer/receivable/assign/list';
   String getReceivableViewEndPoint(String id){
     return '$receivableView$id';
+  }
+  String archieveReceivable(String id){
+    return '$receivableArchieve$id';
   }
 }
 class _PayableEndPoints{
@@ -116,8 +123,13 @@ class _PayableEndPoints{
   final String paybleCreate='supplier/payable/create';
   final String payableView='supplier/payable/view/';
   final String payablePayments='supplier/payable/payment/create';
+  final String payableArchieveList='supplier/payable/archive/list';
+  final String payableArchieve='supplier/payable/archive/';
   String getPayableViewEndPoint(String id){
     return '$payableView$id';
+  }
+  String archievePayable(String id){
+    return '$payableArchieve$id';
   }
 }
 class _InvitationEndPoints{

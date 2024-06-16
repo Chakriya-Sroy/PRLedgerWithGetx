@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_network/image_network.dart';
 class MenuItem extends StatelessWidget {
   final String title;
   final String imageIconPath;
@@ -28,7 +29,7 @@ class MenuItem extends StatelessWidget {
             child: SizedBox(
                 width: 45,
                 height: 45,
-                child: Image.network(imageIconPath, fit: BoxFit.cover)),
+                child: ImageNetwork(image: imageIconPath, height: 45, width: 45)),
           ),
         ),
       ],

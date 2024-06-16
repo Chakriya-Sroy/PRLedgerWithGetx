@@ -4,6 +4,7 @@ import 'package:laravelsingup/controller/auth.dart';
 import 'package:laravelsingup/controller/user.dart';
 import 'package:laravelsingup/home.dart';
 import 'package:laravelsingup/pages/collector/customer/customer.dart';
+import 'package:laravelsingup/pages/collector/receivable_archieve.dart';
 import 'package:laravelsingup/widgets/drawer/drawer_body.dart';
 import 'package:laravelsingup/widgets/message/confirm.dart';
 import 'package:laravelsingup/widgets/receivable_payables/reminder.dart';
@@ -22,11 +23,11 @@ class _CollectorRoleHomePageState extends State<CollectorRoleHomePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     userController.getUser();
     userController.fetchAssignCustomerRecivableDetail();
     userController.fetchUpcomingAssignCustomerReceivable();
+    userController.updateUserRole("Collector");
   }
 
   @override
@@ -40,12 +41,12 @@ class _CollectorRoleHomePageState extends State<CollectorRoleHomePage> {
               title: Obx(
                 () => Text(
                   userController.user.value!.name,
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
               centerTitle: true,
               backgroundColor: Colors.green,
-              iconTheme: IconThemeData(color: Colors.white),
+              iconTheme:const  IconThemeData(color: Colors.white),
             ),
             body: SingleChildScrollView(
               child: Padding(
@@ -78,8 +79,7 @@ class _CollectorRoleHomePageState extends State<CollectorRoleHomePage> {
                     ),
                     Obx(() => userController
                                 .upcomingReceivablesAssignFromMerchance
-                                .length ==
-                            0
+                                .isEmpty 
                         ? const Text("There no upcoming receivable")
                         : getUpcomingReceivable(userController)),
                   ],
@@ -91,7 +91,7 @@ class _CollectorRoleHomePageState extends State<CollectorRoleHomePage> {
                 elevation: 0,
                 child: ListView(children: [
                   DrawerHeader(
-                    decoration: BoxDecoration(
+                    decoration:const  BoxDecoration(
                         border:
                             Border(bottom: BorderSide(color: Colors.white))),
                     child: Row(
@@ -100,7 +100,7 @@ class _CollectorRoleHomePageState extends State<CollectorRoleHomePage> {
                         Container(
                           width: 70,
                           height: 70,
-                          decoration: BoxDecoration(shape: BoxShape.circle),
+                          decoration: const BoxDecoration(shape: BoxShape.circle),
                           child: SizedBox(
                             child: Image.asset("lib/images/profileIcon.png"),
                           ),
@@ -108,7 +108,7 @@ class _CollectorRoleHomePageState extends State<CollectorRoleHomePage> {
                         Obx(() => userController.user.value!.hasCollectorRole
                             ? GestureDetector(
                                 onTap: () {
-                                  SwitchRole(context);
+                                  switchRole(context);
                                 },
                                 child: Row(
                                     crossAxisAlignment:
@@ -116,12 +116,12 @@ class _CollectorRoleHomePageState extends State<CollectorRoleHomePage> {
                                     children: [
                                       Text(
                                         userController.user.value!.name,
-                                        style: TextStyle(color: Colors.white),
+                                        style:const  TextStyle(color: Colors.white),
                                       ),
                                       const SizedBox(
                                         width: 10,
                                       ),
-                                      Icon(
+                                      const Icon(
                                         Icons.keyboard_arrow_down_outlined,
                                         color: Colors.white,
                                       )
@@ -131,7 +131,7 @@ class _CollectorRoleHomePageState extends State<CollectorRoleHomePage> {
                                 alignment: Alignment.center,
                                 child: Text(
                                   userController.user.value!.name.toString(),
-                                  style: TextStyle(color: Colors.white),
+                                  style: const TextStyle(color: Colors.white),
                                 ))),
                       ],
                     ),
@@ -144,7 +144,9 @@ class _CollectorRoleHomePageState extends State<CollectorRoleHomePage> {
                       children: [
                         DrawerBodyItem(
                           title: "Account Receivable",
-                          onTap: () {},
+                          onTap: () {
+                            Get.to(const AssignReceivables());
+                          },
                         ),
                         const SizedBox(
                           height: 20,
@@ -166,7 +168,7 @@ class _CollectorRoleHomePageState extends State<CollectorRoleHomePage> {
                           onTap: () {
                             authCheckController.Logout();
                           },
-                          child: Text("Sign out",
+                          child: const Text("Sign out",
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 15,
@@ -187,6 +189,8 @@ class _CollectorRoleHomePageState extends State<CollectorRoleHomePage> {
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) {
             return PRUpcomingCard(
+                id: userController.upcomingReceivablesAssignFromMerchance[index].id,
+                date: userController.upcomingReceivablesAssignFromMerchance[index].receivableCreated,
                 name: userController
                     .upcomingReceivablesAssignFromMerchance[index].customer
                     .toString(),
@@ -201,7 +205,7 @@ class _CollectorRoleHomePageState extends State<CollectorRoleHomePage> {
     );
   }
 
-  Future<void> SwitchRole(BuildContext context) {
+  Future<void> switchRole(BuildContext context) {
     final UserController userController = Get.put(UserController());
     return showModalBottomSheet(
         context: context,
@@ -210,7 +214,7 @@ class _CollectorRoleHomePageState extends State<CollectorRoleHomePage> {
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height / 2.5,
               padding: const EdgeInsets.only(left: 20),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                   color: Colors.green,
                   borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(20),
@@ -225,7 +229,7 @@ class _CollectorRoleHomePageState extends State<CollectorRoleHomePage> {
                         borderRadius: BorderRadius.circular(10),
                         color: Colors.white),
                   ),
-                  Text(
+                  const Text(
                     "Switch Rold",
                     style: TextStyle(color: Colors.white, fontSize: 15),
                   ),
@@ -248,7 +252,7 @@ class _CollectorRoleHomePageState extends State<CollectorRoleHomePage> {
                       const SizedBox(
                         width: 10,
                       ),
-                      Text(
+                      const Text(
                         "Merchance",
                         style: TextStyle(color: Colors.white),
                       ),
@@ -271,7 +275,7 @@ class _CollectorRoleHomePageState extends State<CollectorRoleHomePage> {
                       const SizedBox(
                         width: 10,
                       ),
-                      Text(
+                      const Text(
                         "Collector",
                         style: TextStyle(color: Colors.white),
                       ),

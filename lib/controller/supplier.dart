@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/model/payable.dart';
 import 'package:laravelsingup/model/supplier.dart';
-import 'package:laravelsingup/pages/merchant/supplier/supplier.dart';
 import 'package:laravelsingup/utils/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -75,8 +74,10 @@ class SupplierController extends GetxController {
           }
           transactionLength.value = transactions.length;
         }
+      
       } catch (e) {
         errorMessage.value = e.toString();
+        
       } finally {
        isLoading.value=false;
       }
@@ -96,9 +97,9 @@ class SupplierController extends GetxController {
 
         if (response.statusCode == 200) {
           Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-          Map<String, dynamic> SupplierAttributes = jsonResponse["data"];
-          supplier.value = SupplierModel.fromJson(SupplierAttributes);
-          List payables = SupplierAttributes["payables"];
+          Map<String, dynamic> supplierAttributes = jsonResponse["data"];
+          supplier.value = SupplierModel.fromJson(supplierAttributes);
+          List payables = supplierAttributes["payables"];
           supplierPayables.clear();
           for (var payable in  payables) {
             supplierPayables.add(PayableModel(

@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/controller/payable.dart';
-import 'package:laravelsingup/controller/user.dart';
 import 'package:laravelsingup/home.dart';
 import 'package:laravelsingup/pages/merchant/payable/payable_detail.dart';
 import 'package:laravelsingup/pages/merchant/payable/payable_form.dart';
-import 'package:laravelsingup/pages/merchant/supplier/supplier_form.dart';
 import 'package:laravelsingup/widgets/empty_state.dart';
 import 'package:laravelsingup/widgets/receivable_payables/pr_tile.dart';
 
-class PayablePage extends StatefulWidget {
-  const PayablePage({super.key});
+class ArchivePayablePagee extends StatefulWidget {
+  const ArchivePayablePagee({super.key});
 
   @override
-  State<PayablePage> createState() => _PayablePageState();
+  State<ArchivePayablePagee> createState() => _ArchivePayablePageeState();
 }
 
-class _PayablePageState extends State<PayablePage> {
+class _ArchivePayablePageeState extends State<ArchivePayablePagee> {
   final payableController = Get.put(PayableController());
   @override
   void initState() {
@@ -24,8 +22,7 @@ class _PayablePageState extends State<PayablePage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       payableController.setIsloadingToTrue();
-      payableController.fetchPayables();
-      payableController.fetchSupplier();
+      payableController.fetchArchievePayables();
     });
   }
 
@@ -34,12 +31,12 @@ class _PayablePageState extends State<PayablePage> {
     return Scaffold(
         appBar: AppBar(
           title: Text(
-            "Payable",
+            "Archieve Payable ",
             style: TextStyle(color: Colors.white),
           ),
           leading: GestureDetector(
             onTap: () {
-              Get.to(const HomePage());
+              Get.back();
             },
             child: const Icon(
               Icons.arrow_back_ios_new,
@@ -54,51 +51,32 @@ class _PayablePageState extends State<PayablePage> {
           child: Padding(
               padding: const EdgeInsets.all(20),
               child:
-                  Obx(
-                      () => payableController.lengthofPayableList.value == 0
-                          ? WhenListIsEmpty(
-                              title: "No Payables Yet, add a Payable ",
-                              onPressed: () {
-                                Get.to(const PayableForm());
-                              })
-                          : Obx(() => ListView.builder(
+                  Obx(() => ListView.builder(
                                 shrinkWrap: true,
-                                itemCount: payableController.payables.length,
+                                itemCount: payableController.archivePayables.length,
                                 itemBuilder: (context, index) {
                                   return PRListTile(
-                                      id: payableController.payables[index].id,
+                                      id: payableController.archivePayables[index].id,
                                       name: payableController
-                                          .payables[index].supplierrName
+                                          .archivePayables[index].supplierrName
                                           .toString(),
                                       amount: payableController
-                                          .payables[index].remaining
+                                          .archivePayables[index].remaining
                                           .toString(),
                                       status: payableController
-                                          .payables[index].status,
+                                          .archivePayables[index].status,
                                       date: payableController
-                                          .payables[index].date
+                                          .archivePayables[index].date
                                           .toString(),
                                       onPressed: () {
                                         Get.to(const PayableDetail(),
                                             arguments: payableController
-                                                .payables[index].id);
+                                                .archivePayables[index].id);
                                       });
                                 },
                               )),
                     ))
-        ),
-        floatingActionButton:
-            Obx(() => payableController.lengthofPayableList.value > 0
-                ? FloatingActionButton(
-                    onPressed: () {
-                      Get.to(const PayableForm());
-                    },
-                    backgroundColor: Colors.green,
-                    child: const Icon(
-                      Icons.add,
-                      color: Colors.white,
-                    ),
-                  )
-                : const SizedBox()));
+        
+       );
   }
 }

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_network/image_network.dart';
 import 'package:laravelsingup/controller/auth.dart';
 import 'package:laravelsingup/controller/user.dart';
 import 'package:laravelsingup/pages/collector/home.dart';
 import 'package:laravelsingup/pages/merchant/collector/collector_page.dart';
 import 'package:laravelsingup/pages/merchant/customer/customer.dart';
 import 'package:laravelsingup/pages/merchant/payable/payable.dart';
+import 'package:laravelsingup/pages/merchant/payable/payable_archive.dart';
+import 'package:laravelsingup/pages/merchant/receivable/receivable_archieve.dart';
 import 'package:laravelsingup/pages/merchant/receivable/receivable_page.dart';
 import 'package:laravelsingup/pages/merchant/supplier/supplier.dart';
 import 'package:laravelsingup/pages/notification.dart';
@@ -126,34 +129,34 @@ class _HomePageState extends State<HomePage> {
                         Menu([
                           MenuItem(
                             title: "Receivable",
-                            imageIconPath: "lib/images/receivable.png",
+                            imageIconPath: "https://testfyp1.sgp1.cdn.digitaloceanspaces.com/menu_icon/receivable.png",
                             onTap: () {
                               Get.to(const ReceivablePage());
                             },
                           ),
                           MenuItem(
                             title: "Customers",
-                            imageIconPath: "lib/images/customer.png",
+                            imageIconPath: "https://testfyp1.sgp1.cdn.digitaloceanspaces.com/menu_icon/customer.png",
                             onTap: () {
                               Get.to(const CustomerPage());
                             },
                           ),
                           MenuItem(
                               title: "Payable",
-                              imageIconPath: "lib/images/payable.png",
+                              imageIconPath: "https://testfyp1.sgp1.cdn.digitaloceanspaces.com/menu_icon/payable.png",
                               onTap: () {
                                 Get.to(const PayablePage());
                               }),
                           MenuItem(
                             title: "Suppliers",
-                            imageIconPath: "lib/images/supplier.png",
+                            imageIconPath: "https://testfyp1.sgp1.cdn.digitaloceanspaces.com/menu_icon/supplier.png",
                             onTap: () {
                               Get.to(const SupplierPage());
                             },
                           ),
                           MenuItem(
                             title: "Collector",
-                            imageIconPath: "lib/images/collector.png",
+                            imageIconPath: "https://testfyp1.sgp1.cdn.digitaloceanspaces.com/menu_icon/collector.png",
                             onTap: () {
                               Get.to(const MerchanceCollectorPage());
                             },
@@ -164,27 +167,40 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(
                       height: 20,
                     ),
-                    // Upcoming Receivable
-                    const Text(
-                      "Upcoming Receivable",
-                      style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Obx(() => userController.upcomingReceivable.length==0 ? const Text("There no upcoming receivable") :getUpcomingReceivable(userController)),
-                    const Text(
-                      "Upcoming Payables",
-                      style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Obx(() => userController.upcomingPayable.length==0 ?const  Text("There no upcoming payable") :getUpcomingPayables(userController))
-                    // ReminderReceivableCard(),
-                    //upcoming Payable
+
+                    Obx(() => userController.upcomingReceivable.isEmpty
+                        ? const SizedBox()
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Upcoming Receivable",
+                                style: TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              getUpcomingReceivable(userController)
+                            ],
+                          )),
+
+                    Obx(() => userController.upcomingPayable.isEmpty
+                        ? const SizedBox()
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Upcoming Payables",
+                                style: TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              getUpcomingPayables(userController)
+                            ],
+                          ))
                   ],
                 ),
               )),
@@ -205,7 +221,7 @@ class _HomePageState extends State<HomePage> {
                           height: 70,
                           decoration: BoxDecoration(shape: BoxShape.circle),
                           child: SizedBox(
-                            child: Image.asset("lib/images/profileIcon.png"),
+                            child: ImageNetwork(image: "https://testfyp1.sgp1.cdn.digitaloceanspaces.com/menu_icon/profileIcon.png",width: 70,height: 70,),
                           ),
                         ),
                         Obx(() => userController.user.value!.hasCollectorRole
@@ -245,16 +261,56 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        DrawerBodyItem(
-                          title: "Account Receivable",
-                          onTap: () {},
+                        ExpansionTile(
+                          tilePadding: const EdgeInsets.only(left:0,right: 20),
+                          initiallyExpanded: false,
+                          expandedAlignment: Alignment.centerLeft,
+                          shape: Border.all(color: Colors.transparent),
+                          title: Text('Account Receivable',style: TextStyle(color: Colors.white),),
+                          textColor: Colors.white,
+                          collapsedIconColor: Colors.white,
+                          iconColor: Colors.white,
+                          children: [
+                            GestureDetector(
+                              onTap: (){
+                                Get.to(const ReceivablePage());
+                              },
+                              child: Align(alignment: Alignment.centerLeft,child: Text("Receviables ",style: TextStyle(color: Colors.white),)),),
+                             const SizedBox(height:10),
+                            GestureDetector(
+                              onTap: (){
+                                Get.to(const ArchieveReceivables());
+                              },
+                              child: Align(alignment: Alignment.centerLeft,child: Text("Archieve Receviable ",style: TextStyle(color: Colors.white),)),)
+                          ],
+
                         ),
                         const SizedBox(
                           height: 20,
                         ),
-                        DrawerBodyItem(
-                          title: "Account Payables",
-                          onTap: () {},
+                        ExpansionTile(
+                          tilePadding: const EdgeInsets.only(left:0,right: 20),
+                          initiallyExpanded: false,
+                          expandedAlignment: Alignment.centerLeft,
+                          shape: Border.all(color: Colors.transparent),
+                          title: Text('Account Payable',style: TextStyle(color: Colors.white),),
+                          textColor: Colors.white,
+                          collapsedIconColor: Colors.white,
+                          iconColor: Colors.white,
+                          children: [
+                            GestureDetector(
+                              onTap: (){
+                                Get.to(const PayablePage());
+                              },
+                              child: Align(alignment: Alignment.centerLeft,child: Text("Payables ",style: TextStyle(color: Colors.white),)),),
+                            const SizedBox(height:10),
+                            GestureDetector(
+                              onTap: (){
+                                Get.to(const ArchivePayablePagee());
+                              },
+                              child: Align(alignment: Alignment.centerLeft,child: Text("Archieve Payable ",style: TextStyle(color: Colors.white),)),)
+                          ],
+
                         ),
                         const SizedBox(
                           height: 20,
@@ -321,7 +377,7 @@ class _HomePageState extends State<HomePage> {
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height / 2.5,
               padding: const EdgeInsets.only(left: 20),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                   color: Colors.green,
                   borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(20),
@@ -336,7 +392,7 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(10),
                         color: Colors.white),
                   ),
-                  Text(
+                  const Text(
                     "Switch Rold",
                     style: TextStyle(color: Colors.white, fontSize: 15),
                   ),
@@ -349,16 +405,15 @@ class _HomePageState extends State<HomePage> {
                             ConfirmMessageBox(context,
                                 message:
                                     "Confirm changing your role to Merchance ?",
-                                onPressed: () async{
+                                onPressed: () async {
                               await userController.updateUserRole("Merchance");
-                              
                               Navigator.of(context).pop();
                             });
                           }),
                       const SizedBox(
                         width: 10,
                       ),
-                      Text(
+                      const Text(
                         "Merchance",
                         style: TextStyle(color: Colors.white),
                       ),
@@ -373,8 +428,8 @@ class _HomePageState extends State<HomePage> {
                             ConfirmMessageBox(context,
                                 message:
                                     "Confirm changing your role to Collector ?",
-                                onPressed: () async{
-                                await userController.updateUserRole("Collector");
+                                onPressed: () async {
+                              await userController.updateUserRole("Collector");
                               Navigator.of(context).pop();
                               Get.to((const CollectorRoleHomePage()));
                             });
@@ -382,7 +437,7 @@ class _HomePageState extends State<HomePage> {
                       const SizedBox(
                         width: 10,
                       ),
-                      Text(
+                      const Text(
                         "Collector",
                         style: TextStyle(color: Colors.white),
                       ),
@@ -444,6 +499,8 @@ Container getUpcomingReceivable(UserController userController) {
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
           return PRUpcomingCard(
+              id: userController.upcomingReceivable[index].id,
+              date: userController.upcomingReceivable[index].receivableCreated,
               name:
                   userController.upcomingReceivable[index].customer.toString(),
               remainingBalance:
@@ -464,6 +521,8 @@ Container getUpcomingPayables(UserController userController) {
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
           return PRUpcomingCard(
+              id: userController.upcomingPayable[index].id,
+              date: userController.upcomingPayable[index].payableCreated,
               name: userController.upcomingPayable[index].supplier.toString(),
               remainingBalance:
                   userController.upcomingPayable[index].remaining.toString(),

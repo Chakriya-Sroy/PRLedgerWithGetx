@@ -17,12 +17,35 @@ class _SupplierFormState extends State<SupplierForm> {
   final SupplierController supplierController = Get.put(SupplierController());
   @override
   void initState() {
-    // TODO: implement initState
-   
     super.initState();
-     supplierController.isLoading.value=false;
+    supplierController.isLoading.value=false;
     supplierController.clearTextEditor();
     supplierController.initializeStatusFlags();
+  }
+  void showSnachBar(bool isSuccess, bool isFailed, String message, String errorMessage){
+     if (isSuccess) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: Colors.green,
+                                content:Text(
+                                      message,
+                                      style: const TextStyle(color: Colors.white))
+                              ),
+                            );
+                            Get.to(const SupplierPage());
+                          }
+                          if (isFailed) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: Colors.red,
+                                content:  Text(
+                                      errorMessage,
+                                      style: const TextStyle(color: Colors.white)),
+                              ),
+                            );
+                           Get.to(const SupplierPage());
+                          }
+                          
   }
   @override
   Widget build(BuildContext context) {
@@ -72,32 +95,38 @@ class _SupplierFormState extends State<SupplierForm> {
                         label: "Save",
                         onPress: () async {
                           await supplierController.addSupplier();
-                          if (supplierController.isSuccess.value) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: Colors.green,
-                                content: Obx(
-                                  () => Text(
-                                      supplierController.message.toString(),
-                                      style: TextStyle(color: Colors.white)),
-                                ),
-                              ),
-                            );
-                            Get.off(const SupplierPage());
-                          }
-                          if (supplierController.isFailed.value) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: Colors.red,
-                                content: Obx(
-                                  () => Text(
-                                      supplierController.errorMessage.toString(),
-                                      style: TextStyle(color: Colors.white)),
-                                ),
-                              ),
-                            );
-                            Get.off(const SupplierPage());
-                          }
+                          showSnachBar(
+                            supplierController.isSuccess.value,
+                            supplierController.isFailed.value, 
+                            supplierController.message.value, 
+                            supplierController.errorMessage.value
+                          );
+                          // if (supplierController.isSuccess.value) {
+                          //   ScaffoldMessenger.of(context).showSnackBar(
+                          //     SnackBar(
+                          //       backgroundColor: Colors.green,
+                          //       content: Obx(
+                          //         () => Text(
+                          //             supplierController.message.toString(),
+                          //             style: TextStyle(color: Colors.white)),
+                          //       ),
+                          //     ),
+                          //   );
+                          //   Get.to(const SupplierPage());
+                          // }
+                          // if (supplierController.isFailed.value) {
+                          //   ScaffoldMessenger.of(context).showSnackBar(
+                          //     SnackBar(
+                          //       backgroundColor: Colors.red,
+                          //       content: Obx(
+                          //         () => Text(
+                          //             supplierController.errorMessage.toString(),
+                          //             style: TextStyle(color: Colors.white)),
+                          //       ),
+                          //     ),
+                          //   );
+                          //  Get.to(const SupplierPage());
+                          // }
                           
                         },
                         backgroundColor: Colors.green,

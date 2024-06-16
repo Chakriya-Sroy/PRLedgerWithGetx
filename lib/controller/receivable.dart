@@ -1,10 +1,8 @@
 import 'dart:convert';
-import 'dart:js';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:laravelsingup/model/receivable.dart';
-import 'package:laravelsingup/pages/merchant/receivable/receivable_page.dart';
 import 'package:laravelsingup/utils/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -28,7 +26,7 @@ class ReceivableController extends GetxController {
   RxString selectedDueDate = ''.obs;
   RxBool isLoading = false.obs;
   RxBool isSuccess = false.obs;
-  RxBool isFailed =false.obs;
+  RxBool isFailed = false.obs;
   // For PaymentTerm Options Selection
   final List<String> paymentOptions = ["equal to due date", '7', '15'];
   final List<String> payments = ["0", "7", "15"];
@@ -47,7 +45,10 @@ class ReceivableController extends GetxController {
   late Rx<ReceivableModel?> receivable = Rx<ReceivableModel?>(null);
   RxList<ReceivablePaymentModel> receivablePayments = RxList();
   RxInt lengthofReceivableList = 0.obs;
+  // Archieve Receivable
 
+  RxList<ReceivableModel> archieveReceivables=RxList();
+  RxList<ReceivableModel> assignReceivables=RxList();
   // Use For Make Payment
   RxString receivableID = ''.obs;
 
@@ -62,7 +63,7 @@ class ReceivableController extends GetxController {
       'remark': remark.text,
       'status': 'outstanding',
       'attachment': attachment.value,
-      'date': DateFormat('yyyy-MM-dd').format(date),
+      'date': DateFormat('yyyy-MM-dd').format(date.toLocal()),
       'dueDate': selectedDueDate.value,
     };
   }
@@ -79,7 +80,7 @@ class ReceivableController extends GetxController {
   Future<void> createReceivablePayment() async {
     final pref = await SharedPreferences.getInstance();
     String? token = pref.getString("token");
-    isSuccess.value=false;
+    isSuccess.value = false;
     if (token != null) {
       try {
         var headers = ApiEndPoints().setHeaderToken(token);
@@ -93,10 +94,8 @@ class ReceivableController extends GetxController {
         );
         if (response.statusCode == 200) {
           Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-          //Map<String, dynamic> data = jsonResponse["data"][0]["attributes"];
-          //receivablePayments.add(ReceivablePaymentModel.fromJson(data));
           message.value = jsonResponse["message"];
-          isSuccess.value=true;
+          isSuccess.value = true;
         } else {
           print(jsonDecode(response.body)["message"]);
         }
@@ -104,6 +103,95 @@ class ReceivableController extends GetxController {
         errorMessage.value = e.toString();
         print(errorMessage);
       } finally {
+        isLoading.value = false;
+      }
+    }
+  }
+  Future<void>fetchAssignReceivable() async{
+    final pref = await SharedPreferences.getInstance();
+    String? token = pref.getString("token");
+    if (token != null) {
+      try {
+        var headers = ApiEndPoints().setHeaderToken(token);
+        var url = ApiEndPoints.baseUrl +ApiEndPoints.receivableEndPoints.receivableArchieveList;
+        final response = await http.get(Uri.parse(url), headers: headers);
+        if (response.statusCode == 200) {
+          Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+          List<dynamic> receivableList = jsonResponse["data"];
+          List<ReceivableModel> receivableData = receivableList
+              .map((receivable) => ReceivableModel.fromJson(receivable))
+              .toList();
+          assignReceivables.clear();
+          assignReceivables.addAll(receivableData);
+        
+        } else {
+          final responseData = jsonDecode(response.body);
+          message.value = responseData["message"];
+         
+        }
+      } catch (e) {
+        errorMessage.value = e.toString();
+      
+      } finally {
+        isLoading.value = false;
+      }
+    }
+  }
+  Future<void> fetchArchieveReceivable() async{
+    final pref = await SharedPreferences.getInstance();
+    String? token = pref.getString("token");
+    if (token != null) {
+      try {
+        var headers = ApiEndPoints().setHeaderToken(token);
+        var url = ApiEndPoints.baseUrl +ApiEndPoints.receivableEndPoints.receivableArchieveList;
+        final response = await http.get(Uri.parse(url), headers: headers);
+        if (response.statusCode == 200) {
+          Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+          List<dynamic> receivableList = jsonResponse["data"];
+          List<ReceivableModel> receivableData = receivableList
+              .map((receivable) => ReceivableModel.fromJson(receivable))
+              .toList();
+          archieveReceivables.clear();
+          archieveReceivables.addAll(receivableData);
+        
+        } else {
+          final responseData = jsonDecode(response.body);
+          message.value = responseData["message"];
+         
+        }
+      } catch (e) {
+        errorMessage.value = e.toString();
+      
+      } finally {
+        isLoading.value = false;
+      }
+    }
+  }
+  Future<void> archieveReceivable(String id) async {
+    final pref = await SharedPreferences.getInstance();
+    String? token = pref.getString("token");
+    if (token != null) {
+      isLoading.value=true;
+      isFailed.value=false;
+      isSuccess.value = false;
+      message.value = '';
+      errorMessage.value = '';
+      try {
+        var headers = ApiEndPoints().setHeaderToken(token);
+        var url = ApiEndPoints.baseUrl +
+            ApiEndPoints.receivableEndPoints.archieveReceivable(id);
+        final response = await http.patch(Uri.parse(url), headers: headers);
+        if (response.statusCode == 200) {
+          Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+          isSuccess.value = true;
+          message.value = jsonResponse['message'];
+        } else {
+          isFailed.value = true;
+          errorMessage.value = jsonDecode(response.body)['message'];
+        }
+      } catch (e) {
+        print(e.toString());
+      }finally{
         isLoading.value=false;
       }
     }
@@ -133,12 +221,8 @@ class ReceivableController extends GetxController {
                 userId: payment["user_id"].toString(),
                 amount: payment["amount"],
                 date: payment["date"],
-                remark: payment["remark"]
-                
-                ));
-            
+                remark: payment["remark"]));
           }
-          
         } else {
           final responseData = jsonDecode(response.body);
           errorMessage.value = responseData['message'];
@@ -148,7 +232,7 @@ class ReceivableController extends GetxController {
         errorMessage.value = e.toString();
         print(errorMessage);
       } finally {
-        isLoading.value=false;
+        isLoading.value = false;
       }
     }
   }
@@ -179,7 +263,7 @@ class ReceivableController extends GetxController {
         errorMessage.value = e.toString();
         print(errorMessage);
       } finally {
-        isLoading.value=false;
+        isLoading.value = false;
       }
     }
   }
@@ -195,7 +279,7 @@ class ReceivableController extends GetxController {
         final response = await http.get(Uri.parse(url), headers: headers);
         if (response.statusCode == 200) {
           Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-          List<dynamic> receivableList = jsonResponse["data"]["receivables"];
+          List<dynamic> receivableList = jsonResponse["data"];
           List<ReceivableModel> receivableData = receivableList
               .map((receivable) => ReceivableModel.fromJson(receivable))
               .toList();
@@ -209,7 +293,7 @@ class ReceivableController extends GetxController {
       } catch (e) {
         errorMessage.value = e.toString();
       } finally {
-        isLoading.value=false;
+        isLoading.value = false;
       }
     }
   }
@@ -220,7 +304,7 @@ class ReceivableController extends GetxController {
     if (token != null) {
       if (validation()) {
         try {
-          isLoading.value=true;
+          isLoading.value = true;
           var headers = ApiEndPoints().setHeaderToken(token);
           var url = ApiEndPoints.baseUrl +
               ApiEndPoints.receivableEndPoints.receivableCreate;
@@ -232,35 +316,40 @@ class ReceivableController extends GetxController {
           );
 
           if (response.statusCode == 200) {
-           
             Map<String, dynamic> json = jsonDecode(response.body);
             message.value = json["message"];
-            isSuccess.value=true;
-             
-          }else{
-            isFailed.value=true;
-            errorMessage.value=jsonDecode(response.body)["message"];
+            isSuccess.value = true;
+          } else {
+            isFailed.value = true;
+            errorMessage.value = jsonDecode(response.body)["message"];
           }
         } catch (e) {
           errorMessage.value = e.toString();
         } finally {
-          isLoading.value=false;
+          isLoading.value = false;
         }
       }
     }
   }
 
- List<ReceivableModel> filterFullyPaidReceivables() {
-  return receivables.where((receivable) => receivable.status == 'fullypaid').toList();
- }
- 
- List<ReceivableModel> filterPartailyPaidReceivables() {
-  return receivables.where((receivable) => receivable.status == 'partiallypaid').toList();
- }
- 
- List<ReceivableModel> filterOutstandingReceivables() {
-  return receivables.where((receivable) => receivable.status == 'outstanding').toList();
- }
+  List<ReceivableModel> filterFullyPaidReceivables() {
+    return receivables
+        .where((receivable) => receivable.status == 'fullypaid')
+        .toList();
+  }
+
+  List<ReceivableModel> filterPartailyPaidReceivables() {
+    return receivables
+        .where((receivable) => receivable.status == 'partiallypaid')
+        .toList();
+  }
+
+  List<ReceivableModel> filterOutstandingReceivables() {
+    return receivables
+        .where((receivable) => receivable.status == 'outstanding')
+        .toList();
+  }
+
   bool isNumber(String amount) {
     final numberRegex = RegExp(r'^[0-9]+$');
     return numberRegex.hasMatch(amount);
@@ -274,11 +363,9 @@ class ReceivableController extends GetxController {
   bool validation() {
     if (amount.text.isEmpty) {
       amountValidation.value = "Amount field is required";
-    } 
-    else if(double.parse(amount.text)<=0 || amount.text.startsWith('00')){
+    } else if (double.parse(amount.text) <= 0 || amount.text.startsWith('00')) {
       amountValidation.value = "The amount must be greather than 0";
-    } 
-    else {
+    } else {
       amountValidation.value = "";
     }
 
@@ -310,8 +397,6 @@ class ReceivableController extends GetxController {
         selectedPaymentTermValidation.isEmpty;
   }
 
-
-
   void clearTextEditor() {
     remark.clear();
     amount.clear();
@@ -332,9 +417,11 @@ class ReceivableController extends GetxController {
   bool setIsloadingToTrue() {
     return isLoading.value;
   }
+
   void initializeStatusFlags() {
     isSuccess.value = false;
     isFailed.value = false;
     errorMessage.value = '';
-    message.value='';}
+    message.value = '';
+  }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/controller/receivable.dart';
 import 'package:laravelsingup/pages/merchant/receivable/receivable_page.dart';
+import 'package:laravelsingup/widgets/form/input_button.dart';
 import 'package:laravelsingup/widgets/receivable_payables/display_payment_sheet.dart';
 import 'package:laravelsingup/widgets/receivable_payables/pr_overview.dart';
 import 'package:laravelsingup/widgets/receivable_payables/pr_payment.dart';
@@ -30,6 +31,34 @@ class _ReceivableDetailState extends State<ReceivableDetail> {
     });
   }
 
+  void showSnackBar(
+      bool isSuccess, bool isFailed, String message, String errorMessage) {
+    if (isSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.green,
+          content: Text(
+            message,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+      Get.back();
+    }
+    if (isFailed) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(
+            errorMessage,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+      Get.back();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() => receivableController.receivable.value == null
@@ -44,7 +73,7 @@ class _ReceivableDetailState extends State<ReceivableDetail> {
               // ),
               leading: GestureDetector(
                 onTap: () {
-                 Get.back();
+                  Get.back();
                 },
                 child: const Icon(
                   Icons.arrow_back_ios_new,
@@ -54,114 +83,261 @@ class _ReceivableDetailState extends State<ReceivableDetail> {
               centerTitle: true,
             ),
             body: SafeArea(
-              child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(30),
+              child: Stack(children: [
+                Padding(
+                  padding: const EdgeInsets.all(30.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Obx(
-                        () => PROverview(
-                            receivableAmount: receivableController
-                                .receivable.value!.amount
-                                .toString(),
-                            receivableRemainingBalance: receivableController
-                                .receivable.value!.remaining
-                                .toString(),
-                            receivableDueDate:
-                                receivableController.receivable.value!.dueDate,
-                            receivablePaymentTerms: receivableController
-                                .receivable.value!.paymentTerm,
-                            receivableRemark: receivableController
-                                .receivable.value!.remark
-                                .toString(),
-                            receivableAttachment: receivableController
-                                .receivable.value!.attachment
-                                .toString()),
-                      ),
-                      Obx(
-                        () => receivableController.receivable.value!.remaining >
-                                0
-                            ? Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Add Payment'),
-                                  IconButton(
-                                    onPressed: () {
-                                      displayPaymentBottomSheet(context,
-                                          receivableId: receivableController
-                                              .receivable.value!.id,
-                                          remainingBalance: receivableController
-                                              .receivable.value!.remaining
-                                              .toString(),
-                                          paymentController:
-                                              receivableController.amount,
-                                          remarkController: receivableController
-                                              .remark, onSubmit: () async {
-                                        receivableController
-                                            .setIsloadingToTrue();
-                                        await receivableController
-                                            .createReceivablePayment();
-                                        Navigator.pop(context);
-                                        receivableController
-                                            .fetchIndividualReceivable(id);
-                                        if (receivableController
-                                            .isSuccess.value) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              backgroundColor: Colors.green,
-                                              content: Obx(
-                                                () => Text(
-                                                    receivableController.message
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                        color: Colors.white)),
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                      });
-                                    },
-                                    icon: Icon(Icons.add_box,
-                                        color: Colors.green),
-                                  ),
-                                ],
-                              )
-                            : const Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 15, bottom: 15),
-                                child: Text('Payment has been fully paid'),
-                              ),
-                      ),
-                      Obx(() => Container(
-                            margin: const EdgeInsets.only(top: 15, bottom: 15),
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: receivableController
-                                  .receivablePayments.length,
-                              itemBuilder: (context, index) {
-                                return PaymentDetailExpansionTile(
-                                  paymentAmount: receivableController
-                                      .receivablePayments[index].amount,
-                                  paymentDate: receivableController
-                                      .receivablePayments[index].date,
-                                  paymentRemark: receivableController
-                                      .receivablePayments[index].remark
-                                      .toString(),
-                                  paymentAttachment: receivableController
-                                      .receivablePayments[index].attachment
-                                      .toString(),
-                                );
-                              },
-                            ),
-                          ))
+                      ReceivableOverview(),
+                      ReceivableAddPaymentButton(context),
+                      ReceivavblePaymentDetailList(),
+                      const SizedBox(
+                        height: 50,
+                      )
                     ],
-                  )),
+                  ),
+                ),
+                ReceivableAddToArchieveButton(),
+                Obx(() => receivableController.isLoading.value ? Container(
+                    color: Colors.black.withOpacity(
+                        0.2), // Semi-transparent black color for the backdrop
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ):const SizedBox())
+              
+              ]
+
+                  // SingleChildScrollView(
+                  //     padding: const EdgeInsets.all(30),
+                  //     child: Column(
+                  //       mainAxisAlignment: MainAxisAlignment.center,
+                  //       crossAxisAlignment: CrossAxisAlignment.start,
+                  //       children: [
+                  //         Obx(
+                  //           () => PROverview(
+                  //               id: receivableController.receivable.value!.id,
+                  //               receivableAmount: receivableController
+                  //                   .receivable.value!.amount
+                  //                   .toString(),
+                  //               receivableRemainingBalance: receivableController
+                  //                   .receivable.value!.remaining
+                  //                   .toString(),
+                  //               receivableDueDate:
+                  //                   receivableController.receivable.value!.dueDate,
+                  //               receivablePaymentTerms: receivableController
+                  //                   .receivable.value!.paymentTerm,
+                  //               receivableRemark: receivableController
+                  //                   .receivable.value!.remark
+                  //                   .toString(),
+                  //               receivableAttachment: receivableController
+                  //                   .receivable.value!.attachment
+                  //                   .toString()),
+                  //         ),
+                  //         Obx(
+                  //           () => receivableController.receivable.value!.remaining >
+                  //                   0
+                  //               ? Row(
+                  //                   mainAxisAlignment:
+                  //                       MainAxisAlignment.spaceBetween,
+                  //                   children: [
+                  //                     Text('Add Payment'),
+                  //                     IconButton(
+                  //                       onPressed: () {
+                  //                         displayPaymentBottomSheet(context,
+                  //                             //   attachment: receivableController.receivable.value!.attachment.toString(),
+                  //                             receivableId: receivableController
+                  //                                 .receivable.value!.id,
+                  //                             remainingBalance: receivableController
+                  //                                 .receivable.value!.remaining
+                  //                                 .toString(),
+                  //                             paymentController:
+                  //                                 receivableController.amount,
+                  //                             remarkController: receivableController
+                  //                                 .remark, onSubmit: () async {
+                  //                           receivableController
+                  //                               .setIsloadingToTrue();
+                  //                           await receivableController
+                  //                               .createReceivablePayment();
+                  //                           Navigator.pop(context);
+                  //                           receivableController
+                  //                               .fetchIndividualReceivable(id);
+                  //                           if (receivableController
+                  //                               .isSuccess.value) {
+                  //                             ScaffoldMessenger.of(context)
+                  //                                 .showSnackBar(
+                  //                               SnackBar(
+                  //                                 backgroundColor: Colors.green,
+                  //                                 content: Obx(
+                  //                                   () => Text(
+                  //                                       receivableController.message
+                  //                                           .toString(),
+                  //                                       style: TextStyle(
+                  //                                           color: Colors.white)),
+                  //                                 ),
+                  //                               ),
+                  //                             );
+                  //                           }
+                  //                         });
+                  //                       },
+                  //                       icon: Icon(Icons.add_box,
+                  //                           color: Colors.green),
+                  //                     ),
+                  //                   ],
+                  //                 )
+                  //               : const Padding(
+                  //                   padding:
+                  //                       const EdgeInsets.only(top: 15, bottom: 15),
+                  //                   child: Text('Payment has been fully paid'),
+                  //                 ),
+                  //         ),
+                  //         Obx(() => Container(
+                  //               margin: const EdgeInsets.only(top: 15, bottom: 15),
+                  //               child: ListView.builder(
+                  //                 shrinkWrap: true,
+                  //                 physics: NeverScrollableScrollPhysics(),
+                  //                 itemCount: receivableController
+                  //                     .receivablePayments.length,
+                  //                 itemBuilder: (context, index) {
+                  //                   return PaymentDetailExpansionTile(
+                  //                     paymentAmount: receivableController
+                  //                         .receivablePayments[index].amount,
+                  //                     paymentDate: receivableController
+                  //                         .receivablePayments[index].date,
+                  //                     paymentRemark: receivableController
+                  //                         .receivablePayments[index].remark
+                  //                         .toString(),
+                  //                     paymentAttachment: receivableController
+                  //                         .receivablePayments[index].attachment
+                  //                         .toString(),
+                  //                   );
+                  //                 },
+                  //               ),
+                  //             )),
+
+                  //       ],
+                  //    )),
+                  ),
             ),
           ));
+  }
+
+  Obx ReceivableAddToArchieveButton() {
+    return Obx(() => receivableController.receivable.value!.remaining == 0 && receivableController.receivable.value!.isArchive==false
+        ? Positioned(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: InputButton(
+                  label: "Add To Archieve",
+                  onPress: () async {
+                    await receivableController.archieveReceivable(
+                        receivableController.receivable.value!.id);
+                    showSnackBar(
+                        receivableController.isSuccess.value,
+                        receivableController.isFailed.value,
+                        receivableController.message.value,
+                        receivableController.errorMessage.value);
+                  },
+                  backgroundColor: Colors.green,
+                  color: Colors.white),
+            ),
+          )
+        : const SizedBox());
+  }
+
+  Obx ReceivavblePaymentDetailList() {
+    return Obx(() => Expanded(
+          child: Container(
+            margin: const EdgeInsets.only(top: 15, bottom: 15),
+            child: ListView.builder(
+              shrinkWrap: true,
+              // physics: NeverScrollableScrollPhysics(),
+              physics: BouncingScrollPhysics(),
+              itemCount: receivableController.receivablePayments.length,
+              itemBuilder: (context, index) {
+                return PaymentDetailExpansionTile(
+                  paymentAmount:
+                      receivableController.receivablePayments[index].amount,
+                  paymentDate:
+                      receivableController.receivablePayments[index].date,
+                  paymentRemark: receivableController
+                      .receivablePayments[index].remark
+                      .toString(),
+                  paymentAttachment: receivableController
+                      .receivablePayments[index].attachment
+                      .toString(),
+                );
+              },
+            ),
+          ),
+        ));
+  }
+
+  Obx ReceivableAddPaymentButton(BuildContext context) {
+    return Obx(
+      () => receivableController.receivable.value!.remaining > 0
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Add Payment'),
+                IconButton(
+                  onPressed: () {
+                    displayPaymentBottomSheet(context,
+                        //   attachment: receivableController.receivable.value!.attachment.toString(),
+                        receivableId: receivableController.receivable.value!.id,
+                        remainingBalance: receivableController
+                            .receivable.value!.remaining
+                            .toString(),
+                        paymentController: receivableController.amount,
+                        remarkController: receivableController.remark,
+                        onSubmit: () async {
+                      receivableController.setIsloadingToTrue();
+                      await receivableController.createReceivablePayment();
+                      Navigator.pop(context);
+                      receivableController.fetchIndividualReceivable(id);
+                      if (receivableController.isSuccess.value) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: Colors.green,
+                            content: Obx(
+                              () => Text(
+                                  receivableController.message.toString(),
+                                  style: TextStyle(color: Colors.white)),
+                            ),
+                          ),
+                        );
+                      }
+                    });
+                  },
+                  icon: Icon(Icons.add_box, color: Colors.green),
+                ),
+              ],
+            )
+          : const Padding(
+              padding: const EdgeInsets.only(top: 15, bottom: 15),
+              child: Text('Payment has been fully paid'),
+            ),
+    );
+  }
+
+  Obx ReceivableOverview() {
+    return Obx(
+      () => PROverview(
+          id: receivableController.receivable.value!.id,
+          receivableAmount:
+              receivableController.receivable.value!.amount.toString(),
+          receivableRemainingBalance:
+              receivableController.receivable.value!.remaining.toString(),
+          receivableDueDate: receivableController.receivable.value!.dueDate,
+          receivablePaymentTerms:
+              receivableController.receivable.value!.paymentTerm,
+          receivableRemark:
+              receivableController.receivable.value!.remark.toString(),
+          receivableAttachment:
+              receivableController.receivable.value!.attachment.toString()),
+    );
   }
 }
 

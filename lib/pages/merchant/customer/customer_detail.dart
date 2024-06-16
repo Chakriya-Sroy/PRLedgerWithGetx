@@ -16,23 +16,39 @@ class CustomerDetail extends StatefulWidget {
 }
 
 class _CustomerDetailState extends State<CustomerDetail> {
-  final CustomerController customerController = Get.put(CustomerController());
+  final customerController = Get.put(CustomerController());
   final String id = Get.arguments;
 
   @override
   void initState() {
-    // Make sure that is Failed , isSuccess, erorrMessage and message haven't initalize
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       customerController.initializeStatusFlags();
       customerController.fetchIndividualCustomer(id);
     });
-    
   }
 
-  List<String> amount = [];
+  void showSnackBar(bool isSuccess, bool isFailed,
+      String message, String errorMessage) {
+    if (isSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.green,
+          content: Text(message, style: const TextStyle(color: Colors.white)),
+        ),
+      );
+    }
+    if (isFailed) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content:
+              Text(errorMessage, style: const TextStyle(color: Colors.white)),
+        ),
+      );
+    }
+  }
 
-  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,14 +58,14 @@ class _CustomerDetailState extends State<CustomerDetail> {
             onTap: () {
               Get.off(const CustomerLogTransaction(), arguments: id);
             },
-            child: Icon(
+            child: const Icon(
               Icons.arrow_back_ios_new,
               color: Colors.green,
             ),
           ),
         ),
-        body: Obx(() => customerController.customer.value ==null
-            ? Center(
+        body: Obx(() => customerController.customer.value == null
+            ? const Center(
                 child: CircularProgressIndicator(),
               )
             : SingleChildScrollView(
@@ -61,10 +77,11 @@ class _CustomerDetailState extends State<CustomerDetail> {
                     children: [
                       ProfileCard(
                           supplier: false,
+                          fullname: customerController.customer.value!.name,
+                          gender: customerController.customer.value!.gender,
+                          email: customerController.customer.value!.email ?? '',
                           address:
                               customerController.customer.value!.address ?? '',
-                          fullname: customerController.customer.value!.name,
-                          email: customerController.customer.value!.email ?? '',
                           phone: customerController.customer.value!.phone),
                       ProfileActionButton(
                         onEdit: () {
@@ -76,31 +93,37 @@ class _CustomerDetailState extends State<CustomerDetail> {
                                   "All the receivable that record under this customer will be deleted are you sure ?",
                               onPressed: () async {
                             await customerController.deleteCustomer(id);
-                            if (customerController.isSuccess.value) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  backgroundColor: Colors.green,
-                                  content: Obx(
-                                    () => Text(
-                                        customerController.message.toString(),
-                                        style: TextStyle(color: Colors.white)),
-                                  ),
-                                ),
-                              );
-                            }
-                            if (customerController.isFailed.value) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  backgroundColor: Colors.red,
-                                  content: Obx(
-                                    () => Text(
-                                        customerController.errorMessage
-                                            .toString(),
-                                        style: TextStyle(color: Colors.white)),
-                                  ),
-                                ),
-                              );
-                            }
+                            showSnackBar(
+                              customerController.isSuccess.value, 
+                              customerController.isFailed.value,
+                              customerController.message.value, 
+                              customerController.errorMessage.value
+                             );
+                            // if (customerController.isSuccess.value) {
+                            //   ScaffoldMessenger.of(context).showSnackBar(
+                            //     SnackBar(
+                            //       backgroundColor: Colors.green,
+                            //       content: Obx(
+                            //         () => Text(
+                            //             customerController.message.toString(),
+                            //             style: TextStyle(color: Colors.white)),
+                            //       ),
+                            //     ),
+                            //   );
+                            // }
+                            // if (customerController.isFailed.value) {
+                            //   ScaffoldMessenger.of(context).showSnackBar(
+                            //     SnackBar(
+                            //       backgroundColor: Colors.red,
+                            //       content: Obx(
+                            //         () => Text(
+                            //             customerController.errorMessage
+                            //                 .toString(),
+                            //             style: TextStyle(color: Colors.white)),
+                            //       ),
+                            //     ),
+                            //   );
+                            // }
                             Get.off(const CustomerPage());
                           });
                         },

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/controller/receivable.dart';
+import 'package:laravelsingup/controller/user.dart';
 import 'package:laravelsingup/home.dart';
+import 'package:laravelsingup/pages/merchant/customer/customer_form.dart';
 import 'package:laravelsingup/pages/merchant/receivable/receivable_detail.dart';
 import 'package:laravelsingup/widgets/empty_state.dart';
-import 'package:laravelsingup/widgets/form/input_button.dart';
 import 'package:laravelsingup/widgets/receivable_payables/pr_tile.dart';
 import 'receivable_form.dart';
 
@@ -19,14 +20,12 @@ class _ReceivablePageState extends State<ReceivablePage> {
   final receivableController = Get.put(ReceivableController());
   @override
   void initState() {
-    // TODO: implement initState
-    
     super.initState();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       receivableController.setIsloadingToTrue();
       receivableController.fetchReceivable();
+      receivableController.fetchCustomer();
     });
-  
   }
 
   @override
@@ -48,52 +47,52 @@ class _ReceivablePageState extends State<ReceivablePage> {
           backgroundColor: Colors.green,
         ),
         body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child:
-                Obx(() => receivableController.lengthofReceivableList.value == 0
-                    ? WhenListIsEmpty(title: 'No Receivable yet, add Receivable ?', onPressed: (){
-                      Get.to(const ReceivableForm());
-                    })
-                    : Obx(() => ListView.builder(
-                                shrinkWrap: true,
-                                itemCount:
-                                    receivableController.receivables.length,
-                                itemBuilder: (context, index) {
-                                  return PRListTile(
-                                      name: receivableController
-                                          .receivables[index].customerName
-                                          .toString(),
-                                      // title: receivableController
-                                      //             .receivables[index]
-                                      //             .title
-                                      //             .length >
-                                      //         20
-                                      //     ? receivableController
-                                      //             .receivables[index].title
-                                      //             .substring(0, 15) +
-                                      //         '...'
-                                      //     : receivableController
-                                      //         .receivables[index].title,
-                                      amount: receivableController
-                                          .receivables[index].remaining
-                                          .toString(),
-                                      status: receivableController
-                                          .receivables[index].status,
-                                      date: receivableController.receivables[index].date
-                                          .toString(),
-                                      onPressed: () {
-                                         if(receivableController.receivables[index] !=null && receivableController.receivables[index].id !=null){
-                                             Get.to(const ReceivableDetail(),arguments: receivableController.receivables[index].id );
-                                         }
-                                      }
-                                      
-                                      );
-                                },
-                              )),
-                    )
-                            ),
-          ),
+            child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Obx(
+                  () => receivableController.lengthofReceivableList.value == 0
+                      ? WhenListIsEmpty(
+                          title: 'No Receivable yet, add Receivable ?',
+                          onPressed: () {
+                            Get.to(const ReceivableForm());
+                          })
+                      : Obx(() => ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: receivableController.receivables.length,
+                            itemBuilder: (context, index) {
+                              return PRListTile(
+                                  id: receivableController
+                                      .receivables[index].id,
+                                  name: receivableController
+                                      .receivables[index].customerName
+                                      .toString(),
+                                  // title: receivableController
+                                  //             .receivables[index]
+                                  //             .title
+                                  //             .length >
+                                  //         20
+                                  //     ? receivableController
+                                  //             .receivables[index].title
+                                  //             .substring(0, 15) +
+                                  //         '...'
+                                  //     : receivableController
+                                  //         .receivables[index].title,
+                                  amount: receivableController
+                                      .receivables[index].remaining
+                                      .toString(),
+                                  status: receivableController
+                                      .receivables[index].status,
+                                  date: receivableController
+                                      .receivables[index].date
+                                      .toString(),
+                                  onPressed: () {
+                                    Get.to(const ReceivableDetail(),
+                                        arguments: receivableController
+                                            .receivables[index].id);
+                                  });
+                            },
+                          )),
+                ))),
         floatingActionButton:
             Obx(() => receivableController.lengthofReceivableList.value > 0
                 ? FloatingActionButton(
@@ -106,9 +105,6 @@ class _ReceivablePageState extends State<ReceivablePage> {
                       color: Colors.white,
                     ),
                   )
-                : const SizedBox())
-      );
+                : const SizedBox()));
   }
-
-  
 }

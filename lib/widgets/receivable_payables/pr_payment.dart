@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:laravelsingup/widgets/attribute_row.dart';
+import 'package:laravelsingup/widgets/show_attachment.dart';
 class PaymentDetailExpansionTile extends StatelessWidget {
   const PaymentDetailExpansionTile({
     super.key,
@@ -21,7 +22,7 @@ class PaymentDetailExpansionTile extends StatelessWidget {
         shape: Border.all(color: Colors.transparent),
         title: AttributeRow(
           attribute: DateFormat('yyyy-MM-dd').format(DateTime.parse(paymentDate)),
-          value: "\$" + paymentAmount.toString(),
+          value: "\$ ${paymentAmount.toString()}",
           applyToValue: true,
           ValueTextStyle: TextStyle(fontSize: 15),
         ),
@@ -31,27 +32,10 @@ class PaymentDetailExpansionTile extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(
                 left: 20, right: 25, bottom: 10),
-            child: Column(
+            child: Row(
               children: [
-                AttributeRow(
-                  attribute: 'Payment Remark :',
-                  value: paymentRemark,
-                  applyToValue: true,
-                  ValueTextStyle: TextStyle(fontSize: 12),
-                ),
-                Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Payment Attachment :',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                    // showAttachment(
-                    //     imagePath:
-                    //         paymentAttachment),
-                  ],
-                ),
+                const Text("Payment Remark :"),
+                Expanded(child: Text(paymentRemark),)
               ],
             ),
           )

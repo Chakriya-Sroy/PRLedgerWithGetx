@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:laravelsingup/controller/login.dart';
 import 'package:laravelsingup/controller/register.dart';
 import 'package:laravelsingup/pages/auth/login.dart';
 import 'package:laravelsingup/widgets/form/custom_text_field.dart';
 import 'package:laravelsingup/widgets/form/input_button.dart';
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key});
 
   @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  @override
   Widget build(BuildContext context) {
-    final RegisterationController register = Get.put(RegisterationController());
+    final register = Get.put(RegisterationController());
+    final login =Get.put(LoginController());
     return Obx(
       () => Stack(
         children: [
@@ -139,7 +146,10 @@ class RegisterPage extends StatelessWidget {
                         height: 25,
                       ),
                       MaterialButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            login.googleRedirectURL();   
+                          
+                          },
                           child: SizedBox(
                             child: Image.network(
                               "lib/images/google.png",
@@ -148,6 +158,7 @@ class RegisterPage extends StatelessWidget {
                             width: 200,
                             height: 40,
                           )),
+                        
                     ],
                   ),
                 ),

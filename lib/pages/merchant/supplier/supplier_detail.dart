@@ -27,10 +27,32 @@ class _SupplierDetailState extends State<SupplierDetail> {
     supplierController.fetchIndividualSupplier(id);
     supplierController.initializeStatusFlags();
   }
-
-  List<String> amount = [];
-
-  @override
+    void showSnachBar(bool isSuccess, bool isFailed, String message, String errorMessage){
+     if (isSuccess) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: Colors.green,
+                                content:Text(
+                                      message,
+                                      style: const TextStyle(color: Colors.white))
+                              ),
+                            );
+                            Get.to(const SupplierPage());
+                          }
+                          if (isFailed) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: Colors.red,
+                                content:  Text(
+                                      errorMessage,
+                                      style: const TextStyle(color: Colors.white)),
+                              ),
+                            );
+                           Get.to(const SupplierPage());
+                          }
+                          
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,14 +62,14 @@ class _SupplierDetailState extends State<SupplierDetail> {
             onTap: () {
               Get.off(const SupplierLogTransaction(), arguments: id);
             },
-            child: Icon(
+            child: const Icon(
               Icons.arrow_back_ios_new,
               color: Colors.green,
             ),
           ),
         ),
         body: Obx(() => supplierController.supplier.value==null
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(),
               )
             : SingleChildScrollView(
@@ -76,32 +98,38 @@ class _SupplierDetailState extends State<SupplierDetail> {
                                   "All the payables that record under this supplier will be deleted are you sure ?",
                               onPressed: () async {
                             await supplierController.deleteSupplier(id);
-                            if (supplierController.isSuccess.value) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  backgroundColor: Colors.green,
-                                  content: Obx(
-                                    () => Text(
-                                        supplierController.message.toString(),
-                                        style: TextStyle(color: Colors.white)),
-                                  ),
-                                ),
-                              );
-                              Get.off(const SupplierPage());
-                            }
-                            if (supplierController.isFailed.value) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  backgroundColor: Colors.red,
-                                  content: Obx(
-                                    () => Text(
-                                        supplierController.errorMessage.toString(),
-                                        style: TextStyle(color: Colors.white)),
-                                  ),
-                                ),
-                              );
-                              Get.off(const SupplierPage());
-                            }
+                            showSnachBar(
+                            supplierController.isSuccess.value,
+                            supplierController.isFailed.value, 
+                            supplierController.message.value, 
+                            supplierController.errorMessage.value
+                            );
+                            // if (supplierController.isSuccess.value) {
+                            //   ScaffoldMessenger.of(context).showSnackBar(
+                            //     SnackBar(
+                            //       backgroundColor: Colors.green,
+                            //       content: Obx(
+                            //         () => Text(
+                            //             supplierController.message.toString(),
+                            //             style: TextStyle(color: Colors.white)),
+                            //       ),
+                            //     ),
+                            //   );
+                            //   Get.off(const SupplierPage());
+                            // }
+                            // if (supplierController.isFailed.value) {
+                            //   ScaffoldMessenger.of(context).showSnackBar(
+                            //     SnackBar(
+                            //       backgroundColor: Colors.red,
+                            //       content: Obx(
+                            //         () => Text(
+                            //             supplierController.errorMessage.toString(),
+                            //             style: TextStyle(color: Colors.white)),
+                            //       ),
+                            //     ),
+                            //   );
+                            //   Get.off(const SupplierPage());
+                            // }
                           });
                         },
                       ),

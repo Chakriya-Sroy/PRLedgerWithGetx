@@ -16,6 +16,7 @@ class UserController extends GetxController {
   RxList<UpcomingReceivable> upcomingReceivable = RxList();
   RxList<UpcomingPayable> upcomingPayable = RxList();
   RxList<UpcomingReceivable>upcomingReceivablesAssignFromMerchance=RxList();
+
   RxDouble totalAssignReceivableAmount=RxDouble(0);
   RxDouble totalAssignReceivableRemaining=RxDouble(0);
   RxDouble totalSuppliers = RxDouble(0);

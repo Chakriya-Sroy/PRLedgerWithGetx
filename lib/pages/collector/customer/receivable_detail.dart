@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/controller/receivable.dart';
-import 'package:laravelsingup/pages/merchant/receivable/receivable_page.dart';
 import 'package:laravelsingup/widgets/receivable_payables/display_payment_sheet.dart';
 import 'package:laravelsingup/widgets/receivable_payables/pr_overview.dart';
 import 'package:laravelsingup/widgets/receivable_payables/pr_payment.dart';
@@ -58,6 +57,7 @@ class _ReceivableDetailState extends State<ReceivableDetail> {
                     children: [
                       Obx(
                         () => PROverview(
+                            id: receivableController.receivable.value!.id,
                             receivableAmount: receivableController
                                 .receivable.value!.amount
                                 .toString(),
@@ -86,6 +86,7 @@ class _ReceivableDetailState extends State<ReceivableDetail> {
                                   IconButton(
                                     onPressed: () {
                                       displayPaymentBottomSheet(context,
+                                        // attachment: receivableController.receivable.value!.attachment.toString(),
                                           receivableId: receivableController
                                               .receivable.value!.id,
                                           remainingBalance: receivableController

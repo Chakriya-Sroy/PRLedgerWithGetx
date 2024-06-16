@@ -1,4 +1,3 @@
-import 'package:get/get.dart';
 
 class CustomerModel{
   final String id;
@@ -51,8 +50,9 @@ class TransactionModel {
   final int id;
   final int customerId;
   final String transactionType;
-  final int? receivableId;
-  final int? paymentId;
+  final int receivableId;
+  final String receivableCreated;
+
   final double amount;
   final String transactionDate;
 
@@ -60,8 +60,8 @@ class TransactionModel {
     required this.id,
     required this.customerId,
     required this.transactionType,
-    this.receivableId,
-    this.paymentId,
+    required this.receivableId,
+    required this.receivableCreated,
     required this.amount,
     required this.transactionDate,
    
@@ -78,7 +78,7 @@ class TransactionModel {
       customerId: json['customer_id'],
       transactionType: json['transaction_type'],
       receivableId: json['receivable_id'],
-      paymentId: json['payment_id'],
+      receivableCreated: json['receivableCreated'],
       amount: double.parse(json['amount']),
       transactionDate: daysDifference==1 ? "Added yesterday" : daysDifference==0 ? "Added today" : "Added $daysDifference days ago"
     );

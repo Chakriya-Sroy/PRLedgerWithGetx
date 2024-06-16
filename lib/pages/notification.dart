@@ -46,166 +46,25 @@ class _NotificationPageState extends State<NotificationPage> {
         ),
         body: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            // child: Column(
-            //   children: [
-            //     Obx(() => ListView.builder(
-            //           itemCount: userController.userNotification.length,
-            //           shrinkWrap: true,
-            //           itemBuilder: (context, index) {
-            //             return Container(
-            //               width: MediaQuery.of(context).size.width,
-            //               margin: const EdgeInsets.only(top: 20),
-            //               padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-            //               decoration: BoxDecoration(
-            //                 color: Colors.grey.shade100,
-            //                 borderRadius: BorderRadius.circular(5),
-            //                 boxShadow: [
-            //                   BoxShadow(
-            //                     color: Colors.grey.shade300,
-            //                     offset: Offset(4.0, 4.0),
-            //                     blurRadius: 10.0,
-            //                     spreadRadius: 1.0,
-            //                   )
-            //                 ],
-            //               ),
-            //               child: userController.userNotification[index].type ==
-            //                       'general'
-            //                   ? Text(userController
-            //                       .userNotification[index].message)
-            //                   : Row(children: [
-            //                       Column(
-            //                         children: [
-            //                           Container(
-            //                             width: 70,
-            //                             height: 70,
-            //                             decoration: const BoxDecoration(
-            //                               shape: BoxShape.circle,
-            //                             ),
-            //                             child: Image.asset(
-            //                                 "lib/images/profileIcon.png"), // Use Image.asset for local images
-            //                           ),
-            //                           Text(
-            //                             userController.senders[index].name,
-            //                             style: TextStyle(color: Colors.green),
-            //                           )
-            //                         ],
-            //                       ),
-            //                       const SizedBox(width: 20),
-            //                       Expanded(
-            //                           child: Column(
-            //                               mainAxisAlignment:
-            //                                   MainAxisAlignment.center,
-            //                               crossAxisAlignment:
-            //                                   CrossAxisAlignment.start,
-            //                               children: [
-            //                             Text(
-            //                               userController
-            //                                   .userNotification[index].message,
-            //                               style: const TextStyle(
-            //                                   fontWeight: FontWeight.bold),
-            //                             ),
-            //                             const SizedBox(
-            //                               height: 10,
-            //                             ),
-            //                             Row(
-            //                               children: [
-            //                                 Expanded(
-            //                                     child: InputButton(
-            //                                         label: "Declined",
-            //                                         onPress: () async {
-            //                                           await collectorController
-            //                                               .respondInvitation(
-            //                                                   "declined",
-            //                                                   userController
-            //                                                       .userNotification[
-            //                                                           index]
-            //                                                       .sender_id
-            //                                                       .toString());
-            //                                         },
-            //                                         backgroundColor:
-            //                                             Colors.green,
-            //                                         color: Colors.white)),
-            //                                 Expanded(
-            //                                     child: InputButton(
-            //                                         label: "Accepted",
-            //                                         onPress: () async {
-            //                                           await collectorController
-            //                                               .respondInvitation(
-            //                                                   "accepted",
-            //                                                   userController
-            //                                                       .userNotification[
-            //                                                           index]
-            //                                                       .sender_id
-            //                                                       .toString());
+            child: Obx(() {
+              var categorizedNotifications = userController
+                  .categorizeNotifications(userController.userNotification);
 
-            //                                           if (collectorController
-            //                                               .isSuccess.value) {
-            //                                             ScaffoldMessenger.of(
-            //                                                     context)
-            //                                                 .showSnackBar(
-            //                                               SnackBar(
-            //                                                 backgroundColor:
-            //                                                     Colors.green,
-            //                                                 content: Obx(
-            //                                                   () => Text(
-            //                                                       collectorController
-            //                                                           .message
-            //                                                           .toString(),
-            //                                                       style: TextStyle(
-            //                                                           color: Colors
-            //                                                               .white)),
-            //                                                 ),
-            //                                               ),
-            //                                             );
-            //                                           } else {
-            //                                             ScaffoldMessenger.of(
-            //                                                     context)
-            //                                                 .showSnackBar(
-            //                                               SnackBar(
-            //                                                 backgroundColor:
-            //                                                     Colors.red,
-            //                                                 content: Obx(
-            //                                                   () => Text(
-            //                                                       collectorController
-            //                                                           .errorMessage
-            //                                                           .toString(),
-            //                                                       style: TextStyle(
-            //                                                           color: Colors
-            //                                                               .white)),
-            //                                                 ),
-            //                                               ),
-            //                                             );
-            //                                           }
-            //                                         },
-            //                                         backgroundColor:
-            //                                             Colors.white,
-            //                                         color: Colors.green)),
-            //                               ],
-            //                             )
-            //                           ]))
-            //                     ]),
-            //             );
-            //           },
-            //         )),
-            //   ],
-            // )
-          child: Obx(() {
-          var categorizedNotifications = userController.categorizeNotifications(userController.userNotification);
-
-          return ListView(
-            children: [
-              buildCategory('Today', categorizedNotifications['Today']!),
-              buildCategory('Yesterday', categorizedNotifications['Yesterday']!),
-              ...categorizedNotifications.keys
-                  .where((key) => key != 'Today' && key != 'Yesterday')
-                  .map((key) => buildCategory(key, categorizedNotifications[key]!))
-                  .toList(),
-            ],
-          );
-        }),
-      )
-            
-    );
+              return ListView(
+                children: [
+                  buildCategory('Today', categorizedNotifications['Today']!),
+                  buildCategory(
+                      'Yesterday', categorizedNotifications['Yesterday']!),
+                  ...categorizedNotifications.keys
+                      .where((key) => key != 'Today' && key != 'Yesterday')
+                      .map((key) =>
+                          buildCategory(key, categorizedNotifications[key]!))
+                      .toList(),
+                ],
+              );
+            }),
+          ),
+        );
   }
 
   Widget buildCategory(String category, List<UserNotification> notifications) {
@@ -238,15 +97,16 @@ class _NotificationPageState extends State<NotificationPage> {
               ),
               child: notification.type == 'general'
                   ? Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(notification.message),
-                        Text(DateFormat('h:mm a').format(notification.created_at))
-                      ],
-                    ),
-                  )
+                      padding: const EdgeInsets.all(10.0),
+                      child:  Column(
+                          children: [
+                            Align(alignment: Alignment.bottomLeft,child: Text(notification.message)),
+                            const SizedBox(height: 5,),
+                            Align( alignment: Alignment.bottomRight,child: Text(DateFormat('h:mm a').format(notification.created_at.toLocal()),style: TextStyle(fontSize: 10),))
+                          ]
+                        ),
+                      
+                    )
                   : Row(
                       children: [
                         Column(
@@ -260,7 +120,8 @@ class _NotificationPageState extends State<NotificationPage> {
                               child: Image.asset("lib/images/profileIcon.png"),
                             ),
                             Text(
-                              notification.message.substring(0, notification.message.indexOf('invite')) ,
+                              notification.message.substring(
+                                  0, notification.message.indexOf('invite')),
                               style: TextStyle(color: Colors.green),
                             ),
                           ],
@@ -288,7 +149,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                           "declined",
                                           notification.sender_id.toString(),
                                         );
-                                         if (collectorController
+                                        if (collectorController
                                             .isSuccess.value) {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
@@ -304,7 +165,11 @@ class _NotificationPageState extends State<NotificationPage> {
                                               ),
                                             ),
                                           );
-                                        } else if(collectorController.errorMessage.value !='' && !collectorController.isSuccess.value) {
+                                        } else if (collectorController
+                                                    .errorMessage.value !=
+                                                '' &&
+                                            !collectorController
+                                                .isSuccess.value) {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             SnackBar(
@@ -352,7 +217,11 @@ class _NotificationPageState extends State<NotificationPage> {
                                               ),
                                             ),
                                           );
-                                        } else if(collectorController.errorMessage.value !=''&& !collectorController.isSuccess.value){
+                                        } else if (collectorController
+                                                    .errorMessage.value !=
+                                                '' &&
+                                            !collectorController
+                                                .isSuccess.value) {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             SnackBar(

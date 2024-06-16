@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/controller/customer.dart';
-import 'package:laravelsingup/pages/collector/customer/customer_log.dart';
 import 'package:laravelsingup/widgets/profile/profile_card.dart';
 
 class CustomerDetail extends StatefulWidget {
@@ -37,7 +36,7 @@ class _CustomerDetailState extends State<CustomerDetail> {
             onTap: () {
               Get.back();
             },
-            child: Icon(
+            child: const Icon(
               Icons.arrow_back_ios_new,
               color: Colors.green,
             ),

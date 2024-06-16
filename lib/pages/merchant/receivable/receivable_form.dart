@@ -1,11 +1,8 @@
 import 'package:dropdown_search/dropdown_search.dart';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:laravelsingup/controller/receivable.dart';
-import 'package:laravelsingup/pages/merchant/customer/customer_form.dart';
-import 'package:laravelsingup/widgets/form/custom_text_field.dart';
+import 'package:laravelsingup/widgets/empty_state.dart';
 import 'package:laravelsingup/widgets/form/input_button.dart';
 import 'package:laravelsingup/widgets/form/receivable_due_date.dart';
 import 'package:laravelsingup/widgets/form/input_text.dart';
@@ -13,7 +10,7 @@ import 'package:laravelsingup/widgets/form/input_text.dart';
 import 'receivable_page.dart';
 
 class ReceivableForm extends StatefulWidget {
-  const ReceivableForm({Key? key});
+  const ReceivableForm({super.key});
 
   @override
   State<ReceivableForm> createState() => _ReceivableFormState();
@@ -23,13 +20,39 @@ class _ReceivableFormState extends State<ReceivableForm> {
   final receivableController = Get.put(ReceivableController());
   @override
   void initState() {
-    // TODO: implement initState
-
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       receivableController.initializeStatusFlags();
       receivableController.fetchCustomer();
     });
+  }
+
+  void showSnackBar(
+      bool isSuccess, bool isFailed, String message, String errorMessage) {
+    if (isSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.green,
+          content: Text(
+            message,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+      Get.off(const ReceivablePage());
+    }
+    if (isFailed) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(
+            errorMessage,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+      Get.off(const ReceivablePage());
+    }
   }
 
   @override
@@ -38,28 +61,30 @@ class _ReceivableFormState extends State<ReceivableForm> {
           children: [
             Scaffold(
               appBar: AppBar(
-                title:
-                    Text('Receivable Record', style: TextStyle(fontSize: 15)),
+                title: const Text('Receivable Record',
+                    style: TextStyle(fontSize: 15)),
                 centerTitle: true,
               ),
               body: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(20),
-                  child: ReceivableForm([
-                    CustomerListSelection(receivableController,
+                  child: receivableForm([
+                     customerListSelection(receivableController,
                         onChange: (value) {
                       receivableController.selectedCustomer.value =
                           value.toString();
                     }),
-                    ReceivableAmountandPaymentTerm(),
-                    ReceivableDueDateSelection(),
-                    ReceivableRemarkField(),
-                    //RecievableAttachment(),
-                    ReceivableSubmitButton(),
+                    
+                    receivableAmountandPaymentTerm(),
+                    receivableDueDateSelection(),
+                    receivableRemarkField(),
+                    receivableSubmitButton(),
                   ], 10),
                 ),
               ),
             ),
+           
+              
             if (receivableController.isLoading.value)
               Container(
                 color: Colors.black.withOpacity(
@@ -72,7 +97,7 @@ class _ReceivableFormState extends State<ReceivableForm> {
         ));
   }
 
-  Column ReceivableSubmitButton() {
+  Column receivableSubmitButton() {
     return Column(
       children: [
         const SizedBox(
@@ -82,32 +107,37 @@ class _ReceivableFormState extends State<ReceivableForm> {
             label: "Add",
             onPress: () async {
               await receivableController.createReceivable();
-              if (receivableController.isSuccess.value) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      backgroundColor: Colors.green,
-                      content: Obx(
-                        () => Text(
-                          receivableController.message.value,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      )),
-                );
-                Get.off(const ReceivablePage());
-              }
-              if (receivableController.isFailed.value) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      backgroundColor: Colors.red,
-                      content: Obx(
-                        () => Text(
-                          receivableController.errorMessage.value,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      )),
-                );
-                Get.off(const ReceivablePage());
-              }
+              showSnackBar(
+                  receivableController.isSuccess.value,
+                  receivableController.isFailed.value,
+                  receivableController.message.value,
+                  receivableController.errorMessage.value);
+              // if (receivableController.isSuccess.value) {
+              //   ScaffoldMessenger.of(context).showSnackBar(
+              //     SnackBar(
+              //         backgroundColor: Colors.green,
+              //         content: Obx(
+              //           () => Text(
+              //             receivableController.message.value,
+              //             style: const TextStyle(color: Colors.white),
+              //           ),
+              //         )),
+              //   );
+              //   Get.off(const ReceivablePage());
+              // }
+              // if (receivableController.isFailed.value) {
+              //   ScaffoldMessenger.of(context).showSnackBar(
+              //     SnackBar(
+              //         backgroundColor: Colors.red,
+              //         content: Obx(
+              //           () => Text(
+              //             receivableController.errorMessage.value,
+              //             style: const TextStyle(color: Colors.white),
+              //           ),
+              //         )),
+              //   );
+              //   Get.off(const ReceivablePage());
+              // }
             },
             backgroundColor: Colors.green,
             color: Colors.white)
@@ -120,9 +150,9 @@ class _ReceivableFormState extends State<ReceivableForm> {
   //       [ReceivableDateSelection(), ReceivableDueDateSelection()], 20);
   // }
 
-  Row ReceivableAmountandPaymentTerm() {
+  Row receivableAmountandPaymentTerm() {
     return buildReceivableFormRowWithSpacing(
-        [ReceivableAmountField(), ReceivablePaymentTermSelection()], 20);
+        [receivableAmountField(), receivablePaymentTermSelection()], 20);
   }
 
   // AddAttachment RecievableAttachment() {
@@ -131,7 +161,7 @@ class _ReceivableFormState extends State<ReceivableForm> {
   //   });
   // }
 
-  InputTextField ReceivableRemarkField() {
+  InputTextField receivableRemarkField() {
     return InputTextField(
       label: 'Remark',
       controller: receivableController.remark,
@@ -146,14 +176,14 @@ class _ReceivableFormState extends State<ReceivableForm> {
   //       gapHeight: 5));
   // }
 
-  ReceivableDueDateSelection() {
+  receivableDueDateSelection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ReceivableDueDate(),
+        const ReceivableDueDate(),
         Obx(() => Text(
               receivableController.dueDateValidation.value,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.red,
                 fontSize: 10,
               ),
@@ -220,7 +250,7 @@ class _ReceivableFormState extends State<ReceivableForm> {
   //   ));
   // }
 
-  ReceivablePaymentTermSelection() {
+  receivablePaymentTermSelection() {
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,7 +271,7 @@ class _ReceivableFormState extends State<ReceivableForm> {
           ),
           Obx(() => Text(
                 receivableController.selectedPaymentTermValidation.toString(),
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.red,
                   fontSize: 10,
                 ),
@@ -251,7 +281,7 @@ class _ReceivableFormState extends State<ReceivableForm> {
     );
   }
 
-  Expanded ReceivableAmountField() {
+  Expanded receivableAmountField() {
     return Expanded(
         child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -265,7 +295,7 @@ class _ReceivableFormState extends State<ReceivableForm> {
         ),
         Obx(() => Text(
               receivableController.amountValidation.toString(),
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.red,
                 fontSize: 10,
               ),
@@ -289,7 +319,7 @@ class _ReceivableFormState extends State<ReceivableForm> {
     );
   }
 
-  Column ReceivableForm(List<Widget> widgets, double spacing) {
+  Column receivableForm(List<Widget> widgets, double spacing) {
     List<Widget> spacedWidgets = [];
     for (int i = 0; i < widgets.length; i++) {
       spacedWidgets.add(widgets[i]);
@@ -304,7 +334,7 @@ class _ReceivableFormState extends State<ReceivableForm> {
     );
   }
 
-  Widget CustomerListSelection(ReceivableController receivableController,
+  Widget customerListSelection(ReceivableController receivableController,
       {required Function(String) onChange}) {
     // if (receivableController.ListCustomerId.isEmpty) {
     //   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -331,7 +361,7 @@ class _ReceivableFormState extends State<ReceivableForm> {
         Obx(
           () => Text(
             receivableController.selectedCustomerValidation.value,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.red,
               fontSize: 10,
             ),
@@ -381,7 +411,7 @@ class _SelectOptionDropDownState extends State<SelectOptionDropDown> {
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.shade300,
-                offset: Offset(4.0, 4.0),
+                offset: const Offset(4.0, 4.0),
                 blurRadius: 10.0,
                 spreadRadius: 1.0,
               )

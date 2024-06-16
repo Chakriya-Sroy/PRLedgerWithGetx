@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:laravelsingup/controller/customer.dart';
 import 'package:laravelsingup/model/customer.dart';
 import 'package:laravelsingup/pages/collector/customer/customer_log.dart';
-import 'package:laravelsingup/widgets/form/input_button.dart';
 
 class CollectorCustomerPage extends StatefulWidget {
   const CollectorCustomerPage({Key? key}) : super(key: key);
@@ -18,7 +17,6 @@ class _CollectorCustomerPageState extends State<CollectorCustomerPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       customerController.setIsloadingToTrue();
@@ -52,7 +50,7 @@ class _CollectorCustomerPageState extends State<CollectorCustomerPage> {
                   CupertinoSearchTextField(
                     controller: customerController.search,
                     backgroundColor: Colors.grey.shade100,
-                    padding: EdgeInsets.only(
+                    padding: const EdgeInsets.only(
                         top: 10, bottom: 10, left: 15, right: 15),
                     onChanged: (value) =>
                         {customerController.searchTerm.value = value},
@@ -60,10 +58,10 @@ class _CollectorCustomerPageState extends State<CollectorCustomerPage> {
                   Obx(
                     () => customerController.assignCustomerLength.value == 0
                         ? whenCustomerisEmpty()
-                        : SizedBox(),
+                        : const SizedBox(),
                   ),
                   customerController.isLoading.value
-                      ? Center(
+                      ? const  Center(
                           child: CircularProgressIndicator(),
                         )
                       : Obx(() => ListView.builder(
@@ -80,7 +78,7 @@ class _CollectorCustomerPageState extends State<CollectorCustomerPage> {
                                 padding:
                                     const EdgeInsets.fromLTRB(20, 10, 20, 10),
                                 decoration: BoxDecoration(
-                                  border: Border(
+                                  border:const  Border(
                                     top: BorderSide.none,
                                     left: BorderSide(
                                         width: 5, color: Colors.green),
@@ -106,7 +104,7 @@ class _CollectorCustomerPageState extends State<CollectorCustomerPage> {
                                   ),
                                   trailing: IconButton(
                                     icon:
-                                        Icon(Icons.arrow_forward_ios_outlined),
+                                        const Icon(Icons.arrow_forward_ios_outlined),
                                     onPressed: () {
                                       Get.to(const CustomerLogTransaction(),
                                           arguments: filteredCustomer.id);
@@ -131,9 +129,9 @@ Container whenCustomerisEmpty() {
     alignment: AlignmentDirectional.center,
     decoration: BoxDecoration(
         color: Colors.grey.shade100, borderRadius: BorderRadius.circular(10)),
-    child: Column(children: [
+    child: const Column(children: [
       Text("Merchance haven't assign any customer yet"),
-      const SizedBox(
+      SizedBox(
         height: 20,
       ),
     ]),

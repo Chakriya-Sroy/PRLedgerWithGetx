@@ -17,13 +17,34 @@ class _CustomerFormState extends State<CustomerForm> {
   final CustomerController customerController = Get.put(CustomerController());
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       customerController.clearTextEditor();
       customerController.isLoading.value = false;
       customerController.initializeStatusFlags();
     });
+  }
+
+  void showSnackBar(
+      bool isSuccess, bool isFailed, String message, String errorMessage) {
+    if (isSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: Colors.green,
+        content: Text(customerController.message.toString(),
+              style: const TextStyle(color: Colors.white))
+      ));
+
+      Get.to(const CustomerPage());
+    }
+    if (isFailed) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: Colors.red,
+        content:Text(customerController.errorMessage.toString(),
+              style: const TextStyle(color: Colors.white))
+      ));
+
+      Get.to(const CustomerPage());
+    }
   }
 
   @override
@@ -85,30 +106,38 @@ class _CustomerFormState extends State<CustomerForm> {
                         label: "Save",
                         onPress: () async {
                           await customerController.addCustomer();
-                          if (customerController.isSuccess.value) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              backgroundColor: Colors.green,
-                              content: Obx(
-                                () => Text(
-                                    customerController.message.toString(),
-                                    style: TextStyle(color: Colors.white)),
-                              ),
-                            ));
-                            await Future.delayed(Duration(seconds: 1));
-                            Get.off(const CustomerPage());
-                          }
-                          if (customerController.isFailed.value) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              backgroundColor: Colors.red,
-                              content: Obx(
-                                () => Text(
-                                    customerController.errorMessage.toString(),
-                                    style: TextStyle(color: Colors.white)),
-                              ),
-                            ));
-                            await Future.delayed(Duration(seconds: 1));
-                            Get.off(const CustomerPage());
-                          }
+                          showSnackBar(
+                            customerController.isSuccess.value, 
+                            customerController.isFailed.value, 
+                            customerController.message.value, 
+                            customerController.errorMessage.value
+                          );
+                          // if (customerController.isSuccess.value) {
+                          //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          //     backgroundColor: Colors.green,
+                          //     content: Obx(
+                          //       () => Text(
+                          //           customerController.message.toString(),
+                          //           style:
+                          //               const TextStyle(color: Colors.white)),
+                          //     ),
+                          //   ));
+                          //   await Future.delayed(const Duration(seconds: 1));
+                          //   Get.back();
+                          // }
+                          // if (customerController.isFailed.value) {
+                          //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          //     backgroundColor: Colors.red,
+                          //     content: Obx(
+                          //       () => Text(
+                          //           customerController.errorMessage.toString(),
+                          //           style:
+                          //               const TextStyle(color: Colors.white)),
+                          //     ),
+                          //   ));
+                          //   await Future.delayed(const Duration(seconds: 1));
+                          //   Get.back();
+                          // }
                         },
                         backgroundColor: Colors.green,
                         color: Colors.white),

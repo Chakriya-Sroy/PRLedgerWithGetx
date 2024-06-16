@@ -18,16 +18,27 @@ class _CustomerEditState extends State<CustomerEdit> {
   final String id = Get.arguments;
   @override
   void initState() {
-    // TODO: implement initState
-   
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      customerController.isLoading.value=true;
-    customerController.initializeStatusFlags();
-    customerController.fetchIndividualCustomer(id);
-    customerController.AssignCustomerValueToTextEditor();
+      customerController.isLoading.value = true;
+      customerController.initializeStatusFlags();
+      customerController.fetchIndividualCustomer(id);
+      customerController.AssignCustomerValueToTextEditor();
     });
-   
+  }
+
+  void showSnackBar(bool isSuccess, String message) {
+    if (isSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.green,
+          content:Text(message,
+                style: const TextStyle(color: Colors.white))
+        ),
+      );
+
+      Get.off(const CustomerDetail(), arguments: id);
+    }
   }
 
   @override
@@ -41,7 +52,7 @@ class _CustomerEditState extends State<CustomerEdit> {
                   centerTitle: true,
                 ),
                 body: Obx(
-                  () => customerController.customer.value ==null
+                  () => customerController.customer.value == null
                       ? const Center(
                           child: CircularProgressIndicator(),
                         )
@@ -98,25 +109,26 @@ class _CustomerEditState extends State<CustomerEdit> {
                                   label: "Save",
                                   onPress: () async {
                                     await customerController.updateCustomer(id);
-                                    if (customerController.isSuccess.value) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          backgroundColor: Colors.green,
-                                          content: Obx(
-                                            () => Text(
-                                                customerController.message
-                                                    .toString(),
-                                                style: TextStyle(
-                                                    color: Colors.white)),
-                                          ),
-                                        ),
-                                      );
-                                      await Future.delayed(
-                                          Duration(seconds: 1));
-                                      Get.off(const CustomerDetail(),
-                                          arguments: id);
-                                    }
+                                    showSnackBar(customerController.isSuccess.value,customerController.message.value);
+                                    // if (customerController.isSuccess.value) {
+                                    //   ScaffoldMessenger.of(context)
+                                    //       .showSnackBar(
+                                    //     SnackBar(
+                                    //       backgroundColor: Colors.green,
+                                    //       content: Obx(
+                                    //         () => Text(
+                                    //             customerController.message
+                                    //                 .toString(),
+                                    //             style: const TextStyle(
+                                    //                 color: Colors.white)),
+                                    //       ),
+                                    //     ),
+                                    //   );
+                                    //   await Future.delayed(
+                                    //       const Duration(seconds: 1));
+                                    //   Get.off(const CustomerDetail(),
+                                    //       arguments: id);
+                                    // }
                                   },
                                   backgroundColor: Colors.green,
                                   color: Colors.white),

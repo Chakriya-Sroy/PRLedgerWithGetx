@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_network/image_network.dart';
 import 'package:laravelsingup/controller/auth.dart';
 import 'package:laravelsingup/controller/subscription.dart';
 import 'package:laravelsingup/controller/user.dart';
@@ -61,7 +62,7 @@ class _SettingPageState extends State<SettingPage> {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(shape: BoxShape.circle),
-                  child: Image.network("lib/images/profileIcon.png"),
+                  child: ImageNetwork(image: "https://testfyp1.sgp1.cdn.digitaloceanspaces.com/menu_icon/profileIcon.png",width: 70,height: 70,),
                 ),
                 const SizedBox(
                   height: 20,
@@ -81,21 +82,21 @@ class _SettingPageState extends State<SettingPage> {
             const SizedBox(
               height: 15,
             ),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  //border: Border.all(color: Colors.grey.shade200)
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10)),
-              child: SettingItem(
-                  title: "Profile",
-                  icon: Icons.person,
-                  backgroundIcon: Colors.blue,
-                  onTap:(){
-                     Get.to(UserProfile());
-                  }
-              ),
-            ),
+            // Container(
+            //   padding: const EdgeInsets.all(10),
+            //   decoration: BoxDecoration(
+            //       //border: Border.all(color: Colors.grey.shade200)
+            //       color: Colors.white,
+            //       borderRadius: BorderRadius.circular(10)),
+            //   child: SettingItem(
+            //       title: "Profile",
+            //       icon: Icons.person,
+            //       backgroundIcon: Colors.blue,
+            //       onTap:(){
+            //          Get.to(UserProfile());
+            //       }
+            //   ),
+            // ),
             const SizedBox(
               height: 15,
             ),
@@ -107,24 +108,24 @@ class _SettingPageState extends State<SettingPage> {
                   borderRadius: BorderRadius.circular(10)),
               child: Column(
                 children: [
-                  SettingItem(
-                      title: "Notifications",
-                      icon: Icons.notifications_sharp,
-                      backgroundIcon: Colors.orange.shade300,
-                      onTap: (){Get.to(NotificationSetting());}
-                    ),
+                  // SettingItem(
+                  //     title: "Notifications",
+                  //     icon: Icons.notifications_sharp,
+                  //     backgroundIcon: Colors.orange.shade300,
+                  //     onTap: (){Get.to(NotificationSetting());}
+                  //   ),
                   SettingItem(
                       title: "Premium Subscriptions",
                       icon: Icons.star_half_outlined,
                       backgroundIcon: Colors.green,
                       onTap: (){Get.to(SubscriptionSetting());}
                     ),
-                  SettingItem(
-                      title: "Change Password",
-                      icon: Icons.lock,
-                      backgroundIcon: Colors.grey,
-                      onTap:(){Get.to(ChangePassword());}
-                    ),
+                  // SettingItem(
+                  //     title: "Change Password",
+                  //     icon: Icons.lock,
+                  //     backgroundIcon: Colors.grey,
+                  //     onTap:(){Get.to(ChangePassword());}
+                  //   ),
                 ],
               ),
             ),

@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:laravelsingup/widgets/form/input_attachment.dart';
 import 'package:laravelsingup/widgets/form/input_button.dart';
 import 'package:laravelsingup/widgets/message/show_message.dart';
 
@@ -11,14 +14,14 @@ Future displayPaymentBottomSheet(
       required TextEditingController paymentController,
       required TextEditingController remarkController,
       required Function () onSubmit,
-      //required String fileName
+   //   required ValueNotifier<File?> attachmentNotifier,
       }
       ) {
     return showModalBottomSheet(
       context: context,
       builder: (context) {
         return Container(
-          height: 400,
+          height: 300,
           width: double.infinity,
           child: Padding(
             padding: const EdgeInsets.only(left: 20, right: 20),
@@ -34,11 +37,6 @@ Future displayPaymentBottomSheet(
                   label: 'Payment Remark',
                   controller: remarkController,
                 ),
-                // AddAttachment(
-                //   onFileNameChanged: (newfileName) {
-                //     fileName = newfileName;
-                //   },
-                // ),
                 const SizedBox(
                   height: 20,
                 ),

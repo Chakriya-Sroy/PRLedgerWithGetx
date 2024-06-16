@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravelsingup/model/customer.dart';
 import 'package:laravelsingup/model/receivable.dart';
-import 'package:laravelsingup/pages/merchant/customer/customer.dart';
 import 'package:laravelsingup/utils/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -107,6 +106,7 @@ class CustomerController extends GetxController {
           customerReceivables.clear();
           for (var receivable in receivables) {
             customerReceivables.add(ReceivableModel(
+                isArchive: receivable['isArchive'],
                 id: receivable["id"].toString(),
                 customerId: receivable["customer_id"].toString(),
                 amount: receivable["amount"],
@@ -150,7 +150,7 @@ class CustomerController extends GetxController {
           message.value = errorMessage;
         }
       } catch (e) {
-        print(e.toString());
+        print (e);
       } finally {
         isLoading.value = false;
       }

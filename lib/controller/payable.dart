@@ -1,10 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:laravelsingup/model/payable.dart';
-import 'package:laravelsingup/pages/merchant/payable/payable.dart';
 import 'package:laravelsingup/utils/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -21,12 +19,14 @@ class PayableController extends GetxController {
   RxString dueDateValidation = "".obs;
 
   RxList<PayableModel> payables = RxList();
+  RxList<PayableModel> archivePayables=RxList();
   late Rx<PayableModel?> payable = Rx<PayableModel?>(null);
   RxString message = RxString('');
   RxString errorMessage = RxString('');
   RxInt lengthofPayableList = 0.obs;
   RxBool isLoading = false.obs;
-  RxBool isSuccess=false.obs;
+  RxBool isSuccess = false.obs;
+  RxBool isFailed = false.obs;
 // For Supplier Select Options
   RxList<String> ListofSupplierName = RxList();
   RxList<String> ListofSupplierId = RxList();
@@ -56,8 +56,8 @@ class PayableController extends GetxController {
           : selectedPaymentTerm.value,
       'remark': remark.text,
       'status': 'outstanding',
-      'attachment': attachment.value,
-      'date': DateFormat('yyyy-MM-dd').format(date),
+     // 'attachment': attachment.value,
+      'date': DateFormat('yyyy-MM-dd').format(date.toLocal()),
       'dueDate': selectedDueDate.value,
     };
   }
@@ -76,7 +76,8 @@ class PayableController extends GetxController {
   Future<void> createPayablePayment() async {
     final pref = await SharedPreferences.getInstance();
     String? token = pref.getString("token");
-    isSuccess.value=false;
+    isSuccess.value = false;
+    isFailed.value = false;
     if (token != null) {
       try {
         var headers = ApiEndPoints().setHeaderToken(token);
@@ -92,8 +93,9 @@ class PayableController extends GetxController {
           clearTextEditor();
           Map<String, dynamic> jsonResponse = jsonDecode(response.body);
           message.value = jsonResponse["message"];
-          isSuccess.value=true;
+          isSuccess.value = true;
         } else {
+          isFailed.value = true;
           print(jsonDecode(response.body)["message"]);
         }
       } catch (e) {
@@ -112,17 +114,17 @@ class PayableController extends GetxController {
     if (token != null) {
       if (validation()) {
         try {
-          isLoading.value=true;
+          isLoading.value = true;
           var headers = ApiEndPoints().setHeaderToken(token);
-          var url =
-              ApiEndPoints.baseUrl + ApiEndPoints.payableEndPoints.paybleCreate;
-          Map body = createPayableBody();
-          final response = await http.post(
-            Uri.parse(url),
-            body: jsonEncode(body),
-            headers: headers,
-          );
-
+           var url = ApiEndPoints.baseUrl +
+            ApiEndPoints.payableEndPoints.paybleCreate;
+            Map body = createPayableBody();
+            final response = await http.post(
+              Uri.parse(url),
+              body: jsonEncode(body),
+              headers: headers,
+            );
+          
           if (response.statusCode == 200) {
             clearTextEditor();
             Map<String, dynamic> json = jsonDecode(response.body);
@@ -139,7 +141,7 @@ class PayableController extends GetxController {
           errorMessage.value = e.toString();
           print(errorMessage);
         } finally {
-          isLoading.value=false;
+          isLoading.value = false;
         }
       }
     }
@@ -168,6 +170,7 @@ class PayableController extends GetxController {
                 id: payment["id"].toString(),
                 payableId: payment["payable_id"].toString(),
                 amount: payment["amount"],
+                remark: payment["remark"],
                 date: payment["date"]));
           }
         } else {
@@ -180,6 +183,35 @@ class PayableController extends GetxController {
         print(errorMessage);
       } finally {
         setIsLoadingTofalse();
+      }
+    }
+  }
+ Future<void> archievePayable(String id) async {
+    final pref = await SharedPreferences.getInstance();
+    String? token = pref.getString("token");
+    if (token != null) {
+      isLoading.value=true;
+      isFailed.value=false;
+      isSuccess.value = false;
+      message.value = '';
+      errorMessage.value = '';
+      try {
+        var headers = ApiEndPoints().setHeaderToken(token);
+        var url = ApiEndPoints.baseUrl +
+            ApiEndPoints.payableEndPoints.archievePayable(id);
+        final response = await http.patch(Uri.parse(url), headers: headers);
+        if (response.statusCode == 200) {
+          Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+          isSuccess.value = true;
+          message.value = jsonResponse['message'];
+        } else {
+          isFailed.value = true;
+          errorMessage.value = jsonDecode(response.body)['message'];
+        }
+      } catch (e) {
+        print(e.toString());
+      }finally{
+        isLoading.value=false;
       }
     }
   }
@@ -196,14 +228,45 @@ class PayableController extends GetxController {
         final response = await http.get(Uri.parse(url), headers: headers);
         if (response.statusCode == 200) {
           Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-          List<dynamic> PayableList = jsonResponse["data"];
-          List<PayableModel> receivableData =
-              PayableList.map((payable) => PayableModel.fromJson(payable))
-                  .toList();
+          List<dynamic> payableList = jsonResponse["data"];
+          List<PayableModel> receivableData = payableList
+              .map((payable) => PayableModel.fromJson(payable))
+              .toList();
           payables.clear();
           payables.addAll(receivableData);
           lengthofPayableList.value = payables.length;
-        
+        } else {
+          final responseData = jsonDecode(response.body);
+          final errorMessage = responseData['message'];
+          message.value = errorMessage;
+          print(message);
+        }
+      } catch (e) {
+        errorMessage.value = e.toString();
+        print(errorMessage);
+      } finally {
+        setIsLoadingTofalse();
+      }
+    }
+  } 
+
+  Future<void> fetchArchievePayables() async {
+    final pref = await SharedPreferences.getInstance();
+    String? token = pref.getString("token");
+    if (token != null) {
+      try {
+        var headers = ApiEndPoints().setHeaderToken(token);
+        var url =
+            ApiEndPoints.baseUrl + ApiEndPoints.payableEndPoints.payableArchieveList;
+        final response = await http.get(Uri.parse(url), headers: headers);
+        if (response.statusCode == 200) {
+          Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+          List<dynamic> payableList = jsonResponse["data"];
+          List<PayableModel> data = payableList
+              .map((payable) => PayableModel.fromJson(payable))
+              .toList();
+          archivePayables.clear();
+          archivePayables.addAll(data);
         } else {
           final responseData = jsonDecode(response.body);
           final errorMessage = responseData['message'];
@@ -218,6 +281,7 @@ class PayableController extends GetxController {
       }
     }
   }
+
 
   // Fetch Supplier from API
   Future<void> fetchSupplier() async {
@@ -261,11 +325,9 @@ class PayableController extends GetxController {
   bool validation() {
     if (amount.text.isEmpty) {
       amountValidation.value = "Amount field is required";
-    } 
-    else if(double.parse(amount.text)<=0 || amount.text.startsWith('00')){
+    } else if (double.parse(amount.text) <= 0 || amount.text.startsWith('00')) {
       amountValidation.value = "The amount must be greather than 0";
-    } 
-    else {
+    } else {
       amountValidation.value = "";
     }
     if (selectedDueDate.value.isEmpty) {
@@ -289,11 +351,6 @@ class PayableController extends GetxController {
     } else {
       selectedPaymentTermValidation.value = "";
     }
-    if (selectedDueDate.isEmpty) {
-      dueDateValidation.value = "Please select Due Date";
-    } else {
-      dueDateValidation.value = "";
-    }
 
     return selectedSupplierValidation.isEmpty &&
         dueDateValidation.isEmpty &&
@@ -309,7 +366,6 @@ class PayableController extends GetxController {
     return !isLoading.value;
   }
 }
-
 
 /**
  * 

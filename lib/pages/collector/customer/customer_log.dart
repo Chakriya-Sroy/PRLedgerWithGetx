@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:laravelsingup/controller/customer.dart';
 import 'package:laravelsingup/pages/collector/customer/customerDetail.dart';
 import 'package:laravelsingup/pages/merchant/customer/customer_receivable.dart';
@@ -18,7 +19,6 @@ class _CustomerLogTransactionState extends State<CustomerLogTransaction> {
   final String id = Get.arguments;
   @override
   void initState() {
-    // TODO: implement initState 
     super.initState();
      WidgetsBinding.instance.addPostFrameCallback((_) {
       customerController.setIsloadingToTrue();
@@ -37,7 +37,7 @@ class _CustomerLogTransactionState extends State<CustomerLogTransaction> {
           )
         : Scaffold(
             appBar: AppBar(
-              title: Text(customerController.customer.value!.name,style: TextStyle(color: Colors.white),),
+              title: Text(customerController.customer.value!.name,style: const TextStyle(color: Colors.white),),
               centerTitle: true,
               backgroundColor: Colors.green,
               leading: GestureDetector(
@@ -84,14 +84,14 @@ class _CustomerLogTransactionState extends State<CustomerLogTransaction> {
                       const SizedBox(
                         height: 10,
                       ),
-                      Obx(() =>customerController.transactionLength == 0 ? const SizedBox() : TransactionLog(customerController) )
+                      Obx(() =>customerController.transactions.isEmpty? const SizedBox() : transactionLog(customerController) )
                     ],
                   )),
             )));
   }
 }
 
-ListView TransactionLog(CustomerController customerController) {
+ListView transactionLog(CustomerController customerController) {
   return ListView.builder(
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
@@ -99,7 +99,9 @@ ListView TransactionLog(CustomerController customerController) {
       itemBuilder: (context, index) {
         return Column(
           children: [
-            TransactionLogCard(
+            transactionLogCard(
+              receivableId: customerController.transactions[index].id.toString(),
+              receivableCreatedDate: customerController.transactions[index].receivableCreated,
               amount: customerController.transactions[index].amount,
               transactionType:
                   customerController.transactions[index].transactionType,
@@ -112,8 +114,11 @@ ListView TransactionLog(CustomerController customerController) {
       });
 }
 
-Container TransactionLogCard(
-    {required double amount,
+Container transactionLogCard(
+    {
+    required String  receivableId,
+    required String  receivableCreatedDate,
+    required double amount,
     required String transactionDate,
     required String transactionType}) {
   return Container(
@@ -126,7 +131,7 @@ Container TransactionLogCard(
       boxShadow: [
         BoxShadow(
           color: Colors.grey.shade300,
-          offset: Offset(4.0, 4.0),
+          offset:const  Offset(4.0, 4.0),
           blurRadius: 10.0,
           spreadRadius: 1.0,
         )
@@ -136,14 +141,14 @@ Container TransactionLogCard(
       children: [
         AttributeRow(
             applyToAttribute: true,
-            AttributeTextStyle: TextStyle(color: Colors.green),
-            attribute: transactionType == 'receivable' ? "Ref#" : "Payment",
+            AttributeTextStyle:const TextStyle(color: Colors.green),
+            attribute: transactionType == 'receivable' ?"Ref#${DateFormat('yyyyMMdd').format(DateTime.parse(receivableCreatedDate.toString()))}${receivableId}" : "Payment#${DateFormat('yyyyMMdd').format(DateTime.parse(receivableCreatedDate.toString()))}${receivableId}",
             value: "\$ $amount"),
         Align(
           alignment: Alignment.centerRight,
           child: Text(
             transactionDate,
-            style: TextStyle(fontSize: 10),
+            style:const  TextStyle(fontSize: 10),
           ),
         )
       ],
